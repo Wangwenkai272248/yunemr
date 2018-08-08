@@ -32,8 +32,7 @@ public class ThreeService {
     public void write2file(Map<String, Map<String, Integer>> data) {
         BufferedWriter bufferedWriter = null;
 //        File file = new File("/data/1/CDSS/3院骨科漏诊数据.txt");
-//        File file = new File(CdssConstans.DEVURL + "3院疾病不同科室诊断列表.txt");
-        File file = new File("3院疾病不同科室诊断列表.txt");
+        File file = new File(CdssConstans.DEVURL + "3院疾病不同科室诊断列表.txt");
         if (!file.exists()) {
             try {
                 file.createNewFile();
