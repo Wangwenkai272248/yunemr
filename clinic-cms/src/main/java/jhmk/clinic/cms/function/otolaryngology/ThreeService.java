@@ -128,8 +128,8 @@ public class ThreeService {
         List<Document> countPatientId = Arrays.asList(
                 new Document("$unwind", "$shouyezhenduan"),
                 new Document("$project", new Document("_id", 1).append("shouyezhenduan", 1))
-                , new Document("$skip", 0),
-                new Document("$limit", 5000)
+//                , new Document("$skip", 0),
+//                new Document("$limit", 5000)
         );
         AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
         for (Document document : binli) {
