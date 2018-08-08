@@ -1,0 +1,201 @@
+20180802 09:22:50.710 [cluster-ClusterId{value='5b61a17c6a38623df097d596', description='null'}-192.168.8.22:20000] INFO  org.mongodb.driver.cluster - Exception in monitor thread while connecting to server 192.168.8.22:20000
+com.mongodb.MongoSocketOpenException: Exception opening socket
+	at com.mongodb.connection.SocketStream.open(SocketStream.java:63)
+	at com.mongodb.connection.InternalStreamConnection.open(InternalStreamConnection.java:115)
+	at com.mongodb.connection.DefaultServerMonitor$ServerMonitorRunnable.run(DefaultServerMonitor.java:127)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.net.NoRouteToHostException: No route to host: connect
+	at java.net.DualStackPlainSocketImpl.waitForConnect(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketConnect(DualStackPlainSocketImpl.java:85)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:345)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:172)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:589)
+	at com.mongodb.connection.SocketStreamHelper.initialize(SocketStreamHelper.java:57)
+	at com.mongodb.connection.SocketStream.open(SocketStream.java:58)
+	... 3 common frames omitted
+20180802 09:23:00.980 [cluster-ClusterId{value='5b61a17c6a38623df097d596', description='null'}-192.168.8.22:20000] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:3}] to 192.168.8.22:20000
+20180802 09:23:00.986 [cluster-ClusterId{value='5b61a17c6a38623df097d596', description='null'}-192.168.8.22:20000] INFO  org.mongodb.driver.cluster - Monitor thread successfully connected to server with description ServerDescription{address=192.168.8.22:20000, type=SHARD_ROUTER, state=CONNECTED, ok=true, version=ServerVersion{versionList=[3, 4, 6]}, minWireVersion=0, maxWireVersion=5, maxDocumentSize=16777216, roundTripTimeNanos=5713559}
+20180802 09:44:21.168 [restartedMain] INFO  jhmk.clinic.cms.ApplicationCms - Starting ApplicationCms on DESKTOP-ARC2DAD with PID 8776 (C:\jhmkProgram\cloudclinic\clinic-cms\target\classes started by 11075 in C:\jhmkProgram\cloudclinic)
+20180802 09:44:21.170 [restartedMain] DEBUG jhmk.clinic.cms.ApplicationCms - Running with Spring Boot v1.5.4.RELEASE, Spring v4.3.9.RELEASE
+20180802 09:44:21.170 [restartedMain] INFO  jhmk.clinic.cms.ApplicationCms - No active profile set, falling back to default profiles: default
+20180802 09:44:21.257 [restartedMain] INFO  org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext - Refreshing org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@2f688ed4: startup date [Thu Aug 02 09:44:21 CST 2018]; root of context hierarchy
+20180802 09:44:21.385 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 5.3.5.Final
+20180802 09:44:24.845 [restartedMain] INFO  org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer - Tomcat initialized with port(s): 7088 (http)
+20180802 09:44:24.858 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+20180802 09:44:24.859 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet Engine: Apache Tomcat/8.5.15
+20180802 09:44:24.982 [localhost-startStop-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+20180802 09:44:24.983 [localhost-startStop-1] INFO  org.springframework.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 3726 ms
+20180802 09:44:25.211 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.ServletRegistrationBean - Mapping servlet: 'dispatcherServlet' to [/]
+20180802 09:44:25.219 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'characterEncodingFilter' to: [/*]
+20180802 09:44:25.220 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+20180802 09:44:25.221 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+20180802 09:44:25.221 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'requestContextFilter' to: [/*]
+20180802 09:44:27.819 [restartedMain] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Building JPA container EntityManagerFactory for persistence unit 'default'
+20180802 09:44:27.832 [restartedMain] INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+20180802 09:44:27.919 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate Core {5.0.12.Final}
+20180802 09:44:27.922 [restartedMain] INFO  org.hibernate.cfg.Environment - HHH000206: hibernate.properties not found
+20180802 09:44:27.924 [restartedMain] INFO  org.hibernate.cfg.Environment - HHH000021: Bytecode provider name : javassist
+20180802 09:44:27.981 [restartedMain] INFO  org.hibernate.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.0.1.Final}
+20180802 09:44:28.154 [restartedMain] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL5Dialect
+20180802 09:44:28.899 [restartedMain] INFO  org.hibernate.tool.hbm2ddl.SchemaUpdate - HHH000228: Running hbm2ddl schema update
+20180802 09:44:32.562 [restartedMain] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+20180802 09:44:32.963 [restartedMain] INFO  org.hibernate.hql.internal.QueryTranslatorFactoryInitiator - HHH000397: Using ASTQueryTranslatorFactory
+20180802 09:44:33.563 [restartedMain] INFO  org.mongodb.driver.cluster - Cluster created with settings {hosts=[192.168.8.22:20000], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms', maxWaitQueueSize=1000}
+20180802 09:44:33.685 [cluster-ClusterId{value='5b6262016a38622248d6ea80', description='null'}-192.168.8.22:20000] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:1}] to 192.168.8.22:20000
+20180802 09:44:33.693 [cluster-ClusterId{value='5b6262016a38622248d6ea80', description='null'}-192.168.8.22:20000] INFO  org.mongodb.driver.cluster - Monitor thread successfully connected to server with description ServerDescription{address=192.168.8.22:20000, type=SHARD_ROUTER, state=CONNECTED, ok=true, version=ServerVersion{versionList=[3, 4, 6]}, minWireVersion=0, maxWireVersion=5, maxDocumentSize=16777216, roundTripTimeNanos=6139093}
+20180802 09:44:34.335 [restartedMain] INFO  org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter - Looking for @ControllerAdvice: org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@2f688ed4: startup date [Thu Aug 02 09:44:21 CST 2018]; root of context hierarchy
+20180802 09:44:34.493 [restartedMain] INFO  org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+20180802 09:44:34.493 [restartedMain] INFO  org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+20180802 09:44:34.563 [restartedMain] INFO  org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+20180802 09:44:35.052 [restartedMain] INFO  org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+20180802 09:44:35.386 [restartedMain] INFO  org.springframework.jmx.export.annotation.AnnotationMBeanExporter - Registering beans for JMX exposure on startup
+20180802 09:44:35.421 [restartedMain] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-7088"]
+20180802 09:44:35.462 [restartedMain] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-7088"]
+20180802 09:44:35.498 [restartedMain] INFO  org.apache.tomcat.util.net.NioSelectorPool - Using a shared selector for servlet write/read
+20180802 09:44:35.556 [restartedMain] INFO  org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer - Tomcat started on port(s): 7088 (http)
+20180802 09:44:35.564 [restartedMain] INFO  jhmk.clinic.cms.ApplicationCms - Started ApplicationCms in 15.217 seconds (JVM running for 17.416)
+20180802 09:46:27.521 [http-nio-7088-exec-2] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring FrameworkServlet 'dispatcherServlet'
+20180802 09:46:27.521 [http-nio-7088-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - FrameworkServlet 'dispatcherServlet': initialization started
+20180802 09:46:27.555 [http-nio-7088-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - FrameworkServlet 'dispatcherServlet': initialization completed in 34 ms
+20180802 09:46:28.409 [http-nio-7088-exec-2] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:2}] to 192.168.8.22:20000
+20180802 09:46:48.217 [pool-3-thread-3] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:4}] to 192.168.8.22:20000
+20180802 09:46:48.226 [pool-3-thread-4] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:5}] to 192.168.8.22:20000
+20180802 09:46:48.228 [pool-3-thread-6] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:9}] to 192.168.8.22:20000
+20180802 09:46:48.229 [pool-3-thread-8] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:7}] to 192.168.8.22:20000
+20180802 09:46:48.230 [pool-3-thread-5] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:6}] to 192.168.8.22:20000
+20180802 09:46:48.232 [pool-3-thread-7] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:8}] to 192.168.8.22:20000
+20180802 09:46:49.307 [pool-3-thread-2] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:3}] to 192.168.8.22:20000
+20180802 09:47:50.717 [restartedMain] INFO  jhmk.clinic.cms.ApplicationCms - Starting ApplicationCms on DESKTOP-ARC2DAD with PID 4716 (C:\jhmkProgram\cloudclinic\clinic-cms\target\classes started by 11075 in C:\jhmkProgram\cloudclinic)
+20180802 09:47:50.718 [restartedMain] DEBUG jhmk.clinic.cms.ApplicationCms - Running with Spring Boot v1.5.4.RELEASE, Spring v4.3.9.RELEASE
+20180802 09:47:50.719 [restartedMain] INFO  jhmk.clinic.cms.ApplicationCms - No active profile set, falling back to default profiles: default
+20180802 09:47:50.797 [restartedMain] INFO  org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext - Refreshing org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@297a2c5d: startup date [Thu Aug 02 09:47:50 CST 2018]; root of context hierarchy
+20180802 09:47:50.918 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 5.3.5.Final
+20180802 09:47:54.417 [restartedMain] INFO  org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer - Tomcat initialized with port(s): 7088 (http)
+20180802 09:47:54.430 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+20180802 09:47:54.431 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet Engine: Apache Tomcat/8.5.15
+20180802 09:47:54.554 [localhost-startStop-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+20180802 09:47:54.554 [localhost-startStop-1] INFO  org.springframework.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 3757 ms
+20180802 09:47:54.779 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.ServletRegistrationBean - Mapping servlet: 'dispatcherServlet' to [/]
+20180802 09:47:54.787 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'characterEncodingFilter' to: [/*]
+20180802 09:47:54.787 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+20180802 09:47:54.787 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+20180802 09:47:54.788 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'requestContextFilter' to: [/*]
+20180802 09:48:12.913 [restartedMain] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Building JPA container EntityManagerFactory for persistence unit 'default'
+20180802 09:48:12.926 [restartedMain] INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+20180802 09:48:13.007 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate Core {5.0.12.Final}
+20180802 09:48:13.011 [restartedMain] INFO  org.hibernate.cfg.Environment - HHH000206: hibernate.properties not found
+20180802 09:48:13.012 [restartedMain] INFO  org.hibernate.cfg.Environment - HHH000021: Bytecode provider name : javassist
+20180802 09:48:13.073 [restartedMain] INFO  org.hibernate.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.0.1.Final}
+20180802 09:48:13.223 [restartedMain] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL5Dialect
+20180802 09:48:13.977 [restartedMain] INFO  org.hibernate.tool.hbm2ddl.SchemaUpdate - HHH000228: Running hbm2ddl schema update
+20180802 09:48:52.702 [restartedMain] INFO  jhmk.clinic.cms.ApplicationCms - Starting ApplicationCms on DESKTOP-ARC2DAD with PID 13432 (C:\jhmkProgram\cloudclinic\clinic-cms\target\classes started by 11075 in C:\jhmkProgram\cloudclinic)
+20180802 09:48:52.705 [restartedMain] DEBUG jhmk.clinic.cms.ApplicationCms - Running with Spring Boot v1.5.4.RELEASE, Spring v4.3.9.RELEASE
+20180802 09:48:52.705 [restartedMain] INFO  jhmk.clinic.cms.ApplicationCms - No active profile set, falling back to default profiles: default
+20180802 09:48:52.786 [restartedMain] INFO  org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext - Refreshing org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@53e9fd7f: startup date [Thu Aug 02 09:48:52 CST 2018]; root of context hierarchy
+20180802 09:48:52.899 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 5.3.5.Final
+20180802 09:48:56.290 [restartedMain] INFO  org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer - Tomcat initialized with port(s): 7088 (http)
+20180802 09:48:56.304 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+20180802 09:48:56.305 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet Engine: Apache Tomcat/8.5.15
+20180802 09:48:56.437 [localhost-startStop-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+20180802 09:48:56.437 [localhost-startStop-1] INFO  org.springframework.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 3651 ms
+20180802 09:48:56.661 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.ServletRegistrationBean - Mapping servlet: 'dispatcherServlet' to [/]
+20180802 09:48:56.667 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'characterEncodingFilter' to: [/*]
+20180802 09:48:56.668 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+20180802 09:48:56.668 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+20180802 09:48:56.668 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'requestContextFilter' to: [/*]
+20180802 09:49:02.586 [restartedMain] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Building JPA container EntityManagerFactory for persistence unit 'default'
+20180802 09:49:02.599 [restartedMain] INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+20180802 09:49:02.681 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate Core {5.0.12.Final}
+20180802 09:49:02.685 [restartedMain] INFO  org.hibernate.cfg.Environment - HHH000206: hibernate.properties not found
+20180802 09:49:02.686 [restartedMain] INFO  org.hibernate.cfg.Environment - HHH000021: Bytecode provider name : javassist
+20180802 09:49:02.744 [restartedMain] INFO  org.hibernate.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.0.1.Final}
+20180802 09:49:02.930 [restartedMain] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL5Dialect
+20180802 09:49:03.648 [restartedMain] INFO  org.hibernate.tool.hbm2ddl.SchemaUpdate - HHH000228: Running hbm2ddl schema update
+20180802 09:49:39.747 [restartedMain] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+20180802 09:49:40.316 [restartedMain] INFO  org.hibernate.hql.internal.QueryTranslatorFactoryInitiator - HHH000397: Using ASTQueryTranslatorFactory
+20180802 09:49:40.852 [restartedMain] INFO  org.mongodb.driver.cluster - Cluster created with settings {hosts=[192.168.8.22:20000], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms', maxWaitQueueSize=1000}
+20180802 09:49:41.641 [restartedMain] INFO  org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter - Looking for @ControllerAdvice: org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@53e9fd7f: startup date [Thu Aug 02 09:48:52 CST 2018]; root of context hierarchy
+20180802 09:49:41.703 [cluster-ClusterId{value='5b6263346a38623478a46118', description='null'}-192.168.8.22:20000] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:1}] to 192.168.8.22:20000
+20180802 09:49:41.789 [restartedMain] INFO  org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+20180802 09:49:41.789 [restartedMain] INFO  org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+20180802 09:49:41.849 [restartedMain] INFO  org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+20180802 09:49:41.892 [cluster-ClusterId{value='5b6263346a38623478a46118', description='null'}-192.168.8.22:20000] INFO  org.mongodb.driver.cluster - Monitor thread successfully connected to server with description ServerDescription{address=192.168.8.22:20000, type=SHARD_ROUTER, state=CONNECTED, ok=true, version=ServerVersion{versionList=[3, 4, 6]}, minWireVersion=0, maxWireVersion=5, maxDocumentSize=16777216, roundTripTimeNanos=188181180}
+20180802 09:49:42.280 [restartedMain] INFO  org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+20180802 09:49:42.419 [restartedMain] INFO  org.springframework.jmx.export.annotation.AnnotationMBeanExporter - Registering beans for JMX exposure on startup
+20180802 09:49:42.437 [restartedMain] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-7088"]
+20180802 09:49:42.449 [restartedMain] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-7088"]
+20180802 09:49:42.466 [restartedMain] INFO  org.apache.tomcat.util.net.NioSelectorPool - Using a shared selector for servlet write/read
+20180802 09:49:42.492 [restartedMain] INFO  org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer - Tomcat started on port(s): 7088 (http)
+20180802 09:49:42.502 [restartedMain] INFO  jhmk.clinic.cms.ApplicationCms - Started ApplicationCms in 50.617 seconds (JVM running for 52.345)
+20180802 09:51:40.648 [http-nio-7088-exec-2] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring FrameworkServlet 'dispatcherServlet'
+20180802 09:51:40.648 [http-nio-7088-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - FrameworkServlet 'dispatcherServlet': initialization started
+20180802 09:51:40.682 [http-nio-7088-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - FrameworkServlet 'dispatcherServlet': initialization completed in 34 ms
+20180802 09:51:40.784 [http-nio-7088-exec-2] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:2}] to 192.168.8.22:20000
+20180802 09:51:49.568 [pool-3-thread-8] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:9}] to 192.168.8.22:20000
+20180802 09:51:49.568 [pool-3-thread-7] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:7}] to 192.168.8.22:20000
+20180802 09:51:49.569 [pool-3-thread-5] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:5}] to 192.168.8.22:20000
+20180802 09:51:49.570 [pool-3-thread-4] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:3}] to 192.168.8.22:20000
+20180802 09:51:49.571 [pool-3-thread-2] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:6}] to 192.168.8.22:20000
+20180802 09:51:49.570 [pool-3-thread-6] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:8}] to 192.168.8.22:20000
+20180802 09:51:49.571 [pool-3-thread-1] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:4}] to 192.168.8.22:20000
+20180802 10:22:28.144 [restartedMain] INFO  jhmk.clinic.cms.ApplicationCms - Starting ApplicationCms on DESKTOP-ARC2DAD with PID 18160 (C:\jhmkProgram\cloudclinic\clinic-cms\target\classes started by 11075 in C:\jhmkProgram\cloudclinic)
+20180802 10:22:28.146 [restartedMain] DEBUG jhmk.clinic.cms.ApplicationCms - Running with Spring Boot v1.5.4.RELEASE, Spring v4.3.9.RELEASE
+20180802 10:22:28.146 [restartedMain] INFO  jhmk.clinic.cms.ApplicationCms - No active profile set, falling back to default profiles: default
+20180802 10:22:28.235 [restartedMain] INFO  org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext - Refreshing org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@1d9410c0: startup date [Thu Aug 02 10:22:28 CST 2018]; root of context hierarchy
+20180802 10:22:28.348 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 5.3.5.Final
+20180802 10:22:31.478 [restartedMain] INFO  org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer - Tomcat initialized with port(s): 7088 (http)
+20180802 10:22:31.492 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+20180802 10:22:31.493 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet Engine: Apache Tomcat/8.5.15
+20180802 10:22:31.633 [localhost-startStop-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+20180802 10:22:31.634 [localhost-startStop-1] INFO  org.springframework.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 3400 ms
+20180802 10:22:31.869 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.ServletRegistrationBean - Mapping servlet: 'dispatcherServlet' to [/]
+20180802 10:22:31.876 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'characterEncodingFilter' to: [/*]
+20180802 10:22:31.877 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+20180802 10:22:31.877 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+20180802 10:22:31.877 [localhost-startStop-1] INFO  org.springframework.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'requestContextFilter' to: [/*]
+20180802 10:22:34.298 [restartedMain] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Building JPA container EntityManagerFactory for persistence unit 'default'
+20180802 10:22:34.310 [restartedMain] INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+20180802 10:22:34.387 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate Core {5.0.12.Final}
+20180802 10:22:34.392 [restartedMain] INFO  org.hibernate.cfg.Environment - HHH000206: hibernate.properties not found
+20180802 10:22:34.393 [restartedMain] INFO  org.hibernate.cfg.Environment - HHH000021: Bytecode provider name : javassist
+20180802 10:22:34.451 [restartedMain] INFO  org.hibernate.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.0.1.Final}
+20180802 10:22:34.608 [restartedMain] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL5Dialect
+20180802 10:22:35.342 [restartedMain] INFO  org.hibernate.tool.hbm2ddl.SchemaUpdate - HHH000228: Running hbm2ddl schema update
+20180802 10:22:38.740 [restartedMain] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+20180802 10:22:39.414 [restartedMain] INFO  org.hibernate.hql.internal.QueryTranslatorFactoryInitiator - HHH000397: Using ASTQueryTranslatorFactory
+20180802 10:22:40.010 [restartedMain] INFO  org.mongodb.driver.cluster - Cluster created with settings {hosts=[192.168.8.22:20000], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms', maxWaitQueueSize=1000}
+20180802 10:22:40.134 [cluster-ClusterId{value='5b626af06a386246f064bed9', description='null'}-192.168.8.22:20000] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:1}] to 192.168.8.22:20000
+20180802 10:22:40.144 [cluster-ClusterId{value='5b626af06a386246f064bed9', description='null'}-192.168.8.22:20000] INFO  org.mongodb.driver.cluster - Monitor thread successfully connected to server with description ServerDescription{address=192.168.8.22:20000, type=SHARD_ROUTER, state=CONNECTED, ok=true, version=ServerVersion{versionList=[3, 4, 6]}, minWireVersion=0, maxWireVersion=5, maxDocumentSize=16777216, roundTripTimeNanos=6771919}
+20180802 10:22:40.808 [restartedMain] INFO  org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter - Looking for @ControllerAdvice: org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@1d9410c0: startup date [Thu Aug 02 10:22:28 CST 2018]; root of context hierarchy
+20180802 10:22:41.085 [restartedMain] INFO  org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+20180802 10:22:41.085 [restartedMain] INFO  org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+20180802 10:22:41.166 [restartedMain] INFO  org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+20180802 10:22:41.634 [restartedMain] INFO  org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+20180802 10:22:41.782 [restartedMain] INFO  org.springframework.jmx.export.annotation.AnnotationMBeanExporter - Registering beans for JMX exposure on startup
+20180802 10:22:41.802 [restartedMain] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-7088"]
+20180802 10:22:41.817 [restartedMain] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-7088"]
+20180802 10:22:41.830 [restartedMain] INFO  org.apache.tomcat.util.net.NioSelectorPool - Using a shared selector for servlet write/read
+20180802 10:22:41.862 [restartedMain] INFO  org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer - Tomcat started on port(s): 7088 (http)
+20180802 10:22:41.870 [restartedMain] INFO  jhmk.clinic.cms.ApplicationCms - Started ApplicationCms in 14.835 seconds (JVM running for 17.101)
+20180802 10:22:57.984 [http-nio-7088-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring FrameworkServlet 'dispatcherServlet'
+20180802 10:22:57.984 [http-nio-7088-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - FrameworkServlet 'dispatcherServlet': initialization started
+20180802 10:22:58.022 [http-nio-7088-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - FrameworkServlet 'dispatcherServlet': initialization completed in 38 ms
+20180802 10:22:58.123 [http-nio-7088-exec-1] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:2}] to 192.168.8.22:20000
+20180802 10:23:06.943 [pool-3-thread-5] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:5}] to 192.168.8.22:20000
+20180802 10:23:06.943 [pool-3-thread-6] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:7}] to 192.168.8.22:20000
+20180802 10:23:06.943 [pool-3-thread-4] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:3}] to 192.168.8.22:20000
+20180802 10:23:06.944 [pool-3-thread-3] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:4}] to 192.168.8.22:20000
+20180802 10:23:06.944 [pool-3-thread-8] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:8}] to 192.168.8.22:20000
+20180802 10:23:06.945 [pool-3-thread-2] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:6}] to 192.168.8.22:20000
+20180802 10:23:06.945 [pool-3-thread-7] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:9}] to 192.168.8.22:20000

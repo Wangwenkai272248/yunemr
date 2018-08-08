@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+    <property name="connection.url">jdbc:mysql://192.168.8.22:3306/yunemr</property>
+    <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+      <mapping class="jhmk.clinic.entity.pojo.BizDrugInput"/>
+      <mapping class="jhmk.clinic.entity.pojo.BizFeeInvoice"/>
+      <mapping class="jhmk.clinic.entity.pojo.BizPatInfo"/>
+      <mapping class="jhmk.clinic.entity.pojo.BizPatVisit"/>
+      <mapping class="jhmk.clinic.entity.pojo.BizRecipeDrug"/>
+      <mapping class="jhmk.clinic.entity.pojo.BizRecipeItem"/>
+      <mapping class="jhmk.clinic.entity.pojo.DeptDict"/>
+      <mapping class="jhmk.clinic.entity.pojo.DictDrug"/>
+      <mapping class="jhmk.clinic.entity.pojo.DictEnum"/>
+      <mapping class="jhmk.clinic.entity.pojo.DictItem"/>
+      <mapping class="jhmk.clinic.entity.pojo.HospitalConfig"/>
+      <mapping class="jhmk.clinic.entity.pojo.JhauthRoleDict"/>
+      <mapping class="jhmk.clinic.entity.pojo.JhauthRoleGroup"/>
+      <mapping class="jhmk.clinic.entity.pojo.JhauthRoleGroupVsRole"/>
+      <mapping class="jhmk.clinic.entity.pojo.JhauthUserVsGroup"/>
+      <mapping class="jhmk.clinic.entity.pojo.JhauthUserVsRole"/>
+      <mapping class="jhmk.clinic.entity.pojo.JhauthUserVsRoleGroup"/>
+      <mapping class="jhmk.clinic.entity.pojo.JhauthUserVsRoleLog"/>
+      <mapping class="jhmk.clinic.entity.pojo.JhinpatMrOnLine"/>
+      <mapping class="jhmk.clinic.entity.pojo.JhoutpatVisit"/>
+      <mapping class="jhmk.clinic.entity.pojo.PatInfo"/>
+      <mapping class="jhmk.clinic.entity.pojo.PatMasterIndex"/>
+      <mapping class="jhmk.clinic.entity.pojo.PatVisit"/>
+      <mapping class="jhmk.clinic.entity.pojo.PatsInHospital"/>
+      <mapping class="jhmk.clinic.entity.pojo.RecipeDrug"/>
+      <mapping class="jhmk.clinic.entity.pojo.RecipeItem"/>
+      <mapping class="jhmk.clinic.entity.pojo.ShiroFunction"/>
+      <mapping class="jhmk.clinic.entity.pojo.ShiroRole"/>
+      <mapping class="jhmk.clinic.entity.pojo.ShiroRoleFunction"/>
+      <mapping class="jhmk.clinic.entity.pojo.ShiroUser"/>
+      <mapping class="jhmk.clinic.entity.pojo.ShiroUserRole"/>
+      <mapping class="jhmk.clinic.entity.pojo.SmUsers"/>
+      <mapping class="jhmk.clinic.entity.pojo.Users"/>
+      <mapping class="jhmk.clinic.entity.pojo.Users1"/>
+      <mapping class="jhmk.clinic.entity.pojo.DiseasesList"/>
+      <mapping class="jhmk.clinic.entity.pojo.SysHospitalDept"/>
+      <mapping class="jhmk.clinic.entity.pojo.JhauthRemind"/>
+      <!-- <property name="connection.username"/> -->
+    <!-- <property name="connection.password"/> -->
+
+    <!-- DB schema will be updated if needed -->
+    <!-- <property name="hbm2ddl.auto">update</property> -->
+  </session-factory>
+</hibernate-configuration>
