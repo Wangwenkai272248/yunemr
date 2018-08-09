@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import jhmk.clinic.core.config.CdssConstans;
+import jhmk.clinic.core.util.CompareUtil;
 import jhmk.clinic.entity.bean.Misdiagnosis;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -56,6 +57,32 @@ public class ThreeService {
         }
 
     }
+    public void write2file(String s) {
+        BufferedWriter bufferedWriter = null;
+//        File file = new File("/data/1/CDSS/3院骨科漏诊数据.txt");
+        File file = new File(CdssConstans.DEVURL + "3院疾病不同科室诊断列表.txt");
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter.write(s);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                bufferedWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 
     /**
      * 获取最终结果
@@ -73,7 +100,6 @@ public class ThreeService {
                 tempMap.put(key, value);
             }
         }
-
         Map<String, Map<String, Integer>> temp = new HashMap<>();
         Map<String, Map<String, Integer>> deptIllCount = getDeptIllCount(tempMap);
         for (Map.Entry<String, Map<String, Integer>> entry : deptIllCount.entrySet()) {
@@ -86,6 +112,53 @@ public class ThreeService {
 
         }
         return temp;
+    }
+
+
+    public String sortMap(Map<String, Map<String, Integer>> parse) {
+
+        Map<String, Map<String, Integer>> parse1 = new HashMap<>();
+        for (Map.Entry<String, Map<String, Integer>> entry : parse.entrySet()) {
+            String key = entry.getKey();
+            Map<String, Integer> value = entry.getValue();
+            Map<String, Integer> map1 = CompareUtil.compareMapValue(value);
+            parse1.put(key, map1);
+        }
+
+
+        ArrayList<Map.Entry<String, Map<String, Integer>>> list = new ArrayList<>(parse1.entrySet());
+        //然后通过比较器来实现排序
+        Collections.sort(list, new Comparator<Map.Entry<String, Map<String, Integer>>>() {
+            //升序排序
+            @Override
+            public int compare(Map.Entry<String, Map<String, Integer>> o1,
+                               Map.Entry<String, Map<String, Integer>> o2) {
+                int size1 = o1.getValue().size();
+                int size2 = o2.getValue().size();
+                return size1 == size2 ? 0 :
+                        (size1 < size2 ? 1 : -1);
+            }
+        });
+
+
+        Collections.sort(list, new Comparator<Map.Entry<String, Map<String, Integer>>>() {
+            //升序排序
+            @Override
+            public int compare(Map.Entry<String, Map<String, Integer>> o1,
+                               Map.Entry<String, Map<String, Integer>> o2) {
+
+                Map<String, Integer> value1 = o1.getValue();
+                String name1 = value1.keySet().iterator().next();
+                Map<String, Integer> value2 = o2.getValue();
+                String name2 = value2.keySet().iterator().next();
+                int size1 = value1.get(name1);
+                int size2 = value2.get(name2);
+                return size1 == size2 ? 0 :
+                        (size1 < size2 ? 1 : -1);
+            }
+        });
+        System.out.println(JSONObject.toJSONString(list));
+        return JSONObject.toJSONString(list);
     }
 
     /**
@@ -138,6 +211,10 @@ public class ThreeService {
             String diagnosis_desc = binglizhenduan.getString("diagnosis_desc");
             String diagnosis_type_code = binglizhenduan.getString("diagnosis_type_code");
             String diagnosis_num = binglizhenduan.getString("diagnosis_num");
+            String diagnosis_type_name = binglizhenduan.getString("diagnosis_type_name");
+            if (StringUtils.isBlank(diagnosis_type_name) || !"出院诊断".equals(diagnosis_type_name)) {
+                continue;
+            }
             if (StringUtils.isNotBlank(diagnosis_type_code)) {
                 if ("3".equals(diagnosis_type_code) && "1".equals(diagnosis_num)) {
                     if (maps.containsKey(diagnosis_name)) {

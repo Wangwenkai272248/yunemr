@@ -19,7 +19,8 @@ public class ThreeHospitalController {
     @RequestMapping("/getDeptIllCount")
     public void getDeptIllCount(){
         Map<String, Map<String, Integer>> resultData = threeService.getResultData();
-        threeService.write2file(resultData);
+        String s = threeService.sortMap(resultData);
+        threeService.write2file(s);
         System.out.println("斜土文件成功");
     }
 

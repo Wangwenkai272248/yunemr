@@ -2,11 +2,11 @@ package jhmk.clinic.cms.service;
 
 import jhmk.clinic.cms.controller.ruleService.BasyService;
 import jhmk.clinic.core.util.MyThreadPoolManager;
-import jhmk.clinic.core.util.RedisCacheUtil;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -20,8 +20,9 @@ import java.util.concurrent.ExecutorService;
  */
 @Service
 public class InitService {
+
     @Autowired
-    RedisCacheUtil redisCacheUtil;
+    public RedisTemplate redisTemplate;
     //疾病集合
     static Set<String> liiNames = new HashSet<>();
     //病例集合
@@ -32,9 +33,11 @@ public class InitService {
 
     @PostConstruct
     public void init() throws Exception {
-        readFile2Cache();
-        addCase2cache();
-        addDiseaseName2Cache();
+        System.out.println("初始化方法进来了啊");
+//        readFile2Cache();
+//        addCase2cache();
+//        addDiseaseName2Cache();
+//        redisTemplate.set
     }
 
     private void addDiseaseName2Cache() {
