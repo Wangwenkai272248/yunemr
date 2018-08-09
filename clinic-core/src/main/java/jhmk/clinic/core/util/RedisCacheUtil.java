@@ -12,6 +12,8 @@ import java.util.*;
 @Service
 public class RedisCacheUtil<T> {
 
+
+
     @Autowired
     public RedisTemplate redisTemplate;
 
