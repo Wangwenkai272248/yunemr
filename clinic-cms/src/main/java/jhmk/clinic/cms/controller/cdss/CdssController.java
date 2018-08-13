@@ -93,36 +93,99 @@ public class CdssController extends BaseController {
         wirte(response, o);
     }
 
+//    @PostMapping("/ranDomSel")
+//    @ResponseBody
+//    public void ranDomSelByIllName(HttpServletResponse response, @RequestBody(required = false) String map) {
+//        JSONObject jsonObject = JSONObject.parseObject(map);
+//        if (StringUtils.isNotBlank(map) && jsonObject != null && StringUtils.isNotBlank(jsonObject.getString("dept_code"))) {
+//            String dept_code = jsonObject.getString("dept_code");
+//            List<CdssRuleBean> tem = new LinkedList<>();
+//            if (StringUtil.isChinese(dept_code)) {
+//
+//                for (CdssRuleBean cdssRuleBean : caseList) {
+//                    if (dept_code.equals(cdssRuleBean.getBinganshouye().get("pat_visit_dept_admission_to_name"))) {
+//                        tem.add(cdssRuleBean);
+//                    }
+//                }
+//                int round = (int) (Math.random() * tem.size());
+//                CdssRuleBean cdssTestBean = null;
+//                try {
+//
+//                    cdssTestBean = tem.get(round);
+//                } catch (NullPointerException e) {
+//
+//                    e.printStackTrace();
+//                    logger.info("错误提示{}" + e.getMessage());
+//                    ranDomSelByIllName(response, map);
+//                }
+//                Object o = JSONObject.toJSON(cdssTestBean);
+//                wirte(response, o);
+//            }
+//
+//        } else {
+//            int round = (int) (Math.random() * caseList.size());
+//            CdssRuleBean cdssTestBean = null;
+//            try {
+//
+//                cdssTestBean = caseList.get(round);
+//            } catch (NullPointerException e) {
+//
+//                e.printStackTrace();
+//                logger.info("错误提示{}" + e.getMessage());
+//                ranDomSelByIllName(response, map);
+//            }
+//            Object o = JSONObject.toJSON(cdssTestBean);
+//            wirte(response, o);
+//        }
+//
+//    }
     @PostMapping("/ranDomSel")
     @ResponseBody
     public void ranDomSelByIllName(HttpServletResponse response, @RequestBody(required = false) String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
-        if (StringUtils.isNotBlank(map) &&jsonObject!=null&& StringUtils.isNotBlank(jsonObject.getString("dept_code"))) {
-        String dept_code = jsonObject.getString("dept_code");
-                List<CdssRuleBean> tem = new LinkedList<>();
-                if (StringUtil.isChinese(dept_code)) {
+        if (StringUtils.isNotBlank(map) && jsonObject != null && StringUtils.isNotBlank(jsonObject.getString("dept_code"))) {
+            String dept_code = jsonObject.getString("dept_code");
+            String illName = jsonObject.getString("illName");
+            List<CdssRuleBean> tem = new LinkedList<>();
+            List<CdssRuleBean> resultTem = new LinkedList<>();
+            if (StringUtil.isChinese(dept_code)) {
 
-                    for (CdssRuleBean cdssRuleBean : caseList) {
-                        if (dept_code.equals(cdssRuleBean.getBinganshouye().get("pat_visit_dept_admission_to_name"))) {
-                            tem.add(cdssRuleBean);
+                for (CdssRuleBean cdssRuleBean : caseList) {
+                    if (dept_code.equals(cdssRuleBean.getBinganshouye().get("pat_visit_dept_admission_to_name"))) {
+                        tem.add(cdssRuleBean);
+                    }
+                }
+            } else {
+                tem = caseList;
+            }
+            if (StringUtils.isNotBlank(illName)) {
+                for (CdssRuleBean cdssRuleBean : tem) {
+                    List<Map<String, String>> shouyezhenduan = cdssRuleBean.getShouyezhenduan();
+                    for (int i = 0; i < shouyezhenduan.size(); i++) {
+                        Map<String, String> map1 = shouyezhenduan.get(i);
+                        if (illName.equals(map1.get("diagnosis_name")) && "1".equals(map1.get("diagnosis_num"))) {
+                            resultTem.add(cdssRuleBean);
                         }
                     }
-                    int round = (int) (Math.random() * tem.size());
-                    CdssRuleBean cdssTestBean = null;
-                    try {
-
-                        cdssTestBean = tem.get(round);
-                    } catch (NullPointerException e) {
-
-                        e.printStackTrace();
-                        logger.info("错误提示{}" + e.getMessage());
-                        ranDomSelByIllName(response, map);
-                    }
-                    Object o = JSONObject.toJSON(cdssTestBean);
-                    wirte(response, o);
                 }
+            } else {
+                resultTem = tem;
+            }
 
-        } else {
+            int round = (int) (Math.random() * resultTem.size());
+            CdssRuleBean cdssTestBean = null;
+            try {
+
+                cdssTestBean = resultTem.get(round);
+            } catch (NullPointerException e) {
+
+                e.printStackTrace();
+                logger.info("错误提示{}" + e.getMessage());
+                ranDomSelByIllName(response, map);
+            }
+            Object o = JSONObject.toJSON(cdssTestBean);
+            wirte(response, o);
+        }else {
             int round = (int) (Math.random() * caseList.size());
             CdssRuleBean cdssTestBean = null;
             try {
@@ -137,7 +200,6 @@ public class CdssController extends BaseController {
             Object o = JSONObject.toJSON(cdssTestBean);
             wirte(response, o);
         }
-
     }
 
     /**
@@ -256,7 +318,7 @@ public class CdssController extends BaseController {
                         Object parse = JSONObject.parse(string);
                         try {
                             s = restTemplate.postForObject(CdssConstans.URLFORRULE, parse, String.class);
-                            logger.info("匹配规则返回信息为{}",s);
+                            logger.info("匹配规则返回信息为{}", s);
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
                         }
@@ -269,74 +331,38 @@ public class CdssController extends BaseController {
         }
 
     }
-//    @PostMapping("/runRuleDatabase")
-//    @ResponseBody
-//    public void runRuleZhenDuan(HttpServletResponse response) throws IOException {
-//        ExecutorService exec = Executors.newFixedThreadPool(32);
-//
-////        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("C:/嘉和美康文档/cdss文本文件/数据库拼接信息.txt")));
-//
-//        //查询所有patientod
-//        List<String> list = cdssService.getAllIds();
-//        int size = list.size();
-//        //每个线程操作 数量
-//        int ncount = size / 32;
-//        List<String> tlist = null;
-//        Runnable runnable = null;
-//        for (int j = 0; j < 32; j++) {
-//            if (j == 32 - 1) {
-//                tlist = list.subList(j * ncount, size);
-//            } else {
-//                tlist = list.subList(j * ncount, (j + 1) * ncount);
-//
-//            }
-//            final List<String> templist = tlist;
-//            runnable = new Runnable() {
-//                @Override
-//                public void run() {
-//                    String s = "";
-//
-//                    for (String _id : templist) {
-//                        CdssRuleBean cdssRuleBean1 = cdssService.selruyuanjiluById(_id);
-//                        //获取1诉5史
-////                        SickBean sushi = cdssService.get1su5shi(selbinganshouye);
-//                        CdssRuleBean cdssRuleBean = cdssService.selBasy(cdssRuleBean1);
-//                        List<Map<String, String>> selbinglizhenduan = cdssService.selbinglizhenduan(_id);
-//                        cdssRuleBean.setBinglizhenduan(selbinglizhenduan);
-////                        List<Map<String, String>> syzd = cdssService.selSyzd(_id);
-////                        cdssRuleBean.setShouyezhenduan(syzd);
-//                        cdssRuleBean.setWarnSource("住院");
-//                        List<Map<String, String>> yzmaps = cdssService.selYizhu(_id);
-//                        cdssRuleBean.setYizhu(yzmaps);
-//
-//
-////                        List<Map<String, List<Map<String, String>>>> jianYan = cdssService.getJianYan(_id);
-//                        List<Map<String, String>> jianYan = cdssService.selJybg(_id);
-//                        cdssRuleBean.setJianyanbaogao(jianYan);
-//                        //检查报告
-//                        List<Map<String, String>> jcbg = cdssService.selJcbgList(_id);
-//                        cdssRuleBean.setJianchabaogao(jcbg);
-//                        String string = JSONObject.toJSONString(cdssRuleBean);
-//                        System.out.println(string);
-//                        if (string == null || "".equals(string)) {
-//                            continue;
-//                        }
-//                        Object parse = JSONObject.parse(string);
-//                        try {
-//                            s = restTemplate.postForObject(CdssConstans.URL, parse, String.class);
-//                        } catch (Exception e) {
-//                            System.out.println(e.getMessage());
-//                        }
-//                        System.out.println(s);
-//                    }
-//                    wirte(response, s);
-//
-//                }
-//            };
-//            exec.execute(runnable);
-//        }
-//
-//    }
+
+
+    @PostMapping("/getDateByIll")
+    @ResponseBody
+    public void getDateByIll(HttpServletResponse response, @RequestBody String map) {
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        String illName = jsonObject.getString("illName");
+        List<CdssRuleBean> tem = new LinkedList<>();
+
+        for (CdssRuleBean cdssRuleBean : caseList) {
+            List<Map<String, String>> shouyezhenduan = cdssRuleBean.getShouyezhenduan();
+            for (int i = 0; i < shouyezhenduan.size(); i++) {
+                Map<String, String> map1 = shouyezhenduan.get(i);
+                if (illName.equals(map1.get("diagnosis_name")) && "1".equals(map1.get("diagnosis_num"))) {
+                    tem.add(cdssRuleBean);
+                }
+            }
+        }
+        int round = (int) (Math.random() * tem.size());
+        CdssRuleBean cdssTestBean = null;
+        try {
+
+            cdssTestBean = tem.get(round);
+        } catch (NullPointerException e) {
+
+            e.printStackTrace();
+            logger.info("错误提示{}" + e.getMessage());
+            ranDomSelByIllName(response, map);
+        }
+        Object o = JSONObject.toJSON(cdssTestBean);
+        wirte(response, o);
+    }
 
 
     @PostMapping("/rulewarn")
