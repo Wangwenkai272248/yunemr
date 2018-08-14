@@ -93,7 +93,7 @@ public class CdssController extends BaseController {
         wirte(response, o);
     }
 
-//    @PostMapping("/ranDomSel")
+    //    @PostMapping("/ranDomSel")
 //    @ResponseBody
 //    public void ranDomSelByIllName(HttpServletResponse response, @RequestBody(required = false) String map) {
 //        JSONObject jsonObject = JSONObject.parseObject(map);
@@ -164,7 +164,14 @@ public class CdssController extends BaseController {
                     for (int i = 0; i < shouyezhenduan.size(); i++) {
                         Map<String, String> map1 = shouyezhenduan.get(i);
                         if (illName.equals(map1.get("diagnosis_name")) && "1".equals(map1.get("diagnosis_num"))) {
-                            resultTem.add(cdssRuleBean);
+                            if (StringUtils.isNotBlank(map1.get("diagnosis_type_code"))) {
+                                if ("3".equals(map1.get("diagnosis_type_code"))) {
+                                    resultTem.add(cdssRuleBean);
+                                }
+                            } else {
+                                resultTem.add(cdssRuleBean);
+
+                            }
                         }
                     }
                 }
@@ -185,7 +192,7 @@ public class CdssController extends BaseController {
             }
             Object o = JSONObject.toJSON(cdssTestBean);
             wirte(response, o);
-        }else {
+        } else {
             int round = (int) (Math.random() * caseList.size());
             CdssRuleBean cdssTestBean = null;
             try {
