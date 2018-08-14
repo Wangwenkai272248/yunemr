@@ -143,19 +143,23 @@ public class CdssController extends BaseController {
     @ResponseBody
     public void ranDomSelByIllName(HttpServletResponse response, @RequestBody(required = false) String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
-        if (StringUtils.isNotBlank(map) && jsonObject != null && StringUtils.isNotBlank(jsonObject.getString("dept_code"))) {
+        if (StringUtils.isNotBlank(map) ) {
             String dept_code = jsonObject.getString("dept_code");
-            String illName = jsonObject.getString("illName");
+            String illName = jsonObject.getString("illname");
             List<CdssRuleBean> tem = new LinkedList<>();
             List<CdssRuleBean> resultTem = new LinkedList<>();
-            if (StringUtil.isChinese(dept_code)) {
+            if (StringUtils.isNotBlank(dept_code)){
+                if (StringUtil.isChinese(dept_code)) {
 
-                for (CdssRuleBean cdssRuleBean : caseList) {
-                    if (dept_code.equals(cdssRuleBean.getBinganshouye().get("pat_visit_dept_admission_to_name"))) {
-                        tem.add(cdssRuleBean);
+                    for (CdssRuleBean cdssRuleBean : caseList) {
+                        if (dept_code.equals(cdssRuleBean.getBinganshouye().get("pat_visit_dept_admission_to_name"))) {
+                            tem.add(cdssRuleBean);
+                        }
                     }
+                } else {
+                    tem = caseList;
                 }
-            } else {
+            }else {
                 tem = caseList;
             }
             if (StringUtils.isNotBlank(illName)) {
@@ -178,7 +182,9 @@ public class CdssController extends BaseController {
             } else {
                 resultTem = tem;
             }
-
+            if (resultTem.size()==0){
+                resultTem=caseList;
+            }
             int round = (int) (Math.random() * resultTem.size());
             CdssRuleBean cdssTestBean = null;
             try {
