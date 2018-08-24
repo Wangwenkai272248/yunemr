@@ -18,7 +18,6 @@ public interface JhauthRemindRepository extends JpaRepository<JhauthRemind, Inte
     /**
      * @param doctorId     医生id
      * @param patiendId    病人id
-     * @param visitId      访问id
      * @param remindStatus 状态  1 提示 2忽略
      * @param remindTime   提醒时间
      * @return

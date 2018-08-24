@@ -10,6 +10,7 @@ public class CdssConstans {
     public static final String JCBG = "jianchabaogao";
     public static final String JYBG = "jianyanbaogao";
     public static final String YIZHU = "yizhu";
+    public static final String ZHUYUANFEIYONG = "zhuyuanfeiyong";
 
 
     public static final String MENZHENSHUJU = "menzhenshuju";
@@ -20,11 +21,7 @@ public class CdssConstans {
     //mongo数据库配置
     public static final int PORT = 20000;
 
-    //    数据库
-    public static final String DATASOURCE = "bysyalldata";
-    public static final String HOST = "192.168.8.22";
-    public static final String URL = "http://192.168.8.22:8111/warn/rule/ruleMatch";
-    public static final String URLFORRULE = "http://localhost:8111/warn/match/ruleMatch";
+
 
     public static final String CDSSDATASOURCE = "cdss";
     public static final String DECISION_RULE = "decision_rule";
@@ -35,15 +32,27 @@ public class CdssConstans {
 
 
 
-    //服务器
+    //3院服务器
 //    public static final String DATASOURCE = "BJDXDSYY_ETL_V20180204";
 //    public static final String HOST = "192.168.132.4";
 //    public static final String URL = "http://192.168.132.7:8111/warn/rule/ruleMatch";
 //    public static final String URLFORRULE = "http://192.168.132.7:8111/warn/match/ruleMatch";
 
 
+
+    //朝阳服务器
+    public static final String DATASOURCE = "BJCYYY_ALL_DATA_20180209";
+    public static final String HOST = "172.16.19.212";
+    public static final String URL = "http://192.168.132.7:8111/warn/rule/ruleMatch";
+    public static final String URLFORRULE = "http://192.168.132.7:8111/warn/match/ruleMatch";
+
+//        数据库
+//    public static final String DATASOURCE = "bysyalldata";
+//    public static final String HOST = "192.168.8.22";
+//    public static final String URL = "http://192.168.8.22:8111/warn/rule/ruleMatch";
+//    public static final String URLFORRULE = "http://localhost:8111/warn/match/ruleMatch";
     public static final int BEGINCOUNT = 0;
-    public static final int ENDCOUNT = 40000;
+    public static final int ENDCOUNT = 500;
 
 
     static final public String DEVURL="/data/1/CDSS/data/";

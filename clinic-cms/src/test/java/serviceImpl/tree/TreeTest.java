@@ -1,8 +1,6 @@
 package serviceImpl.tree;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.TreeMap;
+import java.io.*;
 
 /**
  * @author ziyu.zhou
@@ -10,13 +8,18 @@ import java.util.TreeMap;
  */
 
 public class TreeTest {
-    public static void main(String[] args) {
-        TreeMap treeMap=new TreeMap();
-        ArrayList a=new ArrayList();
-        boolean add = a.add(1);
-        LinkedList linkedList=new LinkedList();
-        linkedList.add(1);
-        linkedList.remove();
-        linkedList.remove();
+
+    public static void main(String[] args) throws IOException {
+        File file = new File("C:/Users/11075/Desktop/3院耳鼻喉科门诊诊断数量.txt");
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        String line = null;
+        while ((line = br.readLine()) != null) {
+            int i = line.lastIndexOf(",");
+            int length = line.length();
+            String name = line.substring(0, i);
+            String value = line.substring(i + 1);
+            System.out.println(name+"#"+value);
+        }
+        br.close();
     }
 }

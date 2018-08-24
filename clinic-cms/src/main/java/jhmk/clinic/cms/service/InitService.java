@@ -37,7 +37,6 @@ public class InitService {
 //        readFile2Cache();
 //        addCase2cache();
 //        addDiseaseName2Cache();
-//        redisTemplate.set
     }
 
     private void addDiseaseName2Cache() {

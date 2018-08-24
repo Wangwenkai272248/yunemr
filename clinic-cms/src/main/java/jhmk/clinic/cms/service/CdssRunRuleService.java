@@ -146,8 +146,10 @@ public class CdssRunRuleService {
             cdssRuleBean.setBinganshouye(map);
             //医生id
             cdssRuleBean.setId(document.getString("_id"));
-            cdssRuleBean.setDept_code(patVisit.getString("dept_admission_to_name"));
-            cdssRuleBean.setDoctor_name(patVisit.getString("attending_doctor_name"));
+            cdssRuleBean.setDept_code(patVisit.getString("district_admission_to_name"));
+            cdssRuleBean.setDoctor_name(patVisit.getString("district_discharge_from_name"));
+//            cdssRuleBean.setDept_code(patVisit.getString("dept_admission_to_name"));
+//            cdssRuleBean.setDoctor_name(patVisit.getString("attending_doctor_name"));
             break;
         }
         return cdssRuleBean;
@@ -172,9 +174,9 @@ public class CdssRunRuleService {
             Map<String, String> map = new HashMap<>();
             Document binglizhenduan = (Document) document.get("binglizhenduan");
             String diagnosis_num = binglizhenduan.getString("diagnosis_num");
-            String diagnosis_name = binglizhenduan.getString("diagnosis_name");
+            String diagnosis_name = binglizhenduan.getString("diagnosis_desc");
             if (StringUtils.isNotBlank(diagnosis_name)) {
-                diagnosis_name = binglizhenduan.getString("diagnosis_desc");
+                diagnosis_name = binglizhenduan.getString("diagnosis_name");
             }
             map.put("diagnosis_name", diagnosis_name);
             map.put("diagnosis_time", binglizhenduan.getString("diagnosis_time"));

@@ -143,12 +143,12 @@ public class CdssController extends BaseController {
     @ResponseBody
     public void ranDomSelByIllName(HttpServletResponse response, @RequestBody(required = false) String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
-        if (StringUtils.isNotBlank(map) ) {
+        if (StringUtils.isNotBlank(map)) {
             String dept_code = jsonObject.getString("dept_code");
             String illName = jsonObject.getString("illname");
             List<CdssRuleBean> tem = new LinkedList<>();
             List<CdssRuleBean> resultTem = new LinkedList<>();
-            if (StringUtils.isNotBlank(dept_code)){
+            if (StringUtils.isNotBlank(dept_code)) {
                 if (StringUtil.isChinese(dept_code)) {
 
                     for (CdssRuleBean cdssRuleBean : caseList) {
@@ -159,7 +159,7 @@ public class CdssController extends BaseController {
                 } else {
                     tem = caseList;
                 }
-            }else {
+            } else {
                 tem = caseList;
             }
             if (StringUtils.isNotBlank(illName)) {
@@ -182,8 +182,8 @@ public class CdssController extends BaseController {
             } else {
                 resultTem = tem;
             }
-            if (resultTem.size()==0){
-                resultTem=caseList;
+            if (resultTem.size() == 0) {
+                resultTem = caseList;
             }
             int round = (int) (Math.random() * resultTem.size());
             CdssRuleBean cdssTestBean = null;
@@ -343,6 +343,42 @@ public class CdssController extends BaseController {
             instance.execute(runnable);
         }
 
+    }
+
+    @PostMapping("/runRuleDatabaseSimple")
+    @ResponseBody
+    public void runRuleDatabaseSimple(HttpServletResponse response) throws IOException {
+
+        //查询所有patientod
+        List<String> list = cdssService.getAllIds();
+
+        for (String _id : list) {
+            CdssRunRuleBean bean = cdssRunRuleService.getBASY(_id);
+            List<Map<String, String>> blzd = cdssRunRuleService.getBLZD(_id);
+            bean.setBinglizhenduan(blzd);
+            Map<String, String> ryjl = cdssRunRuleService.getRYJL(_id);
+            bean.setRuyuanjilu(ryjl);
+            List<Map<String, String>> zy = cdssRunRuleService.getZY(_id);
+            bean.setYizhu(zy);
+            List<Map<String, String>> jcbg = cdssRunRuleService.getJCBG(_id);
+            bean.setJianchabaogao(jcbg);
+            List<Map<String, String>> jybg = cdssRunRuleService.getJYBG(_id);
+            bean.setJianyanbaogao(jybg);
+            bean.setWarnSource("住院");
+
+            String string = JSONObject.toJSONString(bean);
+//                        System.out.println(string);
+            if (string == null || "".equals(string)) {
+                continue;
+            }
+            Object parse = JSONObject.parse(string);
+            try {
+              String  s = restTemplate.postForObject(CdssConstans.URLFORRULE, parse, String.class);
+                logger.info("匹配规则返回信息为{}", s);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
 

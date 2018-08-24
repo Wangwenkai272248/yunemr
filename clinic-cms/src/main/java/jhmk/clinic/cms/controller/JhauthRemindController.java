@@ -7,7 +7,6 @@ import jhmk.clinic.entity.model.AtResponse;
 import jhmk.clinic.entity.model.ResponseCode;
 import jhmk.clinic.entity.pojo.JhauthRemind;
 import jhmk.clinic.entity.service.JhauthRemindRepService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,12 +41,7 @@ public class JhauthRemindController extends BaseController {
         String doctorId = jsonObject.getString("doctorId");
         String patiendId = jsonObject.getString("patiendId");
         String remindStatus = jsonObject.getString("remindStatus");
-        String remindTime = jsonObject.getString("remindTime");
-        Date date = null;
-        if (StringUtils.isNotBlank(remindStatus)) {
-            date = DateFormatUtil.parseDate(remindTime, DateFormatUtil.DATE_PATTERN_S);
-        }
-
+        Date date = new Date();
         List<JhauthRemind> jhauthRemind = jhauthRemindRepService.findJhauthRemind(doctorId, patiendId, remindStatus, date);
         jhauthRemind.forEach(s -> s.setRemindDate(DateFormatUtil.formatBySdf(s.getRemindTime(), DateFormatUtil.DATE_PATTERN_S)));
         resp.setData(jhauthRemind);
@@ -70,7 +64,7 @@ public class JhauthRemindController extends BaseController {
 
     /**
      * 查询当前医生 所有未提醒信息
-     * @param response
+     * @param response+
      * @param map
      */
     @PostMapping("/findAllJhauthRemindByRemindTime")
@@ -80,7 +74,7 @@ public class JhauthRemindController extends BaseController {
         JSONObject jsonObject = JSONObject.parseObject(map);
         String doctorId = jsonObject.getString("doctorId");
         String remindStatus = jsonObject.getString("remindStatus");
-        Date remindTime = jsonObject.getDate("remindTime");
+        Date remindTime = new Date();
         List<JhauthRemind> jhauthRemindByDoctorId = jhauthRemindRepService.findAllJhauthRemindByRemindTime(doctorId, remindStatus, remindTime);
         Map<String, List<JhauthRemind>> resultMap = new HashMap<>();
         for (JhauthRemind jhauthRemind : jhauthRemindByDoctorId) {
