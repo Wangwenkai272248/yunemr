@@ -24,7 +24,7 @@ public class Demo1Bean {
     // 用药or口服
     private String type;
     private String age;
-    private Double inHospitalDay;
+    private String inHospitalDay;
     private String allNames;
     private double fee;
 
@@ -100,11 +100,11 @@ public class Demo1Bean {
         this.age = age;
     }
 
-    public Double getInHospitalDay() {
+    public String getInHospitalDay() {
         return inHospitalDay;
     }
 
-    public void setInHospitalDay(Double inHospitalDay) {
+    public void setInHospitalDay(String inHospitalDay) {
         this.inHospitalDay = inHospitalDay;
     }
 

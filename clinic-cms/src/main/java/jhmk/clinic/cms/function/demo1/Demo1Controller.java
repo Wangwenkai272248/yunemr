@@ -1,5 +1,8 @@
 package jhmk.clinic.cms.function.demo1;
 
+import com.alibaba.fastjson.JSONObject;
+import jhmk.clinic.cms.service.ReadFileService;
+import jhmk.clinic.cms.service.Write2File;
 import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.util.ThreadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,16 +36,16 @@ public class Demo1Controller extends BaseController {
             demo1Bean.setId(id);
             String age = demo1Service.getAgeValueById(id);
             demo1Bean.setAge(age);
-            double inHosoitalDayById = demo1Service.getInHosoitalDayById(id);
+            String inHosoitalDayById = demo1Service.getInHosoitalDayById(id);
             demo1Bean.setInHospitalDay(inHosoitalDayById);
             double totalFeeById = demo1Service.getTotalFeeById(id);
             demo1Bean.setFee(totalFeeById);
             List<String> strDataList = demo1Service.getStrDataList();
-            List<Map<String, String>> maps = demo1Service.selYizhu(id, strDataList);
-            demo1Bean.setDrugList(maps);
-            if (maps.size() == 0) {
-                continue;
-            }
+//            List<Map<String, String>> maps = demo1Service.selYizhu(id, strDataList);
+//            demo1Bean.setDrugList(maps);
+////            if (maps.size() == 0) {
+////                continue;
+////            }
             list.add(demo1Bean);
         }
         demo1Service.write2File(list);
@@ -51,6 +54,7 @@ public class Demo1Controller extends BaseController {
 
     @PostMapping("/demo1ByThread")
     public void demo1ByThread() {
+        System.out.println("=======================进来啦");
         ExecutorService exec = Executors.newFixedThreadPool(32);
         List<Demo1Bean> list = new ArrayList<>();
         Set<String> idsByIllName = demo1Service.getIdsByIllName("慢性阻塞性肺疾病急性加重");
@@ -62,12 +66,13 @@ public class Demo1Controller extends BaseController {
                     demo1Bean.setId(id);
                     String age = demo1Service.getAgeValueById(id);
                     demo1Bean.setAge(age);
-                    double inHosoitalDayById = demo1Service.getInHosoitalDayById(id);
+                    String inHosoitalDayById = demo1Service.getInHosoitalDayById(id);
                     demo1Bean.setInHospitalDay(inHosoitalDayById);
                     double totalFeeById = demo1Service.getTotalFeeById(id);
                     demo1Bean.setFee(totalFeeById);
                     List<String> strDataList = demo1Service.getStrDataList();
-                    List<Map<String, String>> maps = demo1Service.selYizhu(id, strDataList);
+                    List<String> drudList = demo1Service.getDrudList();
+                    List<Map<String, String>> maps = demo1Service.selYizhu(id, strDataList,drudList);
                     demo1Bean.setDrugList(maps);
                     if (maps.size() > 0) {
                         return demo1Bean;
@@ -93,8 +98,15 @@ public class Demo1Controller extends BaseController {
 
         }
         demo1Service.write2File(list);
-
+        System.out.println("======================结束啦");
     }
 
-
+    @PostMapping("/getYizhuByIdy")
+    public void getYizhuById() {
+        Set<String> ids = ReadFileService.readSource("ids");
+        Map<String, Set<String>> stringSetMap = demo1Service.selYizhuById(ids);
+        String s = JSONObject.toJSONString(stringSetMap);
+        String fileNmae="/data/1/CDSS/idAndYizhu.txt";
+        Write2File.wfile(s,fileNmae);
+    }
 }
