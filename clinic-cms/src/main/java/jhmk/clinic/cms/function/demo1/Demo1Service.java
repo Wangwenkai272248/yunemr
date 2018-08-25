@@ -5,12 +5,11 @@ import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import jhmk.clinic.core.config.CdssConstans;
 import org.bson.Document;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 import static jhmk.clinic.core.util.MongoUtils.getCollection;
@@ -39,6 +38,7 @@ public class Demo1Service {
 //                new Document("$match", new Document("shouyezhenduan.diagnosis_type_code", "3")),
                 new Document("$match", new Document("shouyezhenduan.diagnosis_name", name)),
                 new Document("$project", new Document("_id", 1).append("shouyezhenduan", 1))
+
         );
         AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
         for (Document document : binli) {
@@ -75,26 +75,28 @@ public class Demo1Service {
      * @param id
      * @return
      */
-    public double getInHosoitalDayById(String id) {
+    public String getInHosoitalDayById(String id) {
         List<Document> countPatientId = Arrays.asList(
                 new Document("$match", new Document("_id", id))
         );
-        AggregateIterable<Document> binli = ZHUYUANFEIYONG.aggregate(countPatientId);
-        double total_fee = 0;
+        AggregateIterable<Document> binli = binganshouye.aggregate(countPatientId);
+        String in_hospital_days = "";
         for (Document document : binli) {
 
 
             if (document == null) {
                 continue;
             }
-            Document zhuyuanfeiyong = (Document) document.get("zhuyuanfeiyong");
-            if (Objects.nonNull(zhuyuanfeiyong)) {
+            Document binganshouye = (Document) document.get("binganshouye");
+            Document patInfo = (Document) binganshouye.get("pat_info");
+            Document patVisit = (Document) binganshouye.get("pat_visit");
+            if (Objects.nonNull(patVisit)) {
 
-                total_fee = Double.valueOf(zhuyuanfeiyong.getString("total_fee"));
+                in_hospital_days = patVisit.getString("in_hospital_days");
             }
 
         }
-        return total_fee;
+        return in_hospital_days;
     }
 
     public static void main(String[] args) {
@@ -128,7 +130,67 @@ public class Demo1Service {
         return total_fee;
     }
 
-    public List<Map<String, String>> selYizhu(String id, List<String> list) {
+    public List<String> getDrudList() {
+        List<String> list = new ArrayList<>();
+        Resource resource = new ClassPathResource("drugSynonym");
+        File file = null;
+        String s;
+        try {
+            file = resource.getFile();
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            while ((s = br.readLine()) != null) {
+                String line = br.readLine();
+                if (line == null || "".equals(line) || "null".equals(line)) {
+                    continue;
+                }
+                list.add(s);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return list;
+
+    }
+
+    public String getDrugStandardName(String name, List<String> list) {
+        for (String str : list) {
+            if (str.contains(name)) {
+                if (isExist(name, str)) {
+                    return getStandardDrugName(str);
+                }
+            }
+        }
+        return name;
+    }
+
+
+    public boolean isExist(String name, String str) {
+        String[] split = str.split("#@#");
+        String sName = split[0];
+        String otherNames = split[1];
+        String[] otherNameList = otherNames.split("@");
+        List<String> list = new LinkedList();
+        list.add(sName);
+        list.addAll(Arrays.asList(otherNameList));
+        if (list.indexOf(name) != -1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public String getStandardDrugName(String str) {
+        String sName = "";
+        if (str.contains("#@#")) {
+            String[] split = str.split("#@#");
+            sName = split[0];
+        } else {
+        }
+        return sName;
+    }
+
+
+    public List<Map<String, String>> selYizhu(String id, List<String> list, List<String> drugList) {
         List<Document> countPatientId2 = Arrays.asList(
                 //过滤数据
                 new Document("$match", new Document("_id", id)),
@@ -137,7 +199,6 @@ public class Demo1Service {
                 )
 
         );
-        Map<String, String> orderMap = new HashMap<>();
         AggregateIterable<Document> output = yizhu.aggregate(countPatientId2);
         List<Map<String, String>> orderList = new LinkedList<>();
         for (Document document : output) {
@@ -152,30 +213,41 @@ public class Demo1Service {
                     order_item_name = split[0];
                 }
                 for (String s : list) {
+
+
                     String[] split = s.split(",");
                     List<String> list1 = Arrays.asList(split);
-                    if (s.contains(order_item_name) && list1.indexOf(order_item_name) != -1) {
+
+                    String drugStandardName = getDrugStandardName(order_item_name, drugList);
+
+                    if (s.contains(drugStandardName) && list1.indexOf(drugStandardName) != -1) {
 
                         String firstLevel = getFirstLevel(s);
-                        orderMap.put("order_item_name", order_item_name);
-
+                        Map<String, String> orderMap = new HashMap<>();
                         orderMap.put(order_item_name, firstLevel);
                         //方式 吸入or口服
                         String pharmacy_way_name = yizhuDocu.getString("pharmacy_way_name");
                         //名称
                         String china_approved_drug_name = yizhuDocu.getString("china_approved_drug_name");
+                        if (china_approved_drug_name == null) {
+                            continue;
+                        }
                         String type = "";
-                        if (pharmacy_way_name!=null&&(pharmacy_way_name.contains("口服") || pharmacy_way_name.contains("胶囊") || pharmacy_way_name.contains("片"))) {
+                        if (pharmacy_way_name != null && (pharmacy_way_name.contains("口服") || pharmacy_way_name.contains("胶囊") || pharmacy_way_name.contains("片"))) {
                             type = "口服";
-                        } else if (pharmacy_way_name.contains("吸入") || pharmacy_way_name.contains("液")) {
+                        } else if (pharmacy_way_name != null && (pharmacy_way_name.contains("吸入"))) {
                             type = "吸入";
+                        } else if (pharmacy_way_name != null && (pharmacy_way_name.contains("注射"))) {
+                            type = "注射";
                         } else {
-                            if (china_approved_drug_name!=null&&(china_approved_drug_name.contains("吸入") || china_approved_drug_name.contains("胶囊") || china_approved_drug_name.contains("片"))) {
+                            if (china_approved_drug_name != null && (china_approved_drug_name.contains("吸入"))) {
                                 type = "吸入";
-                            } else if (china_approved_drug_name.contains("口服") || china_approved_drug_name.contains("液")) {
+                            } else if (china_approved_drug_name != null & (china_approved_drug_name.contains("口服") || china_approved_drug_name.contains("胶囊") || china_approved_drug_name.contains("片"))) {
                                 type = "口服";
+                            } else if (china_approved_drug_name != null & (china_approved_drug_name.contains("注射"))) {
+                                type = "注射";
                             } else {
-                                type = "不明确" + pharmacy_way_name + "/" + china_approved_drug_name;
+                                type = "不明确" + pharmacy_way_name + "@" + china_approved_drug_name;
                             }
                         }
                         orderMap.put("type", type);
@@ -187,6 +259,35 @@ public class Demo1Service {
 
         }
         return orderList;
+    }
+
+    public Map<String, Set<String>> selYizhuById(Set<String> ids) {
+        Map<String, Set<String>> map = new HashMap<>();
+        for (String id : ids) {
+            List<Document> countPatientId2 = Arrays.asList(
+                    //过滤数据
+                    new Document("$match", new Document("_id", id)),
+                    new Document("$unwind", "$yizhu"),
+                    new Document("$project", new Document("patient_id", 1).append("visit_id", 1).append("yizhu", 1)
+                    )
+
+            );
+            AggregateIterable<Document> output = yizhu.aggregate(countPatientId2);
+            Set<String> set = new HashSet<>();
+            for (Document document : output) {
+                Document yizhuDocu = (Document) document.get("yizhu");
+                if (yizhuDocu == null) {
+                    continue;
+                }
+                if (yizhuDocu.get("order_item_name") != null) {
+                    set.add(yizhuDocu.getString("order_item_name"));
+                }
+
+            }
+            map.put(id, set);
+        }
+
+        return map;
     }
 
 
@@ -240,7 +341,8 @@ public class Demo1Service {
     public void write2File(List<Demo1Bean> list) {
         BufferedWriter bufferedWriter = null;
 //        File file = new File("/data/1/CDSS/tempData.txt");
-        File file = new File("C:/嘉和美康文档/3院测试数据/tempData.txt");
+        File file = new File("/data/yiwendao/zzy/tempData.txt");
+//        File file = new File("C:/嘉和美康文档/3院测试数据/tempData.txt");
         if (!file.exists()) {
             try {
                 file.createNewFile();
@@ -254,13 +356,13 @@ public class Demo1Service {
             for (Demo1Bean demo1Bean : list) {
                 StringBuffer sb = new StringBuffer();
                 String id = demo1Bean.getId();
-                sb.append(id + ",");
+                sb.append(id + "/");
                 String age = demo1Bean.getAge();
-                sb.append(age + ",");
+                sb.append(age + "/");
                 double fee = demo1Bean.getFee();
-                sb.append(fee + ",");
-                Double inHospitalDay = demo1Bean.getInHospitalDay();
-                sb.append(inHospitalDay + ",");
+                sb.append(fee + "/");
+                String inHospitalDay = demo1Bean.getInHospitalDay();
+                sb.append(inHospitalDay + "/");
                 List<Map<String, String>> drugList = demo1Bean.getDrugList();
                 sb.append(JSONObject.toJSONString(drugList));
 

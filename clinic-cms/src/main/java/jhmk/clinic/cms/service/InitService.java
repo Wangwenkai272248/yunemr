@@ -34,13 +34,13 @@ public class InitService {
     @PostConstruct
     public void init() throws Exception {
         System.out.println("初始化方法进来了啊");
-//        readFile2Cache();
-//        addCase2cache();
-//        addDiseaseName2Cache();
+        readFile2Cache();
+        addCase2cache();
+        addDiseaseName2Cache();
     }
 
     private void addDiseaseName2Cache() {
-        BasyService basyService=new BasyService();
+        BasyService basyService = new BasyService();
         Set<String> allDepts = basyService.getAllDepts();
         diseaseNames.addAll(allDepts);
 
@@ -108,7 +108,6 @@ public class InitService {
             }
         }
     }
-
 
 
     private void addCase2cache() {

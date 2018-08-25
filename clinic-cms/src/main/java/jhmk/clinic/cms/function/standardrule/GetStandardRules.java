@@ -129,7 +129,7 @@ public class GetStandardRules {
     }
 
 
-    private static Set<String> readFile2Cache() {
+    public static Set<String> readFile2Cache() {
         Set<String> liiNames = new LinkedHashSet<>();
         Resource resource = new ClassPathResource("standardName");
         File file = null;
