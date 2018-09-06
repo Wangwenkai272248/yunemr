@@ -1,6 +1,7 @@
 package jhmk.clinic.cms.function.demo1;
 
 import com.alibaba.fastjson.JSONObject;
+import jhmk.clinic.cms.service.CdssService;
 import jhmk.clinic.cms.service.ReadFileService;
 import jhmk.clinic.cms.service.Write2File;
 import jhmk.clinic.core.base.BaseController;
@@ -23,6 +24,8 @@ import java.util.concurrent.*;
 @Controller
 @RequestMapping("/test")
 public class Demo1Controller extends BaseController {
+    @Autowired
+    CdssService cdssService;
     @Autowired
     Demo1Service demo1Service;
 
@@ -104,18 +107,18 @@ public class Demo1Controller extends BaseController {
     @PostMapping("/demo1BygetDataByIds")
     public void getDataByIds() {
         Set<String> ids = demo1Service.getIds();
-        List<String>list=new ArrayList<>();
+        List<String> list = new ArrayList<>();
         for (String id : ids) {
-            StringBuffer sb=new StringBuffer(id);
+            StringBuffer sb = new StringBuffer(id);
             sb.append(",");
             List<Map<String, String>> shouYeZhenDuan = cdssService.getShouYeZhenDuan(id);
-            for (Map<String, String> map:shouYeZhenDuan) {
+            for (Map<String, String> map : shouYeZhenDuan) {
                 sb.append(map.get("diagnosis_name")).append("/");
             }
             sb.append(",");
 
             List<Map<String, String>> maps = cdssService.selYizhu(id);
-            for (Map<String, String> map:maps) {
+            for (Map<String, String> map : maps) {
                 sb.append(map.get("order_item_name")).append("/");
             }
             list.add(sb.toString());
@@ -144,7 +147,7 @@ public class Demo1Controller extends BaseController {
                     demo1Bean.setFee(totalFeeById);
                     List<String> strDataList = demo1Service.getStrDataList();
                     List<String> drudList = demo1Service.getDrudList();
-                    List<Map<String, String>> maps = demo1Service.selYizhu(id, strDataList,drudList);
+                    List<Map<String, String>> maps = demo1Service.selYizhu(id, strDataList, drudList);
                     demo1Bean.setDrugList(maps);
                     if (maps.size() > 0) {
                         return demo1Bean;
@@ -178,8 +181,8 @@ public class Demo1Controller extends BaseController {
         Set<String> ids = ReadFileService.readSource("ids");
         Map<String, Set<String>> stringSetMap = demo1Service.selYizhuById(ids);
         String s = JSONObject.toJSONString(stringSetMap);
-        String fileNmae="/data/1/CDSS/idAndYizhu.txt";
-        Write2File.wfile(s,fileNmae);
+        String fileNmae = "/data/1/CDSS/idAndYizhu.txt";
+        Write2File.wfile(s, fileNmae);
     }
 
     @PostMapping("/getMainYizhuById")
@@ -189,6 +192,6 @@ public class Demo1Controller extends BaseController {
 
         String fileNmae = "/data/1/CDSS/mainidAndYizhu.txt";
 //        String fileNmae="C:/嘉和美康文档/3院测试数据/data.txt";
-        Write2File.wfile(beanList, fileNmae);
+//        Write2File.wfile(beanList, fileNmae);
     }
 }

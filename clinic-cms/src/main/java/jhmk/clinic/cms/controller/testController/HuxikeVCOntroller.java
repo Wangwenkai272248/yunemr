@@ -1,11 +1,12 @@
 package jhmk.clinic.cms.controller.testController;
 
-import jhmk.clinic.cms.controller.ruleService.BasyService;
-import jhmk.clinic.cms.controller.ruleService.BlzdService;
-import jhmk.clinic.cms.controller.ruleService.RyjuService;
-import jhmk.clinic.cms.controller.ruleService.SyzdService;
+import com.alibaba.fastjson.JSONObject;
+import jhmk.clinic.cms.SamilarService;
+import jhmk.clinic.cms.controller.ruleService.*;
+import jhmk.clinic.cms.service.ReadFileService;
 import jhmk.clinic.cms.service.Write2File;
 import jhmk.clinic.core.base.BaseController;
+import jhmk.clinic.core.util.DateFormatUtil;
 import jhmk.clinic.entity.bean.Misdiagnosis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,10 +18,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author ziyu.zhou
@@ -29,12 +27,17 @@ import java.util.Set;
 @Controller
 @RequestMapping("/test/huxike")
 public class HuxikeVCOntroller extends BaseController {
+
+    @Autowired
+    SamilarService samilarService;
     @Autowired
     BasyService basyService;
     @Autowired
     RyjuService ryjuService;
     @Autowired
     BlzdService blzdService;
+    @Autowired
+    SjyscflService sjyscflService;
     @Autowired
     SyzdService syzdService;
 
@@ -111,5 +114,94 @@ public class HuxikeVCOntroller extends BaseController {
             resulrList.add(id + "/" + ruyuan + "/" + chuyuan);
         }
         Write2File.w2fileList(resulrList, "/data/1/CDSS/" + date + "年呼吸科数据.txt");
+    }
+
+    @PostMapping("/getCFDataBy2016")
+    public void getCFData() {
+        Set<String> ids = ReadFileService.readSource("ids2016");
+        List<String> list = new ArrayList<>();
+        for (String id : ids) {
+            String rycz = syzdService.getRycz(id);
+            String mainDisease = syzdService.getMainDisease(id);
+            //获取此疾病所有上疾病 下疾病 同义词
+            Set<String> allIllNames = samilarService.getAllIllNames(mainDisease);
+            Map.Entry<String, String> sjyscfl = sjyscflService.getSJYSCFL(id, allIllNames);
+            Misdiagnosis sjyscfl1 = sjyscflService.getSJYSCFL(id);
+
+
+            String admissionTime = basyService.getAdmissionTime(id);
+            StringBuilder sb = new StringBuilder();
+            sb.append(id).append("/");
+            int i = 0;
+            if (sjyscfl != null) {
+                //上级医师查房确认疾病名
+                String key = sjyscfl.getKey();
+                //确认时间
+                String value = sjyscfl.getValue();
+                sb.append(key).append("/");
+                sb.append(value).append("/");
+                if (admissionTime != null && value != null) {
+                    Date date = DateFormatUtil.parseDate(value, DateFormatUtil.DATETIME_PATTERN_SS);
+                    Date date1 = DateFormatUtil.parseDate(admissionTime, DateFormatUtil.DATETIME_PATTERN_SS);
+                    i = DateFormatUtil.dateDiff(date1, date1);
+                }
+
+            } else {
+                sb.append("null").append("/");
+                sb.append("null").append("/");
+            }
+            sb.append(rycz).append("/");
+            sb.append(mainDisease).append("/");
+            sb.append(admissionTime).append("/");
+            sb.append(i).append("/");
+            sb.append(JSONObject.toJSONString(sjyscfl1)).append("/");
+            list.add(sb.toString());
+        }
+//        Write2File.w2fileList(list, "/data/1/CDSS/2016年呼吸科确诊数据.txt");
+        Write2File.w2fileList(list, "2016年呼吸科确诊数据.txt");
+    }
+
+    @PostMapping("/getCFDataBy2017")
+    public void getCFDataBy2017() {
+        Set<String> ids = ReadFileService.readSource("ids2017");
+        List<String> list = new ArrayList<>();
+        for (String id : ids) {
+            String rycz = syzdService.getRycz(id);
+            String mainDisease = syzdService.getMainDisease(id);
+            //获取此疾病所有上疾病 下疾病 同义词
+            Set<String> allIllNames = samilarService.getAllIllNames(mainDisease);
+            Map.Entry<String, String> sjyscfl = sjyscflService.getSJYSCFL(id, allIllNames);
+            Misdiagnosis sjyscfl1 = sjyscflService.getSJYSCFL(id);
+
+
+            String admissionTime = basyService.getAdmissionTime(id);
+            StringBuilder sb = new StringBuilder();
+            sb.append(id).append("/");
+            int i = 0;
+
+            if (sjyscfl != null) {
+                //上级医师查房确认疾病名
+                String key = sjyscfl.getKey();
+                //确认时间
+                String value = sjyscfl.getValue();
+                sb.append(key).append("/");
+                sb.append(value).append("/");
+                if (admissionTime != null && value != null) {
+                    Date date = DateFormatUtil.parseDate(value, DateFormatUtil.DATETIME_PATTERN_SS);
+                    Date date1 = DateFormatUtil.parseDate(admissionTime, DateFormatUtil.DATETIME_PATTERN_SS);
+                    i = DateFormatUtil.dateDiff(date1, date1);
+                }
+            } else {
+                sb.append("null").append("/");
+                sb.append("null").append("/");
+            }
+            sb.append(rycz).append("/");
+            sb.append(mainDisease).append("/");
+            sb.append(admissionTime).append("/");
+            sb.append(i).append("/");
+            sb.append(JSONObject.toJSONString(sjyscfl1)).append("/");
+            list.add(sb.toString());
+        }
+        Write2File.w2fileList(list, "/data/1/CDSS/2017年呼吸科确诊数据.txt");
     }
 }

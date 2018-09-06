@@ -1,6 +1,7 @@
 package jhmk.clinic.entity.bean;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author ziyu.zhou
@@ -12,6 +13,8 @@ public class Misdiagnosis {
     private String id;
     private String patient_id;
     private String  visit_id;
+    //是否明确诊断
+    private List<Map<String,String>>  sjData;
     //部门 骨科
     private String dept_discharge_from_name;
     private String district_discharge_from_name;
@@ -106,5 +109,11 @@ public class Misdiagnosis {
         this.nowDiseaseList = nowDiseaseList;
     }
 
+    public List<Map<String, String>> getSjData() {
+        return sjData;
+    }
 
+    public void setSjData(List<Map<String, String>> sjData) {
+        this.sjData = sjData;
+    }
 }

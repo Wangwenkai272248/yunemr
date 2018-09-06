@@ -85,6 +85,38 @@ public class BasyService {
         return misdiagnosisList;
     }
 
+    /**
+     * 获取入院时间
+     *
+     * @param id
+     * @return
+     */
+    public String getAdmissionTime(String id) {
+        List<Misdiagnosis> misdiagnosisList = new LinkedList<>();
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$match", new Document("_id", id)),
+                new Document("$project", new Document("patient_id", 1).append("_id", 1).append("visit_id", 1).append("binganshouye", 1))
+//                , new Document("$skip", 5000),
+//                new Document("$limit", 10000)
+        );
+        AggregateIterable<Document> output = binganshouye.aggregate(countPatientId);
+        for (Document document : output) {
+            Misdiagnosis misdiagnosis = new Misdiagnosis();
+            if (document == null) {
+                continue;
+            }
+            misdiagnosis.setPatient_id(document.getString("patient_id"));
+            misdiagnosis.setVisit_id(document.getString("visit_id"));
+            misdiagnosis.setId(document.getString("_id"));
+            Document binganshouye = (Document) document.get("binganshouye");
+            Document patVisit = (Document) binganshouye.get("pat_visit");
+
+            String admission_time = patVisit.getString("admission_time");
+            return admission_time;
+        }
+        return null;
+    }
+
 
     public Set<String> getAllDepts() {
         Set<String> names = new HashSet<>();
@@ -113,7 +145,7 @@ public class BasyService {
      */
     public List<String> getAllIdByDate(String date) {
         List<String> misdiagnosisList = new LinkedList<>();
-        Set<String> dept = getDept("departmentMap","呼吸科");
+        Set<String> dept = getDept("departmentMap", "呼吸科");
         List<Document> countPatientId = Arrays.asList(
                 new Document("$match", new Document("binganshouye.pat_visit.discharge_time", new Document("$gte", "2016-01-01 00:00:00"))),
                 new Document("$match", new Document("binganshouye.pat_visit.discharge_time", new Document("$lt", "2017-01-01 00:00:00"))),
@@ -133,8 +165,8 @@ public class BasyService {
     }
 
     public List<String> getAllIdByDate1(String date) {
-        Set<String> dept = getDept("departmentMap","呼吸科");
-        System.out.println("部门总数量"+dept.size());
+        Set<String> dept = getDept("departmentMap", "呼吸科");
+        System.out.println("部门总数量" + dept.size());
         List<String> misdiagnosisList = new LinkedList<>();
         List<Document> countPatientId = Arrays.asList(
                 new Document("$match", new Document("binganshouye.pat_visit.discharge_time", new Document("$gte", "2017-01-01 00:00:00"))),
@@ -157,8 +189,7 @@ public class BasyService {
     }
 
 
-
-    public Set<String> getDept(String filename,String deptname) {
+    public Set<String> getDept(String filename, String deptname) {
         Set<String> list = ReadFileService.readSource(filename);
         Set<String> set = new HashSet<>();
         for (String s : list) {
