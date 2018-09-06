@@ -1,8 +1,5 @@
 package jhmk.clinic.cms.service;
 
-import jhmk.clinic.cms.function.demo1.Demo1ZhenduanBean;
-import org.springframework.beans.factory.annotation.Value;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -15,8 +12,6 @@ import java.util.List;
  */
 
 public class Write2File {
-    @Value("${yyConfig.fileUrl}")
-    private String fileUrl;
 
     public static void wfile(String data, String fileName) {
 
@@ -46,8 +41,8 @@ public class Write2File {
         }
     }
 
-    public static void wfile(List<Demo1ZhenduanBean> data, String fileName) {
-
+    public static void w2fileList(List<String> data, String fileName) {
+        System.out.println("开始写了========");
         BufferedWriter bufferedWriter = null;
         //        File file = new File("/data/1/CDSS/3院骨科漏诊数据.txt");
         File file = new File(fileName);
@@ -61,20 +56,16 @@ public class Write2File {
 
         try {
             bufferedWriter = new BufferedWriter(new FileWriter(file));
-            for (Demo1ZhenduanBean demo1ZhenduanBean : data) {
-
-                bufferedWriter.write(demo1ZhenduanBean.getId() + "/" + demo1ZhenduanBean.getDiagnosis_name() + "/" + demo1ZhenduanBean.getDiagnosis_desc() + "/" + demo1ZhenduanBean.getDiagnosis_num() + "/"
-                        + demo1ZhenduanBean.getDiagnosis_type_code() + "/" + demo1ZhenduanBean.getTreat_result_name() + "/" + demo1ZhenduanBean.getDiagnosis_time());
-
+            for (int i = 0; i < data.size(); i++) {
+                bufferedWriter.write(data.get(i));
                 bufferedWriter.newLine();
             }
-            bufferedWriter.newLine();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
-                System.out.println("===============写完啦");
                 bufferedWriter.close();
+                System.out.println("=========结束啦");
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -46,4 +46,54 @@ public class SyzdService {
         return list;
     }
 
+    /**
+     * 获取出院诊断主诊断
+     *
+     * @param id
+     * @return
+     */
+    public String getMainDisease(String id) {
+        List<String> list = new ArrayList<>();
+
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$shouyezhenduan"),
+                new Document("$match", new Document("_id", id)),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "出院诊断")),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
+        );
+        AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+        String diagnosis_name = "";
+        for (Document document : binli) {
+            Document binglizhenduan = (Document) document.get("shouyezhenduan");
+            diagnosis_name = binglizhenduan.getString("diagnosis_name");
+        }
+        return diagnosis_name;
+    }
+
+    /**
+     * 获取入院初诊
+     * @param id
+     * @return
+     */
+    public String getRycz(String id) {
+        List<String> list = new ArrayList<>();
+
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$shouyezhenduan"),
+                new Document("$match", new Document("_id", id)),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "入院初诊")),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
+        );
+        AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+        String diagnosis_name = "";
+        for (Document document : binli) {
+            Document binglizhenduan = (Document) document.get("shouyezhenduan");
+            diagnosis_name = binglizhenduan.getString("diagnosis_name");
+        }
+        return diagnosis_name;
+    }
+
+
 }

@@ -94,6 +94,34 @@ public class CdssController extends BaseController {
         wirte(response, o);
     }
 
+    @PostMapping("/getDataByPIdAndVId")
+    @ResponseBody
+    public void getDataByPIdAndVId(HttpServletResponse response, @RequestBody(required = false) String map) {
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        String pid = jsonObject.getString("pid");
+        String vid = jsonObject.getString("vid");
+        //查询所有patientod
+        List<String> idList = cdssService.getAllIds();
+        int size = idList.size();
+        int round = (int) (Math.random() * size);
+        String id = idList.get(round);
+        //查询  ruyuanjilu 一诉五史
+        CdssRuleBean cdssTestBean = cdssService.selruyuanjiluById(id);
+        //病案首页
+        Map selbinganshouye = cdssService.selBasy(id);
+        cdssTestBean.setBinganshouye(selbinganshouye);
+        //病例诊断
+        List<Map<String, String>> selbinglizhenduan1 = cdssService.selbinglizhenduan(id);
+        cdssTestBean.setBinglizhenduan(selbinglizhenduan1);
+        //首页诊断
+        List<Map<String, String>> syzdList = cdssService.selSyzd(id);
+        cdssTestBean.setShouyezhenduan(syzdList);
+        List<Map<String, List<Map<String, String>>>> jianYan = cdssService.getJianYan(id);
+//        cdssTestBean.setJianyanbaogao(jianYan);
+        Object o = JSONObject.toJSON(cdssTestBean);
+        wirte(response, o);
+    }
+
     //    @PostMapping("/ranDomSel")
 //    @ResponseBody
 //    public void ranDomSelByIllName(HttpServletResponse response, @RequestBody(required = false) String map) {

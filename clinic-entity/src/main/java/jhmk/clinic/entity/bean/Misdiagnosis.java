@@ -17,11 +17,30 @@ public class Misdiagnosis {
     private String district_discharge_from_name;
     //既往史描述
     private String src;
+    //出院主诊断
+    private String cymainIllName;
+    //入院主诊断
+    private String rymainIllName;
     //既往史疾病
     private List<String>hisDiseaseList;
     //出院诊断疾病集合
     private List<String>nowDiseaseList;
 
+    public String getCymainIllName() {
+        return cymainIllName;
+    }
+
+    public void setCymainIllName(String cymainIllName) {
+        this.cymainIllName = cymainIllName;
+    }
+
+    public String getRymainIllName() {
+        return rymainIllName;
+    }
+
+    public void setRymainIllName(String rymainIllName) {
+        this.rymainIllName = rymainIllName;
+    }
 
     public String getId() {
         return id;
