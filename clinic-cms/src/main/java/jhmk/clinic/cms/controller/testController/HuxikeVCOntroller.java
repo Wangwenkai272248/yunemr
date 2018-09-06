@@ -143,7 +143,7 @@ public class HuxikeVCOntroller extends BaseController {
                 if (admissionTime != null && value != null) {
                     Date date = DateFormatUtil.parseDate(value, DateFormatUtil.DATETIME_PATTERN_SS);
                     Date date1 = DateFormatUtil.parseDate(admissionTime, DateFormatUtil.DATETIME_PATTERN_SS);
-                    i = DateFormatUtil.dateDiff(date1, date1);
+                    i = DateFormatUtil.dateDiff(date, date1);
                 }
 
             } else {
@@ -189,7 +189,7 @@ public class HuxikeVCOntroller extends BaseController {
                 if (admissionTime != null && value != null) {
                     Date date = DateFormatUtil.parseDate(value, DateFormatUtil.DATETIME_PATTERN_SS);
                     Date date1 = DateFormatUtil.parseDate(admissionTime, DateFormatUtil.DATETIME_PATTERN_SS);
-                    i = DateFormatUtil.dateDiff(date1, date1);
+                    i = DateFormatUtil.dateDiff(date, date1);
                 }
             } else {
                 sb.append("null").append("/");
