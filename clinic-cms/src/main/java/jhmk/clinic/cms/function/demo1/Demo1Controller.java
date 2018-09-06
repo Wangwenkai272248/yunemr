@@ -58,6 +58,7 @@ public class Demo1Controller extends BaseController {
         ExecutorService exec = Executors.newFixedThreadPool(32);
         List<Demo1Bean> list = new ArrayList<>();
         Set<String> idsByIllName = demo1Service.getIdsByIllName("慢性阻塞性肺疾病急性加重");
+        System.out.println("==========總共============="+idsByIllName.size());
         for (String id : idsByIllName) {
             Callable<Demo1Bean> callable = new Callable<Demo1Bean>() {
                 @Override

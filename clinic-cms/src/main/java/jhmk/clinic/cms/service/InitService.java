@@ -43,7 +43,6 @@ public class InitService {
         BasyService basyService = new BasyService();
         Set<String> allDepts = basyService.getAllDepts();
         diseaseNames.addAll(allDepts);
-
     }
 
     private void addCase2cache2() {
