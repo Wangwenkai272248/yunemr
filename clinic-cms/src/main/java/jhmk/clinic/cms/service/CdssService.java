@@ -7,15 +7,16 @@ import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import jhmk.clinic.core.config.CdssConstans;
+import jhmk.clinic.core.util.RedisCacheUtil;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static jhmk.clinic.cms.service.InitService.liiNames;
 import static jhmk.clinic.core.util.MongoUtils.getCollection;
 
 /**
@@ -26,7 +27,8 @@ import static jhmk.clinic.core.util.MongoUtils.getCollection;
 
 @Service
 public class CdssService {
-
+    @Autowired
+    RedisCacheUtil redisCacheUtil;
     MongoCollection<Document> binganshouye = getCollection(CdssConstans.DATASOURCE, CdssConstans.BINGANSHOUYE);
     //入院记录
     static MongoCollection<Document> ruyuanjilu = getCollection(CdssConstans.DATASOURCE, CdssConstans.RUYUANJILU);
@@ -141,14 +143,14 @@ public class CdssService {
         List<Map<String, String>> list = new ArrayList<>();
 
         List<Document> countPatientId = Arrays.asList(
-                new Document("$unwind", "$binglizhenduan"),
+                new Document("$unwind", "$shouyezhenduan"),
                 new Document("$match", new Document("_id", id)),
-                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("binglizhenduan", 1))
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
         );
         AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
         for (Document document : binli) {
             Map<String, String> map = new HashMap<>();
-            Document binglizhenduan = (Document) document.get("binglizhenduan");
+            Document binglizhenduan = (Document) document.get("shouyezhenduan");
             String diagnosis_num = binglizhenduan.getString("diagnosis_num");
             String diagnosis_name = binglizhenduan.getString("diagnosis_name");
             if (StringUtils.isNotBlank(diagnosis_name)) {
@@ -201,6 +203,7 @@ public class CdssService {
 
     //获取出院主疾病在疾病列表中的id
     public List<CdssRuleBean> getAllIdsByIllName() {
+        List<String> liiNames = redisCacheUtil.getCacheList("illNames");
 
         List<CdssRuleBean> beanList = new LinkedList<>();
         List<Document> countPatientId = Arrays.asList(

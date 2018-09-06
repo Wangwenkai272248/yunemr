@@ -2,6 +2,8 @@ package jhmk.clinic.cms.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import jhmk.clinic.cms.function.demo1.DrugNode;
+import jhmk.clinic.cms.function.demo1.ReadFile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -86,23 +88,25 @@ public class ReadFileService {
      */
     public static void main(String[] args) {
 
-//        Map all = getAll();
-//        geName1();
+        Map all = getAll();
+        geName1();
         geName2();
-//        geName3();
-//        geName4();
-//        geName5();
-
+        geName3();
+        geName4();
+        geName5();
+//        get1();
     }
 
-    static String fileName = "C:/嘉和美康文档/3院测试数据/用药统计/三院.txt";
+    //    static String fileName = "C:/嘉和美康文档/3院测试数据/用药统计/三院新.txt";
+    static String fileName = "C:/嘉和美康文档/3院测试数据/用药统计/tempDataNew.txt";
+//    static String fileName = "C:/嘉和美康文档/3院测试数据/用药统计/三院.txt";
 //    static String fileName = "C:/嘉和美康文档/3院测试数据/用药统计/朝阳.txt";
+//    static String fileName = "C:/嘉和美康文档/3院测试数据/用药统计/朝阳1.txt";
 
     public static Map getAll() {
         int allAge = 0;
         int allday = 0;
         double allFee = 0;
-
         List<String> list = readFile2List(fileName);
         System.out.println("诊断=慢性阻塞性肺疾病急性加重，数量为" + list.size());
         Map<String, Integer> resultMap = new HashMap<>();
@@ -121,10 +125,13 @@ public class ReadFileService {
             String str = split[4];
 //            List<Map<String, String>> mapList = JSONObject.parseObject(str, List.class);
         }
-        System.out.println("诊断=慢性阻塞性肺疾病急性加重，平均费用" + allFee / list.size());
-        System.out.println("诊断=慢性阻塞性肺疾病急性加重，平均天数" + allday / list.size());
+        Integer integer = list.size();
+        int i = allAge / integer;
+        double v = allFee / integer;
+        double x = allday / integer;
 
-        return resultMap;
+        System.out.println("总数量" + "," + integer + "," + x + "," + v + "," + i);
+        return null;
     }
 
     static String name1 = "单独使用支气管扩张药的患者数量";
@@ -170,12 +177,108 @@ public class ReadFileService {
         double v = allFee / integer;
         double x = allinHospitalDay / integer;
 
-        System.out.println(name1 + ",");
-        System.out.print(integer + ",");
-        System.out.print(x + ",");
-        System.out.print(v + ",");
+        System.out.println(name1 + "," + integer + "," + x + "," + v + "," + i);
+
+
         return;
     }
+
+    public static List<String> geName11() {
+
+        int allAge = 0;
+        double allFee = 0;
+        double allinHospitalDay = 0;
+
+        List<String> list = readFile2List(fileName);
+        List<String> listStr = new ArrayList<>();
+        Map<String, Integer> resultMap = new HashMap<>();
+        double d = 0;
+        for (String line : list) {
+            String[] split = line.split("/");
+            String id = split[0];
+            int age = Integer.valueOf(split[1]);
+            //总共年龄
+            //总共费用
+            int inHospitalDay = Integer.valueOf(split[3]);
+            String str = split[4];
+            double fee = Double.valueOf(split[2]);
+            if (str.contains("支气管扩张药") && !str.contains("肾上腺皮质激素类")) {
+                listStr.add(str);
+                allinHospitalDay += inHospitalDay;
+                allAge += age;
+                allFee += fee;
+                if (resultMap.containsKey(name1)) {
+                    resultMap.put(name1, resultMap.get(name1) + 1);
+                } else {
+                    resultMap.put(name1, 1);
+                }
+            }
+
+        }
+        Integer integer = resultMap.get(name1);
+        int i = allAge / integer;
+        double v = allFee / integer;
+        double x = allinHospitalDay / integer;
+
+        System.out.println(name1 + "," + integer + "," + x + "," + v + "," + i);
+
+
+        return listStr;
+    }
+
+    public static void get1() {
+        List<DrugNode> tree = ReadFile.creatChildMedicineTree();
+        Set<String> sets = ReadFile.getChildNameList("茶碱类", tree);
+        Set<String> sets1 = ReadFile.getChildNameList("肾上腺素受体激动药", tree);
+        Set<String> sets2 = ReadFile.getChildNameList("M受体阻断药", tree);
+        Set<String> sets3 = ReadFile.getAllChildNameList("支气管扩张药", tree);
+        Set<String> sets4 = ReadFile.getAllChildNameList("肾上腺皮质激素类", tree);
+
+        List<String> list = geName11();
+        System.out.println("==========" + list.size());
+        Map<String, Integer> map = new HashMap<>();
+        map.put("茶碱", 0);
+        map.put("肾上腺素受体激动药", 0);
+        map.put("M受体阻断药", 0);
+        map.put("支气管扩张药", 0);
+        map.put("肾上腺皮质激素类", 0);
+
+        for (String str : list) {
+            for (String str1 : sets) {
+                if (str.contains(str1)) {
+                    map.put("茶碱", map.get("茶碱") + 1);
+                    break;
+                }
+            }
+            for (String str1 : sets1) {
+                if (str.contains(str1)) {
+                    map.put("肾上腺素受体激动药", map.get("肾上腺素受体激动药") + 1);
+                    break;
+                }
+            }
+            for (String str1 : sets2) {
+                if (str.contains(str1)) {
+                    map.put("M受体阻断药", map.get("M受体阻断药") + 1);
+                    break;
+                }
+            }
+            for (String str1 : sets3) {
+                if (str.contains(str1)) {
+                    map.put("支气管扩张药", map.get("支气管扩张药") + 1);
+                    break;
+                }
+            }
+            for (String str1 : sets4) {
+                if (str.contains(str1)) {
+                    map.put("肾上腺皮质激素类", map.get("肾上腺皮质激素类") + 1);
+                    break;
+                }
+            }
+
+        }
+        System.out.println(JSONObject.toJSONString(map));
+    }
+
 
     // "既使用支气管扩张药，又使用肾上腺皮质激素类的患者数量";
     public static void geName2() {
@@ -197,8 +300,8 @@ public class ReadFileService {
             int inHospitalDay = Integer.valueOf(split[3]);
             String str = split[4];
             double fee = Double.valueOf(split[2]);
-            if (!str.contains("支气管扩张药") && str.contains("肾上腺皮质激素类")) {
-                System.out.println(line);
+            if (str.contains("支气管扩张药") && str.contains("肾上腺皮质激素类")) {
+//                System.out.println(line);
 //            if (str.contains("肾上腺皮质激素类")) {
 //            if (str.contains("支气管扩张药")) {
                 allinHospitalDay += inHospitalDay;
@@ -213,10 +316,8 @@ public class ReadFileService {
         double v = allFee / integer;
         double x = allinHospitalDay / integer;
 
-        System.out.println(name2 + ",");
-        System.out.print(integer + ",");
-        System.out.print(x + ",");
-        System.out.print(v + ",");
+        System.out.println(name2 + "," + integer + "," + x + "," + v + "," + i);
+
     }
 
     //   "既使用支气管扩张药，又使用肾上腺皮质激素类的患者数量中，肾上腺皮质激素类单独使用口服药的数量";
@@ -270,10 +371,8 @@ public class ReadFileService {
         double v = allFee / integer;
         double x = allinHospitalDay / integer;
 
-        System.out.println(name3 + ",");
-        System.out.print(integer + ",");
-        System.out.print(x + ",");
-        System.out.print(v + ",");
+        System.out.println(name3 + "," + integer + "," + x + "," + v + "," + i);
+
 
         return;
     }
@@ -327,11 +426,7 @@ public class ReadFileService {
         int i = allAge / integer;
         double v = allFee / integer;
         double x = allinHospitalDay / integer;
-
-        System.out.println(name4 + ",");
-        System.out.print(integer + ",");
-        System.out.print(x + ",");
-        System.out.print(v + ",");
+        System.out.println(name4 + "," + integer + "," + x + "," + v + "," + i);
 
         return;
     }
@@ -386,10 +481,9 @@ public class ReadFileService {
         double v = allFee / integer;
         double x = allinHospitalDay / integer;
 
-        System.out.println(name5 + ",");
-        System.out.print(integer + ",");
-        System.out.print(x + ",");
-        System.out.print(v + ",");
+        System.out.println(name5 + "," + integer + "," + x + "," + v + "," + i);
+
+
         return;
     }
 

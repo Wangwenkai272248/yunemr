@@ -7,6 +7,7 @@ import jhmk.clinic.cms.service.TestService;
 import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.base.Constants;
 import jhmk.clinic.core.config.CdssConstans;
+import jhmk.clinic.core.util.RedisCacheUtil;
 import jhmk.clinic.core.util.StringUtil;
 import jhmk.clinic.core.util.ThreadUtil;
 import jhmk.clinic.entity.bean.MenZhen;
@@ -35,9 +36,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import static jhmk.clinic.cms.service.InitService.caseList;
-import static jhmk.clinic.cms.service.InitService.diseaseNames;
+import java.util.Set;
 
 
 @Controller
@@ -45,6 +44,8 @@ import static jhmk.clinic.cms.service.InitService.diseaseNames;
 public class CdssController extends BaseController {
     Logger logger = LoggerFactory.getLogger(CdssController.class);
 
+    @Autowired
+    RedisCacheUtil redisCacheUtil;
     @Autowired
     SysDiseasesRepository sysDiseasesRepository;
     @Autowired
@@ -143,6 +144,7 @@ public class CdssController extends BaseController {
     @ResponseBody
     public void ranDomSelByIllName(HttpServletResponse response, @RequestBody(required = false) String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
+        List<CdssRuleBean> caseList = redisCacheUtil.getCacheList("illNames");
         if (StringUtils.isNotBlank(map)) {
             String dept_code = jsonObject.getString("dept_code");
             String illName = jsonObject.getString("illname");
@@ -260,6 +262,8 @@ public class CdssController extends BaseController {
     @PostMapping("/fuzzySearchForDept")
     @ResponseBody
     public void fuzzySearchForDept(HttpServletResponse response, @RequestBody(required = true) String map) throws IOException {
+
+        Set<String> diseaseNames = redisCacheUtil.getCacheSet("diseaseNames");
         JSONObject jsonObject = JSONObject.parseObject(map);
         //疾病名称
         String dept = jsonObject.getString("dept");
@@ -373,7 +377,7 @@ public class CdssController extends BaseController {
             }
             Object parse = JSONObject.parse(string);
             try {
-              String  s = restTemplate.postForObject(CdssConstans.URLFORRULE, parse, String.class);
+                String s = restTemplate.postForObject(CdssConstans.URLFORRULE, parse, String.class);
                 logger.info("匹配规则返回信息为{}", s);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -385,6 +389,7 @@ public class CdssController extends BaseController {
     @PostMapping("/getDateByIll")
     @ResponseBody
     public void getDateByIll(HttpServletResponse response, @RequestBody String map) {
+        List<CdssRuleBean> caseList = redisCacheUtil.getCacheList("illNames");
         JSONObject jsonObject = JSONObject.parseObject(map);
         String illName = jsonObject.getString("illName");
         List<CdssRuleBean> tem = new LinkedList<>();

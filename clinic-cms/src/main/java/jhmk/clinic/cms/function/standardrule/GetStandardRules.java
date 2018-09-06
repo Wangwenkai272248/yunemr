@@ -155,6 +155,31 @@ public class GetStandardRules {
         }
         return liiNames;
     }
+    public static Set<String> readFile2Cache(String name) {
+        Set<String> liiNames = new LinkedHashSet<>();
+        Resource resource = new ClassPathResource(name);
+        File file = null;
+        BufferedReader br = null;
+        try {
+            file = resource.getFile();
+            br = new BufferedReader(new FileReader(file));
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                liiNames.add(line);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return liiNames;
+    }
 
 
 }

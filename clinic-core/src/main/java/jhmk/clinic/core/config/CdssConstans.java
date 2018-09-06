@@ -38,7 +38,6 @@ public class CdssConstans {
 
 
     //朝阳服务器
-//    public static final String DATASOURCE = "BJCYYY_ALL_DATA_20180209";
 //    public static final String HOST = "172.16.19.212";
 //    public static final String URL = "http://192.168.132.7:8111/warn/rule/ruleMatch";
 //    public static final String URLFORRULE = "http://192.168.132.7:8111/warn/match/ruleMatch";

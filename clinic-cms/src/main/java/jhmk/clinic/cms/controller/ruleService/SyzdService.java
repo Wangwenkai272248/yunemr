@@ -6,7 +6,9 @@ import jhmk.clinic.core.config.CdssConstans;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static jhmk.clinic.core.util.MongoUtils.getCollection;
 
@@ -18,10 +20,12 @@ import static jhmk.clinic.core.util.MongoUtils.getCollection;
 
 @Service
 public class SyzdService {
+
     MongoCollection<Document> shouyezhenduan = getCollection(CdssConstans.DATASOURCE, CdssConstans.SHOUYEZHENDUAN);
 
     /**
      * 获取首页诊断疾病集合
+     *
      * @param id
      * @return
      */

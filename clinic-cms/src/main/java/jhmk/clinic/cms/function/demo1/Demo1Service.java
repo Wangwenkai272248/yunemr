@@ -3,6 +3,7 @@ package jhmk.clinic.cms.function.demo1;
 import com.alibaba.fastjson.JSONObject;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
+import jhmk.clinic.cms.function.standardrule.GetStandardRules;
 import jhmk.clinic.core.config.CdssConstans;
 import org.bson.Document;
 import org.springframework.core.io.ClassPathResource;
@@ -32,11 +33,9 @@ public class Demo1Service {
 
         List<Document> countPatientId = Arrays.asList(
                 new Document("$unwind", "$shouyezhenduan"),
-//                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "慢性阻塞性肺疾病急性加重")),
-//                        append("shouyezhenduan.diagnosis_num", "1")),
-//                new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
-//                new Document("$match", new Document("shouyezhenduan.diagnosis_type_code", "3")),
                 new Document("$match", new Document("shouyezhenduan.diagnosis_name", name)),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "出院诊断")),
                 new Document("$project", new Document("_id", 1).append("shouyezhenduan", 1))
 
         );
@@ -290,6 +289,50 @@ public class Demo1Service {
         return map;
     }
 
+    public List<Demo1ZhenduanBean> selShouyezhenduan(Set<String> ids) {
+        List<Demo1ZhenduanBean> beanList = new ArrayList<>();
+        for (String id : ids) {
+            List<Document> countPatientId2 = Arrays.asList(
+                    //过滤数据
+                    new Document("$match", new Document("_id", id)),
+                    new Document("$unwind", "$shouyezhenduan"),
+                    new Document("$match", new Document("shouyezhenduan.diagnosis_name", "慢性阻塞性肺疾病急性加重")),
+                    new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
+                    new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "出院诊断")),
+                    new Document("$project", new Document("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1)
+                    )
+
+            );
+            AggregateIterable<Document> output = shouyezhenduan.aggregate(countPatientId2);
+            Set<String> set = new HashSet<>();
+            for (Document document : output) {
+                Document shouyezhenduandoc = (Document) document.get("shouyezhenduan");
+                Demo1ZhenduanBean bean = new Demo1ZhenduanBean();
+                bean.setId(id);
+                if (shouyezhenduandoc == null) {
+                    System.out.println("这是啥");
+                    continue;
+                } else {
+                    String diagnosis_type_code = shouyezhenduandoc.getString("diagnosis_type_code");
+                    String diagnosis_desc = shouyezhenduandoc.getString("diagnosis_desc");
+                    String treat_result_name = shouyezhenduandoc.getString("treat_result_name");
+                    String diagnosis_name = shouyezhenduandoc.getString("diagnosis_name");
+                    String diagnosis_time = shouyezhenduandoc.getString("diagnosis_time");
+                    String diagnosis_num = shouyezhenduandoc.getString("diagnosis_num");
+                    bean.setDiagnosis_name(diagnosis_name);
+                    bean.setDiagnosis_desc(diagnosis_desc);
+                    bean.setDiagnosis_num(diagnosis_num);
+                    bean.setDiagnosis_time(diagnosis_time);
+                    bean.setTreat_result_name(treat_result_name);
+                    bean.setDiagnosis_type_code(diagnosis_type_code);
+                }
+                beanList.add(bean);
+            }
+        }
+
+        return beanList;
+    }
+
 
     /**
      * 获取树
@@ -341,8 +384,8 @@ public class Demo1Service {
     public void write2File(List<Demo1Bean> list) {
         BufferedWriter bufferedWriter = null;
 //        File file = new File("/data/1/CDSS/tempData.txt");
-        File file = new File("/data/yiwendao/zzy/tempData.txt");
-//        File file = new File("C:/嘉和美康文档/3院测试数据/tempData.txt");
+//        File file = new File("/data/yiwendao/zzy/tempData.txt");
+        File file = new File("C:/嘉和美康文档/3院测试数据/tempData.txt");
         if (!file.exists()) {
             try {
                 file.createNewFile();
@@ -364,15 +407,7 @@ public class Demo1Service {
                 String inHospitalDay = demo1Bean.getInHospitalDay();
                 sb.append(inHospitalDay + "/");
                 List<Map<String, String>> drugList = demo1Bean.getDrugList();
-                sb.append(JSONObject.toJSONString(drugList));
-
-//                for (Map<String, String> map : drugList) {
-//                    for (Map.Entry<String, String> entry : map.entrySet()) {
-//                        String key = entry.getKey();
-//                        String value = entry.getValue();
-//                    }
-//                }
-
+                sb.append(JSONObject.toJSONString(drugList == null ? "" : drugList));
                 bufferedWriter.write(sb.toString());
                 bufferedWriter.newLine();
             }
@@ -386,4 +421,111 @@ public class Demo1Service {
             }
         }
     }
+
+    public void write2FileByStr(List<String> list) {
+        BufferedWriter bufferedWriter = null;
+        File file = new File("/data/1/CDSS/tempData.txt");
+//        File file = new File("/data/yiwendao/zzy/tempData.txt");
+//        File file = new File("C:/嘉和美康文档/3院测试数据/tempData.txt");
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            bufferedWriter = new BufferedWriter(new FileWriter(file));
+            for (String s : list) {
+
+                bufferedWriter.write(s);
+                bufferedWriter.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                bufferedWriter.close();
+                System.out.println("====================写入成功");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    public Set<String> getIds() {
+        Set<String> ids = GetStandardRules.readFile2Cache("tempids");
+
+        return ids;
+    }
+
+    public List<Demo1ZhenduanBean> getAllZhenduan(String id) {
+        List<Demo1ZhenduanBean> beanList = new ArrayList<>();
+        List<Document> countPatientId2 = Arrays.asList(
+                //过滤数据
+                new Document("$match", new Document("_id", id)),
+                new Document("$unwind", "$shouyezhenduan"),
+                new Document("$project", new Document("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1)
+                )
+
+        );
+        AggregateIterable<Document> output = shouyezhenduan.aggregate(countPatientId2);
+        Set<String> set = new HashSet<>();
+        for (Document document : output) {
+            Document shouyezhenduandoc = (Document) document.get("shouyezhenduan");
+            Demo1ZhenduanBean bean = new Demo1ZhenduanBean();
+            bean.setId(id);
+            if (shouyezhenduandoc == null) {
+                System.out.println("这是啥");
+                continue;
+            } else {
+                String diagnosis_type_code = shouyezhenduandoc.getString("diagnosis_type_code");
+                String diagnosis_desc = shouyezhenduandoc.getString("diagnosis_desc");
+                String treat_result_name = shouyezhenduandoc.getString("treat_result_name");
+                String diagnosis_name = shouyezhenduandoc.getString("diagnosis_name");
+                String diagnosis_time = shouyezhenduandoc.getString("diagnosis_time");
+                String diagnosis_num = shouyezhenduandoc.getString("diagnosis_num");
+                bean.setDiagnosis_name(diagnosis_name);
+                bean.setDiagnosis_desc(diagnosis_desc);
+                bean.setDiagnosis_num(diagnosis_num);
+                bean.setDiagnosis_time(diagnosis_time);
+                bean.setTreat_result_name(treat_result_name);
+                bean.setDiagnosis_type_code(diagnosis_type_code);
+            }
+            beanList.add(bean);
+        }
+        return beanList;
+    }
+
+    public Set<String> getAllYizhu(String id) {
+        Set<String> orderList = new HashSet<>();
+        List<Document> countPatientId2 = Arrays.asList(
+                //过滤数据
+                new Document("$match", new Document("_id", id)),
+                new Document("$unwind", "$yizhu"),
+                new Document("$project", new Document("patient_id", 1).append("visit_id", 1).append("yizhu", 1)
+                )
+
+        );
+        AggregateIterable<Document> output = yizhu.aggregate(countPatientId2);
+        for (Document document : output) {
+            Document yizhuDocu = (Document) document.get("yizhu");
+            if (yizhuDocu == null) {
+                continue;
+            }
+            if (yizhuDocu.get("order_item_name") != null) {
+                String order_item_name = yizhuDocu.getString("order_item_name");
+
+                orderList.add(order_item_name);
+            }
+        }
+        return orderList;
+
+    }
+
+
 }
+
+

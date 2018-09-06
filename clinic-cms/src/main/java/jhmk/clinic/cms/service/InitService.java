@@ -1,18 +1,17 @@
 package jhmk.clinic.cms.service;
 
 import jhmk.clinic.cms.controller.ruleService.BasyService;
-import jhmk.clinic.core.util.MyThreadPoolManager;
+import jhmk.clinic.core.util.RedisCacheUtil;
+import jhmk.clinic.core.util.SpringUtil;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 
 /**
  * @author ziyu.zhou
@@ -20,19 +19,15 @@ import java.util.concurrent.ExecutorService;
  */
 @Service
 public class InitService {
-
     @Autowired
-    public RedisTemplate redisTemplate;
+    RedisCacheUtil redisCacheUtil;
     //疾病集合
-    static Set<String> liiNames = new HashSet<>();
     //病例集合
-    public volatile static List<CdssRuleBean> caseList = new LinkedList<>();
 
-
-    public volatile static Set<String> diseaseNames = new HashSet<>();
 
     @PostConstruct
     public void init() throws Exception {
+        redisCacheUtil = SpringUtil.getBean(RedisCacheUtil.class);
         System.out.println("初始化方法进来了啊");
         readFile2Cache();
         addCase2cache();
@@ -42,49 +37,13 @@ public class InitService {
     private void addDiseaseName2Cache() {
         BasyService basyService = new BasyService();
         Set<String> allDepts = basyService.getAllDepts();
-        diseaseNames.addAll(allDepts);
-
+        redisCacheUtil.setCacheSet("diseaseNames", allDepts);
     }
 
-    private void addCase2cache2() {
-        CdssService cdssService = new CdssService();
-        List<CdssRuleBean> idList = cdssService.getAllIdsByIllName();
-//        MyThreadPoolManager myThreadPoolManager = MyThreadPoolManager.getsInstance();
-        ExecutorService executorService = MyThreadPoolManager.newBlockingExecutorsUseCallerRun();
-        for (CdssRuleBean cdssRuleBean : idList) {
-            String id = cdssRuleBean.getId();
-            CdssRuleBean cdssTestBean = cdssService.selruyuanjiluById(id);
-            Runnable task = new Runnable() {
-                @Override
-                public void run() {
-                    //查询  ruyuanjilu 一诉五史
-                    if (cdssTestBean.getRuyuanjilu() != null) {
-                        cdssTestBean.setMainIllName(cdssRuleBean.getMainIllName());
-                        //病案首页
-                        Map selbinganshouye = cdssService.selBasy(id);
-                        cdssTestBean.setBinganshouye(selbinganshouye);
-                        //病例诊断
-                        List<Map<String, String>> selbinglizhenduan1 = cdssService.selbinglizhenduan(id);
-                        cdssTestBean.setBinglizhenduan(selbinglizhenduan1);
-                        //首页诊断
-                        List<Map<String, String>> syzdList = cdssService.selSyzd(id);
-                        cdssTestBean.setShouyezhenduan(syzdList);
-                        List<Map<String, List<Map<String, String>>>> jianYan = cdssService.getJianYan(id);
-//                        if (jianYan.size() > 0) {
-//                            cdssTestBean.setJianyanbaogao(jianYan);
-//                        }
-                        if (Objects.nonNull(cdssTestBean)) {
-                            caseList.add(cdssTestBean);
-                        }
-                    }
-                }
-
-            };
-            executorService.execute(task);
-        }
-    }
 
     private void readFile2Cache() {
+        Set<String> liiNames = new HashSet<>();
+
         Resource resource = new ClassPathResource("commonDiseases");
         File file = null;
         BufferedReader br = null;
@@ -102,7 +61,9 @@ public class InitService {
             e.printStackTrace();
         } finally {
             try {
+
                 br.close();
+                redisCacheUtil.setCacheSet("illNames", liiNames);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -111,6 +72,8 @@ public class InitService {
 
 
     private void addCase2cache() {
+        List<CdssRuleBean> caseList = new LinkedList<>();
+
         CdssService cdssService = new CdssService();
         List<CdssRuleBean> idList = cdssService.getAllIdsByIllName();
 
@@ -135,5 +98,6 @@ public class InitService {
 //            cdssTestBean.setJianyanbaogao(jianYan);
             caseList.add(cdssTestBean);
         }
+        redisCacheUtil.setCacheList("caseList", caseList);
     }
 }
