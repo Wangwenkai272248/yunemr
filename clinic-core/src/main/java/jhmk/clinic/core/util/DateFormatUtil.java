@@ -88,7 +88,12 @@ public class DateFormatUtil {
      * @param d2
      * @return
      */
-    public static int dateDiff(Date d1, Date d2) {
+    public static long dateDiff(Date d1, Date d2) {
+        long l = (d1.getTime() - d2.getTime()) / (60 * 60 * 1000);
+        return l;
+    }
+
+    public static int dateDiff1(Date d1, Date d2) {
         ZoneId zone = ZoneId.systemDefault();
         LocalDateTime dd1 = LocalDateTime.ofInstant(d1.toInstant(), zone);
         LocalDateTime dd2 = LocalDateTime.ofInstant(d2.toInstant(), zone);

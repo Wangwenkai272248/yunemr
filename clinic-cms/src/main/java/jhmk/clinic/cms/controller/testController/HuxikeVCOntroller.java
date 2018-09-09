@@ -132,7 +132,7 @@ public class HuxikeVCOntroller extends BaseController {
             String admissionTime = basyService.getAdmissionTime(id);
             StringBuilder sb = new StringBuilder();
             sb.append(id).append("/");
-            int i = 0;
+            long i = 0;
             if (sjyscfl != null) {
                 //上级医师查房确认疾病名
                 String key = sjyscfl.getKey();
@@ -149,6 +149,7 @@ public class HuxikeVCOntroller extends BaseController {
             } else {
                 sb.append("null").append("/");
                 sb.append("null").append("/");
+                continue;
             }
             sb.append(rycz).append("/");
             sb.append(mainDisease).append("/");
@@ -177,7 +178,7 @@ public class HuxikeVCOntroller extends BaseController {
             String admissionTime = basyService.getAdmissionTime(id);
             StringBuilder sb = new StringBuilder();
             sb.append(id).append("/");
-            int i = 0;
+            long i = 0;
 
             if (sjyscfl != null) {
                 //上级医师查房确认疾病名
@@ -194,6 +195,7 @@ public class HuxikeVCOntroller extends BaseController {
             } else {
                 sb.append("null").append("/");
                 sb.append("null").append("/");
+                continue;
             }
             sb.append(rycz).append("/");
             sb.append(mainDisease).append("/");
@@ -202,6 +204,7 @@ public class HuxikeVCOntroller extends BaseController {
             sb.append(JSONObject.toJSONString(sjyscfl1)).append("/");
             list.add(sb.toString());
         }
-        Write2File.w2fileList(list, "/data/1/CDSS/2017年呼吸科确诊数据.txt");
+//        Write2File.w2fileList(list, "/data/1/CDSS/2017年呼吸科确诊数据.txt");
+        Write2File.w2fileList(list, "2017年呼吸科确诊数据.txt");
     }
 }
