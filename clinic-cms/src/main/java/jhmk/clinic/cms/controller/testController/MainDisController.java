@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author ziyu.zhou
@@ -26,8 +24,16 @@ public class MainDisController {
     @PostMapping("/getAllData")
     public void getAllData(HttpServletResponse response) {
         Map<String, Integer> allData = syzdService.getAllData();
+        List<Map.Entry<String, Integer>> entries = new ArrayList<>(allData.entrySet());
+        Collections.sort(entries, new Comparator<Map.Entry<String, Integer>>() {
+            @Override
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                return o2.getValue().compareTo(o1.getValue());
+            }
+        });
         List<String> list = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : allData.entrySet()) {
+
+        for (Map.Entry<String, Integer> entry : entries) {
             list.add(entry.getKey() + "/" + entry.getValue());
         }
         Write2File.w2fileList(list,"/data/1/CDSS/allData.txt");
