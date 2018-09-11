@@ -9,16 +9,70 @@ import java.util.Objects;
 
 public class Binganshouye {
 
+    private String id;//性别
+    private String patient_id;//性别
+    private String visit_id;//性别
     private String pat_info_sex_name;//性别
     private String pat_info_age_value;
     private String pat_info_age_value_unit;
     private String pat_info_marital_status_name;
     private String pat_info_occupation_name;
     private String pat_info_pregnancy_status;
+    private String admission_time;//入院时间
+    private String discharge_time;//出院时间
+    private String dept_admission_to_name;//出院总科室
     private String pat_visit_dept_admission_to_name;//入院科室
     private String pat_visit_dept_admission_to_code;
     private String pat_visit_dept_discharge_from_name;//出院科室
     private String pat_visit_dept_discharge_from_code;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getDept_admission_to_name() {
+        return dept_admission_to_name;
+    }
+
+    public void setDept_admission_to_name(String dept_admission_to_name) {
+        this.dept_admission_to_name = dept_admission_to_name;
+    }
+
+    public String getPatient_id() {
+        return patient_id;
+    }
+
+    public void setPatient_id(String patient_id) {
+        this.patient_id = patient_id;
+    }
+
+    public String getVisit_id() {
+        return visit_id;
+    }
+
+    public void setVisit_id(String visit_id) {
+        this.visit_id = visit_id;
+    }
+
+    public String getAdmission_time() {
+        return admission_time;
+    }
+
+    public void setAdmission_time(String admission_time) {
+        this.admission_time = admission_time;
+    }
+
+    public String getDischarge_time() {
+        return discharge_time;
+    }
+
+    public void setDischarge_time(String discharge_time) {
+        this.discharge_time = discharge_time;
+    }
 
     public String getPat_info_sex_name() {
         return pat_info_sex_name;

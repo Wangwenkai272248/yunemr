@@ -3,6 +3,8 @@ package jhmk.clinic.cms.controller.ruleService;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import jhmk.clinic.core.config.CdssConstans;
+import jhmk.clinic.core.util.CompareUtil;
+import jhmk.clinic.entity.bean.Shouyezhenduan;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.junit.Test;
@@ -102,7 +104,7 @@ public class SyzdService {
      * @return
      */
     public Map<String, Integer> getAllData() {
-        List<String>strList=new ArrayList<>();
+        List<String> strList = new ArrayList<>();
         Map<String, Integer> resultMap = new HashMap<>();
 
         List<Document> countPatientId = Arrays.asList(
@@ -117,7 +119,7 @@ public class SyzdService {
             Document binglizhenduan = (Document) document.get("shouyezhenduan");
             if (Objects.nonNull(binglizhenduan)) {
                 String diagnosis_name = binglizhenduan.getString("diagnosis_name");
-                if (StringUtils.isEmpty(diagnosis_name)){
+                if (StringUtils.isEmpty(diagnosis_name)) {
                     strList.add(id);
                 }
                 if (resultMap.containsKey(diagnosis_name)) {
@@ -129,6 +131,38 @@ public class SyzdService {
         }
 
         return resultMap;
+    }
+
+
+    public List<Shouyezhenduan> getShoueyezhenduanBean(String id) {
+        List<Shouyezhenduan> list = new ArrayList<>();
+
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$shouyezhenduan"),
+                new Document("$match", new Document("_id", id)),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
+        );
+        AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+        for (Document document : binli) {
+            Shouyezhenduan shouyezhenduan = new Shouyezhenduan();
+            Map<String, String> map = new HashMap<>();
+            Document binglizhenduan = (Document) document.get("shouyezhenduan");
+            String diagnosis_num = binglizhenduan.getString("diagnosis_num");
+            String diagnosis_name = binglizhenduan.getString("diagnosis_name");
+            String diagnosis_desc = binglizhenduan.getString("diagnosis_desc");
+            if (StringUtils.isNotBlank(diagnosis_name)) {
+                diagnosis_name = binglizhenduan.getString("diagnosis_desc");
+            }
+            shouyezhenduan.setDiagnosis_desc(diagnosis_desc);
+            shouyezhenduan.setDiagnosis_name(diagnosis_name);
+            shouyezhenduan.setDiagnosis_num(diagnosis_num);
+            shouyezhenduan.setDiagnosis_type_name(binglizhenduan.getString("diagnosis_type_name"));
+            shouyezhenduan.setDiagnosis_time(binglizhenduan.getString("diagnosis_time"));
+
+            list.add(shouyezhenduan);
+        }
+        Collections.sort(list,new CompareUtil.ImComparator(1,"diagnosis_time"));
+        return list;
     }
 
     @Test

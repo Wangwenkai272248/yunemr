@@ -464,6 +464,25 @@ public class DateFormatUtil {
         return format;
     }
 
+
+    /**
+     * 判断当前时间是否在两个时间之内
+     *
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    public static boolean isTimeInNow(String startTime, String endTime, String tempTime) {
+        Date startDate = parseDate(startTime, DATETIME_PATTERN_SS);
+        Date endDate = parseDate(endTime, DATETIME_PATTERN_SS);
+        Date tempDate = parseDate(tempTime, DATETIME_PATTERN_SS);
+        if (startDate.getTime() <= tempDate.getTime() && endDate.getTime() >= tempDate.getTime()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public static void main(String[] args) {
 //        String dateStr = "2016-02-29";
 //        Date date1 = DateFormatUtil.parseDate(dateStr, DATE_PATTERN_S);

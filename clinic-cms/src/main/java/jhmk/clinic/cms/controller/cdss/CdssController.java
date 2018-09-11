@@ -1,16 +1,23 @@
 package jhmk.clinic.cms.controller.cdss;
 
 import com.alibaba.fastjson.JSONObject;
+import jhmk.clinic.cms.controller.ruleService.*;
 import jhmk.clinic.cms.service.CdssRunRuleService;
 import jhmk.clinic.cms.service.CdssService;
+import jhmk.clinic.cms.service.ReadFileService;
 import jhmk.clinic.cms.service.TestService;
 import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.base.Constants;
 import jhmk.clinic.core.config.CdssConstans;
+import jhmk.clinic.core.util.DateFormatUtil;
 import jhmk.clinic.core.util.RedisCacheUtil;
 import jhmk.clinic.core.util.StringUtil;
 import jhmk.clinic.core.util.ThreadUtil;
+import jhmk.clinic.entity.bean.Binganshouye;
 import jhmk.clinic.entity.bean.MenZhen;
+import jhmk.clinic.entity.bean.Shangjiyishichafanglu;
+import jhmk.clinic.entity.bean.Shouyezhenduan;
+import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import jhmk.clinic.entity.cdss.CdssRunRuleBean;
 import jhmk.clinic.entity.pojo.repository.SysDiseasesRepository;
@@ -33,10 +40,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 @Controller
@@ -51,8 +55,17 @@ public class CdssController extends BaseController {
     @Autowired
     SysHospitalDeptRepository sysHospitalDeptRepository;
     @Autowired
+    BasyService basyService;
+    @Autowired
+    BlzdService blzdService;
+    @Autowired
+    RyjuService ryjuService;
+    @Autowired
+    SjyscflService sjyscflService;
+    @Autowired
+    SyzdService syzdService;
 
-
+    @Autowired
     CdssService cdssService;
     @Autowired
     TestService testService;
@@ -497,5 +510,72 @@ public class CdssController extends BaseController {
             }
         }
     }
+
+    @PostMapping("/getDiffData")
+    @ResponseBody
+    public void getDiffData(HttpServletResponse response, @RequestBody(required = false) String map) {
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        String startTime = null;
+        String endTime = null;
+        String dept_admission_to_name = null;
+        String patiend_id = null;
+        String visit_id = null;
+        if (jsonObject != null) {
+            startTime = jsonObject.getString("startTime");
+            endTime = jsonObject.getString("endTime");
+            dept_admission_to_name = jsonObject.getString("dept_admission_to_name");//科室
+            patiend_id = jsonObject.getString("patiend_id");//科室
+            visit_id = jsonObject.getString("visit_id");//科室
+        }
+        List<CdssDiffBean> resultList = new ArrayList<>();
+        Set<String> diffIds = ReadFileService.readSource("diffIds");
+        CdssDiffBean cdssDiffBean = null;
+        for (String id : diffIds) {
+            cdssDiffBean = new CdssDiffBean();
+            //病案首页
+            Binganshouye beanById = basyService.getBeanById(id);
+            if (beanById==null){
+                continue;
+            }
+            String pid = beanById.getPatient_id();
+            String vid = beanById.getVisit_id();
+            if (StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)) {
+                String admission_time = beanById.getAdmission_time();
+                //入院时间不在时间段内 则过滤
+                if (!DateFormatUtil.isTimeInNow(startTime, endTime, admission_time)) {
+                    continue;
+                }
+            }
+            if (StringUtils.isNotBlank(dept_admission_to_name)) {
+                String dept_admission_to_name1 = beanById.getDept_admission_to_name();
+                //科室名不符合
+                if (!dept_admission_to_name.equals(dept_admission_to_name1)) {
+                    continue;
+                }
+            }
+            if (StringUtils.isNotBlank(patiend_id) && !patiend_id.equals(pid)) {
+                continue;
+            }
+            if (StringUtils.isNotBlank(visit_id) && !vid.equals(visit_id)) {
+                continue;
+            }
+            cdssDiffBean.setBinganshouye(beanById);
+            //上级医师查房
+            List<Shangjiyishichafanglu> sjyscflBean = sjyscflService.getSJYSCFLBean(id);
+            cdssDiffBean.setShangjiyishichafangluList(sjyscflBean);
+            //入院初诊
+            String rycz = syzdService.getRycz(id);
+            cdssDiffBean.setRuyuanchuzhen(rycz);
+            //出院诊断
+            String cyzd = syzdService.getMainDisease(id);
+            cdssDiffBean.setChuyuanzhenduan(cyzd);
+            List<Shouyezhenduan> shoueyezhenduanBean = syzdService.getShoueyezhenduanBean(id);
+            cdssDiffBean.setShouyezhenduanList(shoueyezhenduanBean);
+            resultList.add(cdssDiffBean);
+        }
+
+        wirte(response, resultList);
+    }
+
 
 }

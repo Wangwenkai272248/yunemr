@@ -4,6 +4,7 @@ import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import jhmk.clinic.cms.service.ReadFileService;
 import jhmk.clinic.core.config.CdssConstans;
+import jhmk.clinic.entity.bean.Binganshouye;
 import jhmk.clinic.entity.bean.Misdiagnosis;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
@@ -113,6 +114,41 @@ public class BasyService {
 
             String admission_time = patVisit.getString("admission_time");
             return admission_time;
+        }
+        return null;
+    }
+
+    public Binganshouye getBeanById(String id) {
+        List<Misdiagnosis> misdiagnosisList = new LinkedList<>();
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$match", new Document("_id", id)),
+                new Document("$project", new Document("patient_id", 1).append("_id", 1).append("visit_id", 1).append("binganshouye", 1))
+//                , new Document("$skip", 5000),
+//                new Document("$limit", 10000)
+        );
+        AggregateIterable<Document> output = binganshouye.aggregate(countPatientId);
+        for (Document document : output) {
+            Binganshouye misdiagnosis = new Binganshouye();
+            if (document == null) {
+                continue;
+            }
+            misdiagnosis.setPatient_id(document.getString("patient_id"));
+            misdiagnosis.setVisit_id(document.getString("visit_id"));
+            misdiagnosis.setId(document.getString("_id"));
+            Document binganshouye = (Document) document.get("binganshouye");
+            Document patVisit = (Document) binganshouye.get("pat_visit");
+
+            String admission_time = patVisit.getString("admission_time");
+            misdiagnosis.setAdmission_time(admission_time);
+            String discharge_time = patVisit.getString("discharge_time");
+            misdiagnosis.setDischarge_time(discharge_time);
+            String district_discharge_from_name = patVisit.getString("district_discharge_from_name");
+            misdiagnosis.setPat_visit_dept_discharge_from_name(district_discharge_from_name);
+            String district_admission_to_name = patVisit.getString("district_admission_to_name");
+            misdiagnosis.setPat_visit_dept_admission_to_name(district_admission_to_name);
+            String dept_admission_to_name = patVisit.getString("dept_admission_to_name");
+            misdiagnosis.setDept_admission_to_name(dept_admission_to_name);
+            return misdiagnosis;
         }
         return null;
     }
