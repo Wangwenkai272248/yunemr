@@ -3,12 +3,12 @@ package jhmk.clinic.cms.controller.ruleService;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import jhmk.clinic.core.config.CdssConstans;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
+import org.junit.Test;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static jhmk.clinic.core.util.MongoUtils.getCollection;
 
@@ -73,6 +73,7 @@ public class SyzdService {
 
     /**
      * 获取入院初诊
+     *
      * @param id
      * @return
      */
@@ -95,5 +96,42 @@ public class SyzdService {
         return diagnosis_name;
     }
 
+    /**
+     * 获取所有出院诊断个数
+     *
+     * @return
+     */
+    public Map<String, Integer> getAllData() {
+        List<String>strList=new ArrayList<>();
+        Map<String, Integer> resultMap = new HashMap<>();
 
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$shouyezhenduan"),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "出院诊断")),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
+        );
+        AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+        for (Document document : binli) {
+            String id = document.getString("_id");
+            Document binglizhenduan = (Document) document.get("shouyezhenduan");
+            if (Objects.nonNull(binglizhenduan)) {
+                String diagnosis_name = binglizhenduan.getString("diagnosis_name");
+                if (StringUtils.isEmpty(diagnosis_name)){
+                    strList.add(id);
+                }
+                if (resultMap.containsKey(diagnosis_name)) {
+                    resultMap.put(diagnosis_name, resultMap.get(diagnosis_name) + 1);
+                } else {
+                    resultMap.put(diagnosis_name, 1);
+                }
+            }
+        }
+        return resultMap;
+    }
+
+    @Test
+    public void setShouyezhenduan() {
+        getAllData();
+    }
 }
