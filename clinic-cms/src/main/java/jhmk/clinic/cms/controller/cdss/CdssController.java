@@ -10,6 +10,7 @@ import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.base.Constants;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.DateFormatUtil;
+import jhmk.clinic.core.util.RedisCacheUtil;
 import jhmk.clinic.core.util.StringUtil;
 import jhmk.clinic.core.util.ThreadUtil;
 import jhmk.clinic.entity.bean.Binganshouye;
@@ -40,9 +41,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-
-import static jhmk.clinic.cms.service.InitService.caseList;
-import static jhmk.clinic.cms.service.InitService.diseaseNames;
 
 
 @Controller
@@ -75,7 +73,7 @@ public class CdssController extends BaseController {
     RestTemplate restTemplate;
 
     /**
-     * 随机查询 抽取病例
+     * ?????? ???????
      *
      * @param response
      */
@@ -303,6 +301,7 @@ public class CdssController extends BaseController {
     @ResponseBody
     public void fuzzySearchForDept(HttpServletResponse response, @RequestBody(required = true) String map) throws IOException {
 
+        Set<String> diseaseNames = redisCacheUtil.getCacheSet("diseaseNames");
         JSONObject jsonObject = JSONObject.parseObject(map);
         //疾病名称
         String dept = jsonObject.getString("dept");
@@ -456,123 +455,19 @@ public class CdssController extends BaseController {
         wirte(response, o);
     }
 
-
-    @PostMapping("/rulewarn")
-    @ResponseBody
-    public void rulewarn(HttpServletResponse response, @RequestBody String map) {
-        Object obj = JSONObject.parse(map);
-        Object o = null;
-        try {
-            o = restTemplate.postForObject(Constants.RULEMATCH, obj, String.class);
-        } catch (Exception e) {
-            logger.debug("规则匹配出现错误：{}", e.getCause());
-            System.out.println(e.getMessage());
-        }
-        wirte(response, o);
-    }
-
-
-    /**
-     * 获取数据放入map中 写入文件夹
-     */
-    public void getdata() {
-        testService.write2File();
-        logger.info("统计数量结束了");
-        BufferedWriter bufferedWriter = null;
-        File file = new File("/data/1/CDSS/3院门诊数据.txt");
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            bufferedWriter = new BufferedWriter(new FileWriter(file));
-            List<MenZhen> menZhenData = testService.getMenZhenData();
-            for (MenZhen mz : menZhenData) {
-                String s = mz.getId() + "," + mz.getPatient_id() + "," + mz.getVisit_id() + "," + mz.getBatchno() + "," + mz.getDept_code() + "," + mz.getChief_complaint() + "," + mz.getDiagnosis();
-                logger.info(s);
-                bufferedWriter.write(s);
-                bufferedWriter.newLine();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                bufferedWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @PostMapping("/getDiffData")
-    @ResponseBody
-    public void getDiffData(HttpServletResponse response, @RequestBody(required = false) String map) {
+    @PostMapping("/getDataByDeptAndTime")
+    public void getDataByDeptAndTime(HttpServletResponse response, @RequestBody String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
-        String startTime = null;
-        String endTime = null;
-        String dept_admission_to_name = null;
-        String patiend_id = null;
-        String visit_id = null;
-        if (jsonObject != null) {
-            startTime = jsonObject.getString("startTime");
-            endTime = jsonObject.getString("endTime");
-            dept_admission_to_name = jsonObject.getString("dept_admission_to_name");//科室
-            patiend_id = jsonObject.getString("patiend_id");//科室
-            visit_id = jsonObject.getString("visit_id");//科室
-        }
-        List<CdssDiffBean> resultList = new ArrayList<>();
-        Set<String> diffIds = ReadFileService.readSource("diffIds");
-        CdssDiffBean cdssDiffBean = null;
-        for (String id : diffIds) {
-            cdssDiffBean = new CdssDiffBean();
-            //病案首页
-            Binganshouye beanById = basyService.getBeanById(id);
-            if (beanById==null){
-                continue;
-            }
-            String pid = beanById.getPatient_id();
-            String vid = beanById.getVisit_id();
-            if (StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)) {
-                String admission_time = beanById.getAdmission_time();
-                //入院时间不在时间段内 则过滤
-                if (!DateFormatUtil.isTimeInNow(startTime, endTime, admission_time)) {
-                    continue;
-                }
-            }
-            if (StringUtils.isNotBlank(dept_admission_to_name)) {
-                String dept_admission_to_name1 = beanById.getDept_admission_to_name();
-                //科室名不符合
-                if (!dept_admission_to_name.equals(dept_admission_to_name1)) {
-                    continue;
-                }
-            }
-            if (StringUtils.isNotBlank(patiend_id) && !patiend_id.equals(pid)) {
-                continue;
-            }
-            if (StringUtils.isNotBlank(visit_id) && !vid.equals(visit_id)) {
-                continue;
-            }
-            cdssDiffBean.setBinganshouye(beanById);
-            //上级医师查房
-            List<Shangjiyishichafanglu> sjyscflBean = sjyscflService.getSJYSCFLBean(id);
-            cdssDiffBean.setShangjiyishichafangluList(sjyscflBean);
-            //入院初诊
-            String rycz = syzdService.getRycz(id);
-            cdssDiffBean.setRuyuanchuzhen(rycz);
-            //出院诊断
-            String cyzd = syzdService.getMainDisease(id);
-            cdssDiffBean.setChuyuanzhenduan(cyzd);
-            List<Shouyezhenduan> shoueyezhenduanBean = syzdService.getShoueyezhenduanBean(id);
-            cdssDiffBean.setShouyezhenduanList(shoueyezhenduanBean);
-            resultList.add(cdssDiffBean);
-        }
-
-        wirte(response, resultList);
+        String deptName = jsonObject.getString("deptName");
+        String startTime = jsonObject.getString("startTime");
+        String endTime = jsonObject.getString("endTime");
+        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime);
+        System.out.println(jsonStr);
+        String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
+//        System.out.println(new String(s.getBytes("utf-8"),""));
+        System.out.println(s);
+        List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
+        System.out.println(diffBeanList);
     }
-
 
 }

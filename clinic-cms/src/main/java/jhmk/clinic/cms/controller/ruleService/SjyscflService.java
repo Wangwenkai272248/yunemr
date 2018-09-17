@@ -102,6 +102,9 @@ public class SjyscflService {
                 Document treatment_plan = (Document) shangjiyishichafangluDoc.get("treatment_plan");
                 if (Objects.nonNull(treatment_plan)) {
                     String clear_diagnose = treatment_plan.getString("clear_diagnose");
+                    if (!"是".equals(clear_diagnose)) {
+                        continue;
+                    }
                     String clear_diagnose_name = treatment_plan.getString("clear_diagnose_name");
                     bean = new Shangjiyishichafanglu();
                     String last_modify_date_time = shangjiyishichafangluDoc.getString("last_modify_date_time");

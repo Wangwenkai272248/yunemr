@@ -6,7 +6,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import jhmk.clinic.cms.SamilarService;
 import jhmk.clinic.core.config.CdssConstans;
+import jhmk.clinic.entity.bean.Shangjiyishichafanglu;
+import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -200,6 +203,7 @@ public class CdssService {
 
     //获取出院主疾病在疾病列表中的id
     public List<CdssRuleBean> getAllIdsByIllName() {
+        List<String> liiNames = redisCacheUtil.getCacheList("illNames");
 
         List<CdssRuleBean> beanList = new LinkedList<>();
         List<Document> countPatientId = Arrays.asList(
