@@ -3,10 +3,8 @@ package jhmk.clinic.cms.service;
 import jhmk.clinic.cms.controller.ruleService.BasyService;
 import jhmk.clinic.core.util.MyThreadPoolManager;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -20,13 +18,11 @@ import java.util.concurrent.ExecutorService;
  */
 @Service
 public class InitService {
-
-    @Autowired
-    public RedisTemplate redisTemplate;
     //疾病集合
     static Set<String> liiNames = new HashSet<>();
     //病例集合
     public volatile static List<CdssRuleBean> caseList = new LinkedList<>();
+    public volatile static List<CdssRuleBean> randomcaseList = new LinkedList<>();
 
 
     public volatile static Set<String> diseaseNames = new HashSet<>();
@@ -35,9 +31,41 @@ public class InitService {
     public void init() throws Exception {
         System.out.println("初始化方法进来了啊");
         readFile2Cache();
-        addCase2cache();
+//        addCase2cache();
+        getRandomAllData();
         addDiseaseName2Cache();
     }
+
+
+    //经理指定随机病例
+    private void getRandomAllData() {
+        List<String> list = ReadFileService.readSourceList("assignId");
+        CdssService cdssService = new CdssService();
+        List<CdssRuleBean> idList = cdssService.getAllIdsByIllName(list);
+
+        for (CdssRuleBean cdssRuleBean : idList) {
+            String id = cdssRuleBean.getId();
+            //查询  ruyuanjilu 一诉五史
+            CdssRuleBean cdssTestBean = cdssService.selruyuanjiluById(id);
+            if (cdssTestBean.getRuyuanjilu() == null) {
+                continue;
+            }
+            cdssTestBean.setMainIllName(cdssRuleBean.getMainIllName());
+            //病案首页
+            Map selbinganshouye = cdssService.selBasy(id);
+            cdssTestBean.setBinganshouye(selbinganshouye);
+            //病例诊断
+            List<Map<String, String>> selbinglizhenduan1 = cdssService.selbinglizhenduan(id);
+            cdssTestBean.setBinglizhenduan(selbinglizhenduan1);
+            //首页诊断
+            List<Map<String, String>> syzdList = cdssService.selSyzd(id);
+            cdssTestBean.setShouyezhenduan(syzdList);
+            List<Map<String, List<Map<String, String>>>> jianYan = cdssService.getJianYan(id);
+//            cdssTestBean.setJianyanbaogao(jianYan);
+            caseList.add(cdssTestBean);
+        }
+    }
+
 
     private void addDiseaseName2Cache() {
         BasyService basyService = new BasyService();
@@ -134,5 +162,11 @@ public class InitService {
 //            cdssTestBean.setJianyanbaogao(jianYan);
             caseList.add(cdssTestBean);
         }
+    }
+
+
+    public Set<String> getAllDIffIds() {
+        Set<String> diffIds = ReadFileService.readSource("diffIds");
+        return diffIds;
     }
 }

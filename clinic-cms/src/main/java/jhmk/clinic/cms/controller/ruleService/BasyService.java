@@ -224,6 +224,28 @@ public class BasyService {
         return misdiagnosisList;
     }
 
+    /**
+     * @param deptName      部门名称
+     * @param startTime 入院开始时间
+     * @param endTime   入院结束
+     * @return 查询科室部门 =deptName 入院时间在范围内的id
+     */
+    public List<String> getIdsByDeptAndTime(String deptName, String startTime, String endTime) {
+        List<String> misdiagnosisList = new LinkedList<>();
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$match", new Document("binganshouye.pat_visit.dept_admission_to_name", deptName)),
+                new Document("$match", new Document("binganshouye.pat_visit.discharge_time", new Document("$gte", startTime))),
+                new Document("$match", new Document("binganshouye.pat_visit.discharge_time", new Document("$lt", endTime))),
+                new Document("$project", new Document("patient_id", 1).append("_id", 1).append("visit_id", 1).append("binganshouye", 1))
+        );
+        AggregateIterable<Document> output = binganshouye.aggregate(countPatientId);
+        for (Document document : output) {
+            String id = document.getString("_id");
+            misdiagnosisList.add(id);
+        }
+        return misdiagnosisList;
+    }
+
 
     public Set<String> getDept(String filename, String deptname) {
         Set<String> list = ReadFileService.readSource(filename);

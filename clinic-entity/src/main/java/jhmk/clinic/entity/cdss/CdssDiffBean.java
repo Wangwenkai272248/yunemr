@@ -12,11 +12,70 @@ import java.util.List;
  */
 
 public class CdssDiffBean {
+    private String id;
+    //判断上级医师查房 是否等于 出院主诊断
+    private boolean flag;
+    private boolean zhuanke;
+    //上级医师查房疾病名
+    private String sjyscfName;
+    //上级医师查房时间
+    private String sjyscfTime;
+    private String admission_time;
     private Binganshouye binganshouye;
     private String ruyuanchuzhen;
     private String chuyuanzhenduan;
     private List<Shangjiyishichafanglu> shangjiyishichafangluList;
     private List<Shouyezhenduan> shouyezhenduanList;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+
+
+    public String getAdmission_time() {
+        return admission_time;
+    }
+
+    public void setAdmission_time(String admission_time) {
+        this.admission_time = admission_time;
+    }
+
+    public String getSjyscfName() {
+        return sjyscfName;
+    }
+
+    public void setSjyscfName(String sjyscfName) {
+        this.sjyscfName = sjyscfName;
+    }
+
+    public String getSjyscfTime() {
+        return sjyscfTime;
+    }
+
+    public void setSjyscfTime(String sjyscfTime) {
+        this.sjyscfTime = sjyscfTime;
+    }
+
+    public boolean isFlag() {
+        return flag;
+    }
+
+    public void setFlag(boolean flag) {
+        this.flag = flag;
+    }
+
+    public boolean isZhuanke() {
+        return zhuanke;
+    }
+
+    public void setZhuanke(boolean zhuanke) {
+        this.zhuanke = zhuanke;
+    }
 
     public Binganshouye getBinganshouye() {
         return binganshouye;

@@ -6,8 +6,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import jhmk.clinic.cms.SamilarService;
 import jhmk.clinic.core.config.CdssConstans;
-import jhmk.clinic.core.util.RedisCacheUtil;
+import jhmk.clinic.entity.bean.Shangjiyishichafanglu;
+import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static jhmk.clinic.cms.service.InitService.liiNames;
 import static jhmk.clinic.core.util.MongoUtils.getCollection;
 
 /**
@@ -28,7 +31,7 @@ import static jhmk.clinic.core.util.MongoUtils.getCollection;
 @Service
 public class CdssService {
     @Autowired
-    RedisCacheUtil redisCacheUtil;
+    SamilarService samilarService;
     MongoCollection<Document> binganshouye = getCollection(CdssConstans.DATASOURCE, CdssConstans.BINGANSHOUYE);
     //入院记录
     static MongoCollection<Document> ruyuanjilu = getCollection(CdssConstans.DATASOURCE, CdssConstans.RUYUANJILU);
@@ -203,7 +206,6 @@ public class CdssService {
 
     //获取出院主疾病在疾病列表中的id
     public List<CdssRuleBean> getAllIdsByIllName() {
-        List<String> liiNames = redisCacheUtil.getCacheList("illNames");
 
         List<CdssRuleBean> beanList = new LinkedList<>();
         List<Document> countPatientId = Arrays.asList(
@@ -228,6 +230,35 @@ public class CdssService {
 
             }
 
+        }
+        return beanList;
+    }
+
+    public List<CdssRuleBean> getAllIdsByIllName(List<String> idList) {
+
+        List<CdssRuleBean> beanList = new LinkedList<>();
+        for (String id : idList) {
+            String[] split = id.split(",");
+            String pid = split[0];
+            String vid = split[1];
+            List<Document> countPatientId = Arrays.asList(
+                    new Document("$unwind", "$shouyezhenduan"),
+                    new Document("$match", new Document("patient_id", pid)),
+                    new Document("$match", new Document("visit_id", vid)),
+                    new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
+            );
+            AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+            for (Document document : binli) {
+                Document shoueyezhenduan = (Document) document.get("shouyezhenduan");
+                if ("1".equals(shoueyezhenduan.getString("diagnosis_num")) && "3".equals(shoueyezhenduan.getString("diagnosis_type_code"))) {
+                    CdssRuleBean cdssRuleBean = new CdssRuleBean();
+                    String diagnosis_name = shoueyezhenduan.getString("diagnosis_name");
+                        cdssRuleBean.setMainIllName(diagnosis_name);
+                        cdssRuleBean.setId(document.getString("_id"));
+                        beanList.add(cdssRuleBean);
+                }
+
+            }
         }
         return beanList;
     }
@@ -665,6 +696,149 @@ public class CdssService {
         }
         return JSONObject.toJSONString(endparamMap);
     }
+
+    public String getJsonStr(String deptName, String start, String end) {
+        String json = "{ \"expressions\": [ [{ \"field\": \"病案首页_就诊信息_就诊科室\", \"exp\": \"=\", \"flag\": \"or\", \"unit\": \"\", \"values\": [\"" + deptName + "\"] }], [{ \"field\": \"病案首页_就诊信息_就诊时间\", \"exp\": \">=\", \"flag\": \"or\", \"unit\": \"\", \"values\": [\"" + start + "\"] }], [{ \"field\": \"病案首页_就诊信息_就诊时间\", \"exp\": \"<=\", \"flag\": \"or\", \"unit\": \"\", \"values\": [\"" + end + "\"] }] ], \"page\": 0, \"size\": 3000, \"result\": [ [{ \"field\": \"病案首页_就诊信息_就诊时间\", \"exp\": \"等于\", \"values\": [], \"flag\": \"0\", \"unit\": \"\" }], [{ \"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=入院初诊,住院首页诊断_诊断序号=1\", \"exp\": \"等于\", \"values\": [], \"flag\": \"0\", \"unit\": \"\" }], [{ \"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=出院诊断,住院首页诊断_诊断序号=1\", \"exp\": \"等于\", \"values\": [\"入院初诊\", \"出院诊断\"], \"flag\": \"0\", \"unit\": \"\" }], [{ \"field\": \"住院上级医师查房录_上级医师查房示_是否明确诊断\", \"exp\": \"等于\", \"values\": [\"是\"], \"flag\": \"0\", \"unit\": \"\" }, { \"field\": \"住院上级医师查房录_上级医师查房示_明确诊断名称\", \"exp\": \"等于\", \"values\": [], \"flag\": \"0\", \"unit\": \"\" },{ \"field\": \"住院上级医师查房录_文书最终提交时间\", \"exp\": \"等于\", \"values\": [], \"flag\": \"0\", \"unit\": \"\" } ] ] }";
+        return json;
+    }
+
+    public List<CdssDiffBean> getDiffBeanList(String data) {
+        List<CdssDiffBean> resultList = new ArrayList<>();
+        if (StringUtils.isNotBlank(data)) {
+            JSONObject jsonObject = JSONObject.parseObject(data);
+
+            Object result = jsonObject.get("result");
+            if (Objects.nonNull(result)) {
+                JSONArray jsonArray = (JSONArray) result;
+                Iterator<Object> iterator = jsonArray.iterator();
+                while (iterator.hasNext()) {
+                    JSONObject next = (JSONObject) iterator.next();
+                    Set<String> strings = next.keySet();
+                    for (String keyname : strings) {
+                        String string = next.getString(keyname);
+                        JSONArray array = JSONArray.parseArray(string);
+                        CdssDiffBean cdssDiffBean = getCdssDiffBean(array);
+                        cdssDiffBean.setId(keyname);
+                        resultList.add(cdssDiffBean);
+                    }
+
+                }
+            }
+        }
+        return resultList;
+    }
+
+    /**
+     * 筛选数据 入=出 专科=false  上级医师查房病=出  是否诊断=是
+     *
+     * @param oldList
+     * @return
+     */
+    public List<CdssDiffBean> getDiffBeanList(List<CdssDiffBean> oldList) {
+        for (CdssDiffBean bean : oldList) {
+            String chuyuanzhenduan = bean.getChuyuanzhenduan();
+            //出诊断=null
+            if (StringUtils.isEmpty(chuyuanzhenduan)) {
+                continue;
+            }
+            //如果入院初诊=出院诊断 过滤
+            if (chuyuanzhenduan.equals(bean.getRuyuanchuzhen())) {
+                continue;
+            }
+            //有专科记录 过滤
+            if (bean.isZhuanke() == true) {
+                continue;
+            }
+            Set<String> allIllNames = samilarService.getAllIllNames(chuyuanzhenduan);
+            List<Shangjiyishichafanglu> shangjiyishichafangluList = bean.getShangjiyishichafangluList();
+
+
+        }
+        return null;
+    }
+
+    public CdssDiffBean getCdssDiffBean(JSONArray array) {
+        Iterator<Object> iterator = array.iterator();
+        CdssDiffBean bean1 = new CdssDiffBean();
+        while (iterator.hasNext()) {
+            Map<String, JSONArray> next = (Map) iterator.next();
+            JSONArray array1 = next.get("病案首页_就诊信息_就诊时间");
+            String value = getValue(array1);
+            if (StringUtils.isNotBlank(value)) {
+                bean1.setAdmission_time(value);
+                continue;
+            }
+            JSONArray rycz = next.get("住院首页诊断_诊断名称,住院首页诊断_诊断类型=入院初诊,住院首页诊断_诊断序号=1");
+            String ryczvalue = getValue(rycz);
+            if (StringUtils.isNotBlank(ryczvalue)) {
+                bean1.setRuyuanchuzhen(ryczvalue);
+                continue;
+            }
+            JSONArray syzd = next.get("住院首页诊断_诊断名称,住院首页诊断_诊断类型=出院诊断,住院首页诊断_诊断序号=1");
+            String syzdValue = getValue(syzd);
+            if (StringUtils.isNotBlank(syzdValue)) {
+                bean1.setChuyuanzhenduan(syzdValue);
+                continue;
+            }
+            JSONArray zksj = next.get("住院转科记录_转科时间");
+            String zksjValue = getValue(zksj);
+
+            if (StringUtils.isNotBlank(zksjValue)) {
+                //明确时间
+                bean1.setZhuanke(true);
+            } else {
+                bean1.setZhuanke(false);
+
+            }
+            JSONArray sjzdmc = next.get("住院上级医师查房录_上级医师查房示_明确诊断名称");
+            JSONArray sjzdmq = next.get("住院上级医师查房录_上级医师查房示_是否明确诊断");
+            JSONArray sjtjsj = next.get("住院上级医师查房录_文书最终提交时间");
+            if (sjzdmc != null && sjtjsj != null) {
+                Shangjiyishichafanglu bean = new Shangjiyishichafanglu();
+                String sjzdmcValue = getValue(sjzdmc);
+                if (StringUtils.isNotBlank(sjzdmcValue)) {
+                    //明确诊断名称
+                    bean.setClear_diagnose_name(sjzdmcValue);
+                }
+
+                String sjzdmqValue = getValue(sjzdmq);
+                if (StringUtils.isNotBlank(sjzdmqValue)) {
+                    bean.setClear_diagnose(sjzdmqValue);
+                }
+
+                String sjtjsjValue = getValue(sjtjsj);
+
+                if (StringUtils.isNotBlank(sjtjsjValue)) {
+                    //明确时间
+                    bean.setLast_modify_date_time(sjtjsjValue);
+                }
+
+
+                if (StringUtils.isNotBlank(sjtjsjValue) && StringUtils.isNotBlank(sjzdmcValue)) {
+                    List<Shangjiyishichafanglu> sjysList = bean1.getShangjiyishichafangluList();
+                    if (sjysList == null) {
+                        sjysList = new ArrayList<>();
+                    }
+                    sjysList.add(bean);
+                    bean1.setShangjiyishichafangluList(sjysList);
+                }
+
+            }
+        }
+        return bean1;
+    }
+
+    public String getValue(JSONArray array) {
+        String value = null;
+        if (array != null) {
+            value = array.getString(0);
+            if (value.equals("null")) {
+                return null;
+            }
+        }
+        return value;
+    }
+
 }
 
 

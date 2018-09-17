@@ -1,22 +1,16 @@
 package jhmk.clinic.cms.controller.cdss;
 
 import com.alibaba.fastjson.JSONObject;
+import jhmk.clinic.cms.SamilarService;
 import jhmk.clinic.cms.controller.ruleService.*;
 import jhmk.clinic.cms.service.CdssRunRuleService;
 import jhmk.clinic.cms.service.CdssService;
-import jhmk.clinic.cms.service.ReadFileService;
 import jhmk.clinic.cms.service.TestService;
 import jhmk.clinic.core.base.BaseController;
-import jhmk.clinic.core.base.Constants;
 import jhmk.clinic.core.config.CdssConstans;
-import jhmk.clinic.core.util.DateFormatUtil;
-import jhmk.clinic.core.util.RedisCacheUtil;
+import jhmk.clinic.core.util.HttpClient;
 import jhmk.clinic.core.util.StringUtil;
 import jhmk.clinic.core.util.ThreadUtil;
-import jhmk.clinic.entity.bean.Binganshouye;
-import jhmk.clinic.entity.bean.MenZhen;
-import jhmk.clinic.entity.bean.Shangjiyishichafanglu;
-import jhmk.clinic.entity.bean.Shouyezhenduan;
 import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import jhmk.clinic.entity.cdss.CdssRunRuleBean;
@@ -36,11 +30,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import static jhmk.clinic.cms.service.InitService.caseList;
+import static jhmk.clinic.cms.service.InitService.diseaseNames;
 
 
 @Controller
@@ -48,8 +44,6 @@ import java.util.*;
 public class CdssController extends BaseController {
     Logger logger = LoggerFactory.getLogger(CdssController.class);
 
-    @Autowired
-    RedisCacheUtil redisCacheUtil;
     @Autowired
     SysDiseasesRepository sysDiseasesRepository;
     @Autowired
@@ -72,10 +66,12 @@ public class CdssController extends BaseController {
     @Autowired
     CdssRunRuleService cdssRunRuleService;
     @Autowired
+    SamilarService samilarService;
+    @Autowired
     RestTemplate restTemplate;
 
     /**
-     * 随机查询 抽取病例
+     * ?????? ???????
      *
      * @param response
      */
@@ -85,20 +81,20 @@ public class CdssController extends BaseController {
         Subject subject = SecurityUtils.getSubject();
         boolean authenticated = subject.isAuthenticated();
         System.out.println(authenticated);
-        //查询所有patientod
+        //???????patientod
         List<String> idList = cdssService.getAllIds();
         int size = idList.size();
         int round = (int) (Math.random() * size);
         String id = idList.get(round);
-        //查询  ruyuanjilu 一诉五史
+        //???  ruyuanjilu ??????
         CdssRuleBean cdssTestBean = cdssService.selruyuanjiluById(id);
-        //病案首页
+        //???????
         Map selbinganshouye = cdssService.selBasy(id);
         cdssTestBean.setBinganshouye(selbinganshouye);
-        //病例诊断
+        //???????
         List<Map<String, String>> selbinglizhenduan1 = cdssService.selbinglizhenduan(id);
         cdssTestBean.setBinglizhenduan(selbinglizhenduan1);
-        //首页诊断
+        //??????
         List<Map<String, String>> syzdList = cdssService.selSyzd(id);
         cdssTestBean.setShouyezhenduan(syzdList);
         List<Map<String, List<Map<String, String>>>> jianYan = cdssService.getJianYan(id);
@@ -113,20 +109,20 @@ public class CdssController extends BaseController {
         JSONObject jsonObject = JSONObject.parseObject(map);
         String pid = jsonObject.getString("pid");
         String vid = jsonObject.getString("vid");
-        //查询所有patientod
+        //???????patientod
         List<String> idList = cdssService.getAllIds();
         int size = idList.size();
         int round = (int) (Math.random() * size);
         String id = idList.get(round);
-        //查询  ruyuanjilu 一诉五史
+        //???  ruyuanjilu ??????
         CdssRuleBean cdssTestBean = cdssService.selruyuanjiluById(id);
-        //病案首页
+        //???????
         Map selbinganshouye = cdssService.selBasy(id);
         cdssTestBean.setBinganshouye(selbinganshouye);
-        //病例诊断
+        //???????
         List<Map<String, String>> selbinglizhenduan1 = cdssService.selbinglizhenduan(id);
         cdssTestBean.setBinglizhenduan(selbinglizhenduan1);
-        //首页诊断
+        //??????
         List<Map<String, String>> syzdList = cdssService.selSyzd(id);
         cdssTestBean.setShouyezhenduan(syzdList);
         List<Map<String, List<Map<String, String>>>> jianYan = cdssService.getJianYan(id);
@@ -157,7 +153,7 @@ public class CdssController extends BaseController {
 //                } catch (NullPointerException e) {
 //
 //                    e.printStackTrace();
-//                    logger.info("错误提示{}" + e.getMessage());
+//                    logger.info("???????{}" + e.getMessage());
 //                    ranDomSelByIllName(response, map);
 //                }
 //                Object o = JSONObject.toJSON(cdssTestBean);
@@ -173,7 +169,7 @@ public class CdssController extends BaseController {
 //            } catch (NullPointerException e) {
 //
 //                e.printStackTrace();
-//                logger.info("错误提示{}" + e.getMessage());
+//                logger.info("???????{}" + e.getMessage());
 //                ranDomSelByIllName(response, map);
 //            }
 //            Object o = JSONObject.toJSON(cdssTestBean);
@@ -185,7 +181,6 @@ public class CdssController extends BaseController {
     @ResponseBody
     public void ranDomSelByIllName(HttpServletResponse response, @RequestBody(required = false) String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
-        List<CdssRuleBean> caseList = redisCacheUtil.getCacheList("illNames");
         if (StringUtils.isNotBlank(map)) {
             String dept_code = jsonObject.getString("dept_code");
             String illName = jsonObject.getString("illname");
@@ -236,7 +231,7 @@ public class CdssController extends BaseController {
             } catch (NullPointerException e) {
 
                 e.printStackTrace();
-                logger.info("错误提示{}" + e.getMessage());
+                logger.info("随机病例获取失败{}" + e.getMessage());
                 ranDomSelByIllName(response, map);
             }
             Object o = JSONObject.toJSON(cdssTestBean);
@@ -250,7 +245,7 @@ public class CdssController extends BaseController {
             } catch (NullPointerException e) {
 
                 e.printStackTrace();
-                logger.info("错误提示{}" + e.getMessage());
+                logger.info("随机病例获取失败{}" + e.getMessage());
                 ranDomSelByIllName(response, map);
             }
             Object o = JSONObject.toJSON(cdssTestBean);
@@ -259,7 +254,7 @@ public class CdssController extends BaseController {
     }
 
     /**
-     * 模糊查询(疾病)
+     * ??????(????)
      *
      * @param response
      * @throws IOException
@@ -268,7 +263,7 @@ public class CdssController extends BaseController {
     @ResponseBody
     public void fuzzySearchForDisease(HttpServletResponse response, @RequestBody(required = true) String map) throws IOException {
         JSONObject jsonObject = JSONObject.parseObject(map);
-        //疾病名称
+        //????????
         String disease = jsonObject.getString("disease");
         List<String> allByChinaDiseasesAndEngDiseases = null;
         String firstSpell = StringUtil.getFirstSpell(disease);
@@ -280,33 +275,12 @@ public class CdssController extends BaseController {
         wirte(response, allByChinaDiseasesAndEngDiseases);
     }
 
-//    @PostMapping("/fuzzySearchForDept")
-//    @ResponseBody
-//    public void fuzzySearchForDept(HttpServletResponse response, @RequestBody(required = true) String map) throws IOException {
-//        JSONObject jsonObject = JSONObject.parseObject(map);
-//        //疾病名称
-//        String dept = jsonObject.getString("dept");
-//        List<String> allByChinaDiseasesAndEngDiseases = null;
-//        String firstSpell = StringUtil.getUppercaseFirstSpell(dept);
-//        if (StringUtil.isChinese(dept)) {
-//            allByChinaDiseasesAndEngDiseases = sysHospitalDeptRepository.findAllByDeptNameAndInputCode(dept, firstSpell);
-//        } else {
-//            allByChinaDiseasesAndEngDiseases = sysHospitalDeptRepository.findAllByInputCode(firstSpell);
-//        }
-//        if (allByChinaDiseasesAndEngDiseases.size()==0){
-//            allByChinaDiseasesAndEngDiseases = sysHospitalDeptRepository.findAllByInputCode("");
-//
-//        }
-//        wirte(response, allByChinaDiseasesAndEngDiseases);
-//    }
-
     @PostMapping("/fuzzySearchForDept")
     @ResponseBody
     public void fuzzySearchForDept(HttpServletResponse response, @RequestBody(required = true) String map) throws IOException {
 
-        Set<String> diseaseNames = redisCacheUtil.getCacheSet("diseaseNames");
         JSONObject jsonObject = JSONObject.parseObject(map);
-        //疾病名称
+        //????????
         String dept = jsonObject.getString("dept");
         List<String> tempName = new LinkedList<>();
 
@@ -321,7 +295,7 @@ public class CdssController extends BaseController {
 
 
     /**
-     * 3院真实数据 去处罚规则
+     * 3???????? ?????????
      *
      * @param response
      * @throws IOException
@@ -331,12 +305,12 @@ public class CdssController extends BaseController {
     public void runRuleZhenDuan(HttpServletResponse response) throws IOException {
 //        ExecutorService exec = Executors.newFixedThreadPool(32);
         ThreadUtil.ThreadPool instance = ThreadUtil.getInstance();
-//        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("C:/嘉和美康文档/cdss文本文件/数据库拼接信息.txt")));
+//        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("C:/???????????/cdss??????/???????????.txt")));
 
-        //查询所有patientod
+        //???????patientod
         List<String> list = cdssService.getAllIds();
         int size = list.size();
-        //每个线程操作 数量
+        //????????? ????
         int ncount = size / 32;
         List<String> tlist = null;
         Runnable runnable = null;
@@ -366,7 +340,7 @@ public class CdssController extends BaseController {
                         bean.setJianchabaogao(jcbg);
                         List<Map<String, String>> jybg = cdssRunRuleService.getJYBG(_id);
                         bean.setJianyanbaogao(jybg);
-                        bean.setWarnSource("住院");
+                        bean.setWarnSource("??");
 
                         String string = JSONObject.toJSONString(bean);
 //                        System.out.println(string);
@@ -376,7 +350,7 @@ public class CdssController extends BaseController {
                         Object parse = JSONObject.parse(string);
                         try {
                             s = restTemplate.postForObject(CdssConstans.URLFORRULE, parse, String.class);
-                            logger.info("匹配规则返回信息为{}", s);
+                            logger.info("???????????{}", s);
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
                         }
@@ -394,7 +368,7 @@ public class CdssController extends BaseController {
     @ResponseBody
     public void runRuleDatabaseSimple(HttpServletResponse response) throws IOException {
 
-        //查询所有patientod
+        //???????patientod
         List<String> list = cdssService.getAllIds();
 
         for (String _id : list) {
@@ -409,7 +383,7 @@ public class CdssController extends BaseController {
             bean.setJianchabaogao(jcbg);
             List<Map<String, String>> jybg = cdssRunRuleService.getJYBG(_id);
             bean.setJianyanbaogao(jybg);
-            bean.setWarnSource("住院");
+            bean.setWarnSource("??");
 
             String string = JSONObject.toJSONString(bean);
 //                        System.out.println(string);
@@ -419,7 +393,7 @@ public class CdssController extends BaseController {
             Object parse = JSONObject.parse(string);
             try {
                 String s = restTemplate.postForObject(CdssConstans.URLFORRULE, parse, String.class);
-                logger.info("匹配规则返回信息为{}", s);
+                logger.info("???????????{}", s);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -430,7 +404,6 @@ public class CdssController extends BaseController {
     @PostMapping("/getDateByIll")
     @ResponseBody
     public void getDateByIll(HttpServletResponse response, @RequestBody String map) {
-        List<CdssRuleBean> caseList = redisCacheUtil.getCacheList("illNames");
         JSONObject jsonObject = JSONObject.parseObject(map);
         String illName = jsonObject.getString("illName");
         List<CdssRuleBean> tem = new LinkedList<>();
@@ -452,130 +425,26 @@ public class CdssController extends BaseController {
         } catch (NullPointerException e) {
 
             e.printStackTrace();
-            logger.info("错误提示{}" + e.getMessage());
+            logger.info("???????{}" + e.getMessage());
             ranDomSelByIllName(response, map);
         }
         Object o = JSONObject.toJSON(cdssTestBean);
         wirte(response, o);
     }
 
-
-    @PostMapping("/rulewarn")
-    @ResponseBody
-    public void rulewarn(HttpServletResponse response, @RequestBody String map) {
-        Object obj = JSONObject.parse(map);
-        Object o = null;
-        try {
-            o = restTemplate.postForObject(Constants.RULEMATCH, obj, String.class);
-        } catch (Exception e) {
-            logger.debug("规则匹配出现错误：{}", e.getCause());
-            System.out.println(e.getMessage());
-        }
-        wirte(response, o);
-    }
-
-
-    /**
-     * 获取数据放入map中 写入文件夹
-     */
-    public void getdata() {
-        testService.write2File();
-        logger.info("统计数量结束了");
-        BufferedWriter bufferedWriter = null;
-        File file = new File("/data/1/CDSS/3院门诊数据.txt");
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            bufferedWriter = new BufferedWriter(new FileWriter(file));
-            List<MenZhen> menZhenData = testService.getMenZhenData();
-            for (MenZhen mz : menZhenData) {
-                String s = mz.getId() + "," + mz.getPatient_id() + "," + mz.getVisit_id() + "," + mz.getBatchno() + "," + mz.getDept_code() + "," + mz.getChief_complaint() + "," + mz.getDiagnosis();
-                logger.info(s);
-                bufferedWriter.write(s);
-                bufferedWriter.newLine();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                bufferedWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @PostMapping("/getDiffData")
-    @ResponseBody
-    public void getDiffData(HttpServletResponse response, @RequestBody(required = false) String map) {
+    @PostMapping("/getDataByDeptAndTime")
+    public void getDataByDeptAndTime(HttpServletResponse response, @RequestBody String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
-        String startTime = null;
-        String endTime = null;
-        String dept_admission_to_name = null;
-        String patiend_id = null;
-        String visit_id = null;
-        if (jsonObject != null) {
-            startTime = jsonObject.getString("startTime");
-            endTime = jsonObject.getString("endTime");
-            dept_admission_to_name = jsonObject.getString("dept_admission_to_name");//科室
-            patiend_id = jsonObject.getString("patiend_id");//科室
-            visit_id = jsonObject.getString("visit_id");//科室
-        }
-        List<CdssDiffBean> resultList = new ArrayList<>();
-        Set<String> diffIds = ReadFileService.readSource("diffIds");
-        CdssDiffBean cdssDiffBean = null;
-        for (String id : diffIds) {
-            cdssDiffBean = new CdssDiffBean();
-            //病案首页
-            Binganshouye beanById = basyService.getBeanById(id);
-            if (beanById==null){
-                continue;
-            }
-            String pid = beanById.getPatient_id();
-            String vid = beanById.getVisit_id();
-            if (StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)) {
-                String admission_time = beanById.getAdmission_time();
-                //入院时间不在时间段内 则过滤
-                if (!DateFormatUtil.isTimeInNow(startTime, endTime, admission_time)) {
-                    continue;
-                }
-            }
-            if (StringUtils.isNotBlank(dept_admission_to_name)) {
-                String dept_admission_to_name1 = beanById.getDept_admission_to_name();
-                //科室名不符合
-                if (!dept_admission_to_name.equals(dept_admission_to_name1)) {
-                    continue;
-                }
-            }
-            if (StringUtils.isNotBlank(patiend_id) && !patiend_id.equals(pid)) {
-                continue;
-            }
-            if (StringUtils.isNotBlank(visit_id) && !vid.equals(visit_id)) {
-                continue;
-            }
-            cdssDiffBean.setBinganshouye(beanById);
-            //上级医师查房
-            List<Shangjiyishichafanglu> sjyscflBean = sjyscflService.getSJYSCFLBean(id);
-            cdssDiffBean.setShangjiyishichafangluList(sjyscflBean);
-            //入院初诊
-            String rycz = syzdService.getRycz(id);
-            cdssDiffBean.setRuyuanchuzhen(rycz);
-            //出院诊断
-            String cyzd = syzdService.getMainDisease(id);
-            cdssDiffBean.setChuyuanzhenduan(cyzd);
-            List<Shouyezhenduan> shoueyezhenduanBean = syzdService.getShoueyezhenduanBean(id);
-            cdssDiffBean.setShouyezhenduanList(shoueyezhenduanBean);
-            resultList.add(cdssDiffBean);
-        }
-
-        wirte(response, resultList);
+        String deptName = jsonObject.getString("deptName");
+        String startTime = jsonObject.getString("startTime");
+        String endTime = jsonObject.getString("endTime");
+        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime);
+        System.out.println(jsonStr);
+        String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
+//        System.out.println(new String(s.getBytes("utf-8"),""));
+        System.out.println(s);
+        List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
+        System.out.println(diffBeanList);
     }
-
 
 }

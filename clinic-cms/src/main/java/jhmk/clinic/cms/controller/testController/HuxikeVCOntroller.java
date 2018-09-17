@@ -207,4 +207,45 @@ public class HuxikeVCOntroller extends BaseController {
 //        Write2File.w2fileList(list, "/data/1/CDSS/2017年呼吸科确诊数据.txt");
         Write2File.w2fileList(list, "2017年呼吸科确诊数据.txt");
     }
+
+    @PostMapping("/getNoDataBy2016")
+    public void getNoDataBy2016() {
+        System.out.println("进来啦======================");
+        Set<String> ids = ReadFileService.readSource("ids2016");
+        List<String> list = new ArrayList<>();
+        for (String id : ids) {
+            String mainDisease = syzdService.getMainDisease(id);
+            //获取此疾病所有上疾病 下疾病 同义词
+            Set<String> allIllNames = samilarService.getAllIllNames(mainDisease);
+            Map<String, String> noSJYSCFL = sjyscflService.getNoSJYSCFL(id, allIllNames);
+            StringBuilder sb = new StringBuilder();
+            if (noSJYSCFL != null && noSJYSCFL.size() > 0) {
+                sb.append(id).append("/").append(noSJYSCFL.get("是否标志") + "/").append(noSJYSCFL.get("诊断名称标志") + "/");
+                list.add(sb.toString());
+            }
+        }
+        Write2File.w2fileList(list, "/data/1/CDSS/2016年呼吸科上级医师查房不一致数据.txt");
+//        Write2File.w2fileList(list, "2016年呼吸科确诊数据.txt");
+    }
+
+
+    @PostMapping("/getNoDataBy2017")
+    public void getNoDataBy2017() {
+        System.out.println("进来啦======================");
+        Set<String> ids = ReadFileService.readSource("ids2017");
+        List<String> list = new ArrayList<>();
+        for (String id : ids) {
+            String mainDisease = syzdService.getMainDisease(id);
+            //获取此疾病所有上疾病 下疾病 同义词
+            Set<String> allIllNames = samilarService.getAllIllNames(mainDisease);
+            Map<String, String> noSJYSCFL = sjyscflService.getNoSJYSCFL(id, allIllNames);
+            StringBuilder sb = new StringBuilder();
+            if (noSJYSCFL != null && noSJYSCFL.size() > 0) {
+                sb.append(id).append("/").append(noSJYSCFL.get("是否标志") + "/").append(noSJYSCFL.get("诊断名称标志") + "/");
+                list.add(sb.toString());
+            }
+        }
+        Write2File.w2fileList(list, "/data/1/CDSS/2016年呼吸科上级医师查房不一致数据.txt");
+    }
+
 }

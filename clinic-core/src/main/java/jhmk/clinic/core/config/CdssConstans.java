@@ -4,6 +4,7 @@ public class CdssConstans {
 
 
     public static final String BINGANSHOUYE = "binganshouye";
+    public static final String ZHUANKEJILU = "zhuankejilu";
     public static final String BINGLIZHENDUAN = "binglizhenduan";
     public static final String SHOUYEZHENDUAN = "shouyezhenduan";
     public static final String RUYUANJILU = "ruyuanjilu";
@@ -63,6 +64,10 @@ public class CdssConstans {
 
     public static final int BEGINCOUNT = 0;
     public static final int ENDCOUNT = 30000;
+
+
+    //es查询
+    public static final String patients="http://192.168.8.31:8833/med/advanced/allVariableJilian.json";
 
 
     static final public String DEVURL = "/data/1/CDSS/data/";
