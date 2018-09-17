@@ -3,10 +3,8 @@ package jhmk.clinic.cms.service;
 import jhmk.clinic.cms.controller.ruleService.BasyService;
 import jhmk.clinic.core.util.MyThreadPoolManager;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -21,8 +19,7 @@ import java.util.concurrent.ExecutorService;
 @Service
 public class InitService {
 
-    @Autowired
-    public RedisTemplate redisTemplate;
+
     //疾病集合
     static Set<String> liiNames = new HashSet<>();
     //病例集合

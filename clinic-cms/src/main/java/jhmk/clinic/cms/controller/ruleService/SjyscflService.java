@@ -50,10 +50,14 @@ public class SjyscflService {
         );
         AggregateIterable<Document> output = shangjiyishichafanglu.aggregate(countPatientId2);
 
-        Map<String, String> stringMap = null;
         for (Document document : output) {
-
+            if (document.get("shangjiyishichafanglu") == null) {
+                continue;
+            }
             ArrayList<Document> shangjiyishichafangluDocList = (ArrayList<Document>) document.get("shangjiyishichafanglu");
+            if (shangjiyishichafangluDocList == null) {
+                continue;
+            }
             for (Document shangjiyishichafangluDoc : shangjiyishichafangluDocList) {
 
                 //既往史
@@ -62,7 +66,7 @@ public class SjyscflService {
                     String clear_diagnose = treatment_plan.getString("clear_diagnose");
                     String clear_diagnose_name = treatment_plan.getString("clear_diagnose_name");
                     if ("是".equals(clear_diagnose)) {
-                        stringMap = new HashMap<>();
+                        Map<String, String> stringMap = new HashMap<>();
                         String last_modify_date_time = shangjiyishichafangluDoc.getString("last_modify_date_time");
                         stringMap.put(clear_diagnose_name, last_modify_date_time);
                         maptemp.add(stringMap);
@@ -108,7 +112,7 @@ public class SjyscflService {
                 }
             }
         }
-        Collections.sort(list,new CompareUtil.ImComparator(1,"last_modify_date_time"));
+        Collections.sort(list, new CompareUtil.ImComparator(1, "last_modify_date_time"));
         return list;
     }
 

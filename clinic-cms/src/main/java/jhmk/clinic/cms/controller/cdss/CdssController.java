@@ -10,7 +10,6 @@ import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.base.Constants;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.DateFormatUtil;
-import jhmk.clinic.core.util.RedisCacheUtil;
 import jhmk.clinic.core.util.StringUtil;
 import jhmk.clinic.core.util.ThreadUtil;
 import jhmk.clinic.entity.bean.Binganshouye;
@@ -42,14 +41,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
+import static jhmk.clinic.cms.service.InitService.caseList;
+import static jhmk.clinic.cms.service.InitService.diseaseNames;
+
 
 @Controller
 @RequestMapping("/test/cdss")
 public class CdssController extends BaseController {
     Logger logger = LoggerFactory.getLogger(CdssController.class);
 
-    @Autowired
-    RedisCacheUtil redisCacheUtil;
     @Autowired
     SysDiseasesRepository sysDiseasesRepository;
     @Autowired
@@ -185,7 +185,6 @@ public class CdssController extends BaseController {
     @ResponseBody
     public void ranDomSelByIllName(HttpServletResponse response, @RequestBody(required = false) String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
-        List<CdssRuleBean> caseList = redisCacheUtil.getCacheList("illNames");
         if (StringUtils.isNotBlank(map)) {
             String dept_code = jsonObject.getString("dept_code");
             String illName = jsonObject.getString("illname");
@@ -304,7 +303,6 @@ public class CdssController extends BaseController {
     @ResponseBody
     public void fuzzySearchForDept(HttpServletResponse response, @RequestBody(required = true) String map) throws IOException {
 
-        Set<String> diseaseNames = redisCacheUtil.getCacheSet("diseaseNames");
         JSONObject jsonObject = JSONObject.parseObject(map);
         //疾病名称
         String dept = jsonObject.getString("dept");
@@ -430,7 +428,6 @@ public class CdssController extends BaseController {
     @PostMapping("/getDateByIll")
     @ResponseBody
     public void getDateByIll(HttpServletResponse response, @RequestBody String map) {
-        List<CdssRuleBean> caseList = redisCacheUtil.getCacheList("illNames");
         JSONObject jsonObject = JSONObject.parseObject(map);
         String illName = jsonObject.getString("illName");
         List<CdssRuleBean> tem = new LinkedList<>();

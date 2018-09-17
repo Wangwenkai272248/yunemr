@@ -236,4 +236,21 @@ public class BasyService {
         }
         return set;
     }
+
+    public List<String> getDataByNoDept(String deptName) {
+        List<String> idsList = new ArrayList<>();
+        AggregateIterable<Document> output = binganshouye.aggregate(Arrays.asList());
+        for (Document document : output) {
+            String id = document.getString("_id");
+            Document binganshouye = (Document) document.get("binganshouye");
+            Document patVisit = (Document) binganshouye.get("pat_visit");
+            String discharge_time = patVisit.getString("dept_discharge_from_name");
+            String dept_discharge_from_name = patVisit.getString("dept_discharge_from_name");
+            if (deptName.equals(dept_discharge_from_name)) {
+                idsList.add(id);
+            }
+        }
+        return idsList;
+    }
+
 }

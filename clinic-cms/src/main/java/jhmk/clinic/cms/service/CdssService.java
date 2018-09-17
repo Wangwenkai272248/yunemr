@@ -7,16 +7,15 @@ import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import jhmk.clinic.core.config.CdssConstans;
-import jhmk.clinic.core.util.RedisCacheUtil;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static jhmk.clinic.cms.service.InitService.liiNames;
 import static jhmk.clinic.core.util.MongoUtils.getCollection;
 
 /**
@@ -27,8 +26,6 @@ import static jhmk.clinic.core.util.MongoUtils.getCollection;
 
 @Service
 public class CdssService {
-    @Autowired
-    RedisCacheUtil redisCacheUtil;
     MongoCollection<Document> binganshouye = getCollection(CdssConstans.DATASOURCE, CdssConstans.BINGANSHOUYE);
     //入院记录
     static MongoCollection<Document> ruyuanjilu = getCollection(CdssConstans.DATASOURCE, CdssConstans.RUYUANJILU);
@@ -203,7 +200,6 @@ public class CdssService {
 
     //获取出院主疾病在疾病列表中的id
     public List<CdssRuleBean> getAllIdsByIllName() {
-        List<String> liiNames = redisCacheUtil.getCacheList("illNames");
 
         List<CdssRuleBean> beanList = new LinkedList<>();
         List<Document> countPatientId = Arrays.asList(
