@@ -27,7 +27,6 @@ public class SamilarService {
      * @return
      */
     public List<String> getSamilarWord(String name) {
-        RestTemplate restTemplate=new RestTemplate();
         List<String> list = new ArrayList<>();
         Object params = getParams(name);
         String sames = restTemplate.postForObject(CdssConstans.getSamilarWord, params, String.class);
@@ -50,7 +49,6 @@ public class SamilarService {
      */
 
     public List<String> getDiseaseChildrenList(String name) {
-        RestTemplate restTemplate=new RestTemplate();
         List<String> list = new ArrayList<>();
         Object params = getParams(name);
         String sames = restTemplate.postForObject(CdssConstans.getDiseaseChildrenList, params, String.class);
@@ -73,7 +71,6 @@ public class SamilarService {
      */
 
     public List<String> getParentList(String name) {
-        RestTemplate restTemplate=new RestTemplate();
         List<String> list = new ArrayList<>();
         Object params = getParams(name);
         String sames = restTemplate.postForObject(CdssConstans.getParentList, params, String.class);

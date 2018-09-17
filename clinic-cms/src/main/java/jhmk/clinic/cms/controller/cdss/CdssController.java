@@ -13,6 +13,7 @@ import jhmk.clinic.core.util.ThreadUtil;
 import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import jhmk.clinic.entity.cdss.CdssRunRuleBean;
+import jhmk.clinic.entity.cdss.StatisticsBean;
 import jhmk.clinic.entity.pojo.repository.SysDiseasesRepository;
 import jhmk.clinic.entity.pojo.repository.SysHospitalDeptRepository;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +70,7 @@ public class CdssController extends BaseController {
     RestTemplate restTemplate;
 
     /**
-     * ?????? ???????
+     *
      *
      * @param response
      */
@@ -458,10 +460,35 @@ public class CdssController extends BaseController {
         String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime);
         System.out.println(jsonStr);
         String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
-//        System.out.println(new String(s.getBytes("utf-8"),""));
-        System.out.println(s);
         List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
-        System.out.println(diffBeanList);
+        List<CdssDiffBean> diffBeanList1 = cdssService.getDiffBeanList(diffBeanList);
+//        List<CdssDiffBean> diffBeanList1 = cdssService.getAllDiffBeanList(diffBeanList);
+        wirte(response,diffBeanList1);
+    }
+
+    /**
+     * 分析数据
+     * @param response
+     * @param map
+     */
+    @PostMapping("/analyzeData")
+    public void analyzeData(HttpServletResponse response, @RequestBody String map) {
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        String idList = jsonObject.getString("idList");
+        String[] split = idList.split(",");
+        String jsonStr = cdssService.getJsonStr1(split);
+        System.out.println(jsonStr);
+        String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
+        List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
+        List<CdssDiffBean> diffBeanList1 = cdssService.getDiffBeanList(diffBeanList);
+        Map<String, StatisticsBean> stringStatisticsBeanMap = cdssService.analyzeData(diffBeanList1);
+        List<StatisticsBean>result=new ArrayList<>();
+        for (Map.Entry<String,StatisticsBean>entry:stringStatisticsBeanMap.entrySet()){
+            StatisticsBean value = entry.getValue();
+            value.setAvgDay(value.getDay()/value.getCount());
+            result.add(value);
+        }
+        wirte(response,result);
     }
 
 }

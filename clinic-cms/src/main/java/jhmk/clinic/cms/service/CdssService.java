@@ -8,9 +8,12 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import jhmk.clinic.cms.SamilarService;
 import jhmk.clinic.core.config.CdssConstans;
+import jhmk.clinic.core.util.CompareUtil;
+import jhmk.clinic.core.util.DateFormatUtil;
 import jhmk.clinic.entity.bean.Shangjiyishichafanglu;
 import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
+import jhmk.clinic.entity.cdss.StatisticsBean;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -213,7 +216,7 @@ public class CdssService {
                 new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
                 , new Document("$skip", CdssConstans.BEGINCOUNT),
                 new Document("$limit", CdssConstans.ENDCOUNT)
-//                new Document("$limit", 500)
+//new Document("$limit", 500)
         );
         AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
         for (Document document : binli) {
@@ -270,9 +273,9 @@ public class CdssService {
         CdssRuleBean selbinglizhenduan = new CdssRuleBean();
         List<Map<String, String>> ruyuanjiluList = new ArrayList<>();
         List<Document> countPatientId2 = Arrays.asList(
-                //过滤数据
+//过滤数据
                 new Document("$match", new Document("_id", id)),
-//                new Document("$unwind","$diagnosis_name"),
+//new Document("$unwind","$diagnosis_name"),
                 new Document("$project", new Document("patient_id", 1).append("visit_id", 1).append("ruyuanjilu", 1)
                 )
 
@@ -568,17 +571,17 @@ public class CdssService {
                     List<Document> lab_report = jianchabaogao.get("exam_report", List.class);
                     for (Document d : lab_report) {
                         Map<String, String> map = new HashMap<>();
-                        // 检查项目名
+// 检查项目名
                         map.put("exam_item_name", flagObj(d.get("exam_item_name")));
-                        //检查类别名
+//检查类别名
                         map.put("exam_class_name", flagObj(d.get("exam_class_name")));
-                        //检查所见
+//检查所见
                         map.put("exam_feature", flagObj(d.get("exam_feature")));
                         map.put("exam_diag", flagObj(d.get("exam_diag")));
                         map.put("exam_time", flagObj(d.get("exam_time")));
-//                    map.put("exam_feature_quantization", flagObj(d.get("exam_feature_quantization")));
-//                    map.put("exam_diag_quantization", flagObj(d.get("exam_diag_quantization")));
-//                map.put("检验子项值单位",d.get("").toString());
+//    map.put("exam_feature_quantization", flagObj(d.get("exam_feature_quantization")));
+//    map.put("exam_diag_quantization", flagObj(d.get("exam_diag_quantization")));
+//map.put("检验子项值单位",d.get("").toString());
                         jiancha.add(map);
                     }
                 }
@@ -591,7 +594,7 @@ public class CdssService {
 
     public List<Map<String, String>> selYizhu(String id) {
         List<Document> countPatientId2 = Arrays.asList(
-                //过滤数据
+//过滤数据
                 new Document("$match", new Document("_id", id)),
                 new Document("$unwind", "$yizhu"),
                 new Document("$project", new Document("patient_id", 1).append("visit_id", 1).append("yizhu", 1)
@@ -698,8 +701,89 @@ public class CdssService {
     }
 
     public String getJsonStr(String deptName, String start, String end) {
-        String json = "{ \"expressions\": [ [{ \"field\": \"病案首页_就诊信息_就诊科室\", \"exp\": \"=\", \"flag\": \"or\", \"unit\": \"\", \"values\": [\"" + deptName + "\"] }], [{ \"field\": \"病案首页_就诊信息_就诊时间\", \"exp\": \">=\", \"flag\": \"or\", \"unit\": \"\", \"values\": [\"" + start + "\"] }], [{ \"field\": \"病案首页_就诊信息_就诊时间\", \"exp\": \"<=\", \"flag\": \"or\", \"unit\": \"\", \"values\": [\"" + end + "\"] }] ], \"page\": 0, \"size\": 3000, \"result\": [ [{ \"field\": \"病案首页_就诊信息_就诊时间\", \"exp\": \"等于\", \"values\": [], \"flag\": \"0\", \"unit\": \"\" }], [{ \"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=入院初诊,住院首页诊断_诊断序号=1\", \"exp\": \"等于\", \"values\": [], \"flag\": \"0\", \"unit\": \"\" }], [{ \"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=出院诊断,住院首页诊断_诊断序号=1\", \"exp\": \"等于\", \"values\": [\"入院初诊\", \"出院诊断\"], \"flag\": \"0\", \"unit\": \"\" }], [{ \"field\": \"住院上级医师查房录_上级医师查房示_是否明确诊断\", \"exp\": \"等于\", \"values\": [\"是\"], \"flag\": \"0\", \"unit\": \"\" }, { \"field\": \"住院上级医师查房录_上级医师查房示_明确诊断名称\", \"exp\": \"等于\", \"values\": [], \"flag\": \"0\", \"unit\": \"\" },{ \"field\": \"住院上级医师查房录_文书最终提交时间\", \"exp\": \"等于\", \"values\": [], \"flag\": \"0\", \"unit\": \"\" } ] ] }";
+        String json = "{\"expressions\": [[{  \"field\": \"病案首页_就诊信息_就诊科室\",  \"exp\": \"=\",     \"flag\": \"or\",   \"unit\": \"\",     \"values\": [\"" + deptName + "\"]       }], [{  \"field\": \"病案首页_就诊信息_就诊时间\",  \"exp\": \">=\",    \"flag\": \"or\",   \"unit\": \"\",     \"values\": [\"" + start + "\"]}], [{  \"field\": \"病案首页_就诊信息_就诊时间\",  \"exp\": \"<=\",    \"flag\": \"or\",   \"unit\": \"\",     \"values\": [\"" + end + "\"]}]  ],  \"page\": 0,  \"size\": 3000,   \"result\": [ [{  \"field\": \"病案首页_就诊信息_就诊时间\",  \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }], [{  \"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=入院初诊,住院首页诊断_诊断序号=1\",  \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }], [{  \"field\": \"住院转科记录_转科时间\",     \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }], [{  \"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=出院诊断,住院首页诊断_诊断序号=1\",  \"exp\": \"等于\",    \"values\": [\"入院初诊\", \"出院诊断\"],     \"flag\": \"0\",    \"unit\": \"\"      }], [{  \"field\": \"住院上级医师查房录_上级医师查房示_是否明确诊断\",    \"exp\": \"等于\",    \"values\": [\"是\"],    \"flag\": \"0\",    \"unit\": \"\"      }, {    \"field\": \"住院上级医师查房录_上级医师查房示_明确诊断名称\",    \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }, {    \"field\": \"住院上级医师查房录_文书最终提交时间\",  \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }]  ] }";
         return json;
+    }
+
+    public String getJsonStr1(String[] ids) {
+        StringBuilder sb = new StringBuilder();
+        for (String id : ids) {
+            sb.append("\"").append(id).append("\"").append(",");
+        }
+        String substring = sb.substring(0, sb.length() - 1);
+        String json = "{\n" +
+                "\t\"expressions\": [\n" +
+                "\t\t[{\n" +
+                "\t\t\t\"field\": \"fieldId\",\n" +
+                "\t\t\t\"exp\": \"=\",\n" +
+                "\t\t\t\"flag\": \"or\",\n" +
+                "\t\t\t\"unit\": \"\",\n" +
+                "\t\t\t\"values\": ["+substring+"]\n" +
+                "\t\t}]\n" +
+                "\t],\n" +
+                "\t\"page\": 0,\n" +
+                "\t\"size\": 3000,\n" +
+                "\t\"result\": [\n" +
+                "\t\t[{\n" +
+                "\t\t\t\"field\": \"病案首页_就诊信息_就诊时间\",\n" +
+                "\t\t\t\"exp\": \"等于\",\n" +
+                "\t\t\t\"values\": [],\n" +
+                "\t\t\t\"flag\": \"0\",\n" +
+                "\t\t\t\"unit\": \"\"\n" +
+                "\t\t}],\n" +
+                "\t\t[{\n" +
+                "\t\t\t\"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=入院初诊,住院首页诊断_诊断序号=1\",\n" +
+                "\t\t\t\"exp\": \"等于\",\n" +
+                "\t\t\t\"values\": [],\n" +
+                "\t\t\t\"flag\": \"0\",\n" +
+                "\t\t\t\"unit\": \"\"\n" +
+                "\t\t}],\n" +
+                "\t\t[{\n" +
+                "\t\t\t\"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=出院诊断,住院首页诊断_诊断序号=1\",\n" +
+                "\t\t\t\"exp\": \"等于\",\n" +
+                "\t\t\t\"values\": [\"入院初诊\", \"出院诊断\"],\n" +
+                "\t\t\t\"flag\": \"0\",\n" +
+                "\t\t\t\"unit\": \"\"\n" +
+                "\t\t}],\n" +
+                "\t\t[{\n" +
+                "\t\t\t\"field\": \"住院上级医师查房录_上级医师查房示_是否明确诊断\",\n" +
+                "\t\t\t\"exp\": \"等于\",\n" +
+                "\t\t\t\"values\": [\"是\"],\n" +
+                "\t\t\t\"flag\": \"0\",\n" +
+                "\t\t\t\"unit\": \"\"\n" +
+                "\t\t}, {\n" +
+                "\t\t\t\"field\": \"住院上级医师查房录_上级医师查房示_明确诊断名称\",\n" +
+                "\t\t\t\"exp\": \"等于\",\n" +
+                "\t\t\t\"values\": [],\n" +
+                "\t\t\t\"flag\": \"0\",\n" +
+                "\t\t\t\"unit\": \"\"\n" +
+                "\t\t}, {\n" +
+                "\t\t\t\"field\": \"住院上级医师查房录_文书最终提交时间\",\n" +
+                "\t\t\t\"exp\": \"等于\",\n" +
+                "\t\t\t\"values\": [],\n" +
+                "\t\t\t\"flag\": \"0\",\n" +
+                "\t\t\t\"unit\": \"\"\n" +
+                "\t\t}],[\n" +
+                "\t\t\t{\n" +
+                "\t\t\t\"field\": \"住院转科记录_转科时间\",\n" +
+                "\t\t\t\"exp\": \"等于\",\n" +
+                "\t\t\t\"values\": [],\n" +
+                "\t\t\t\"flag\": \"0\",\n" +
+                "\t\t\t\"unit\": \"\"\n" +
+                "\t\t}]\n" +
+                "\t]\n" +
+                "}";
+
+        return json;
+    }
+
+    public static void main(String[] args) {
+        List<String> list = new ArrayList<>();
+        list.add("a");
+        list.add("b");
+        list.add("c");
+        list.add("d");
+        System.out.println(list.toString());
     }
 
     public List<CdssDiffBean> getDiffBeanList(String data) {
@@ -735,6 +819,7 @@ public class CdssService {
      * @return
      */
     public List<CdssDiffBean> getDiffBeanList(List<CdssDiffBean> oldList) {
+        List<CdssDiffBean> resultList = new ArrayList<>();
         for (CdssDiffBean bean : oldList) {
             String chuyuanzhenduan = bean.getChuyuanzhenduan();
             //出诊断=null
@@ -749,12 +834,124 @@ public class CdssService {
             if (bean.isZhuanke() == true) {
                 continue;
             }
-            Set<String> allIllNames = samilarService.getAllIllNames(chuyuanzhenduan);
+            if (bean.getShangjiyishichafangluList() == null) {
+                continue;
+            }
+            Set<String> illNames = samilarService.getAllIllNames(chuyuanzhenduan);
             List<Shangjiyishichafanglu> shangjiyishichafangluList = bean.getShangjiyishichafangluList();
+
+            Collections.sort(shangjiyishichafangluList, CompareUtil.createComparator(1, "last_modify_date_time"));
+            //跳出循环
+            lable1:
+            for (Shangjiyishichafanglu shangjiyishichafanglu : shangjiyishichafangluList) {
+                String clear_diagnose_name = shangjiyishichafanglu.getClear_diagnose_name();
+                String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
+                String[] split = clear_diagnose_name.split(" ");
+                for (String s : split) {
+                    for (String s1 : illNames) {
+                        if (s.contains(s1) || s1.contains(s)) {
+                            bean.setSjyscfTime(last_modify_date_time);
+                            bean.setSjyscfName(clear_diagnose_name);
+                            bean.setFlag(true);
+                            resultList.add(bean);
+                            break lable1;
+                        }
+                    }
+
+                }
+
+            }
 
 
         }
-        return null;
+        return resultList;
+    }
+
+    public List<CdssDiffBean> getAllDiffBeanList(List<CdssDiffBean> oldList) {
+        List<CdssDiffBean> resultList = new ArrayList<>();
+        for (CdssDiffBean bean : oldList) {
+            String chuyuanzhenduan = bean.getChuyuanzhenduan();
+            //出诊断=null
+            if (StringUtils.isEmpty(chuyuanzhenduan)) {
+                bean.setFlag(false);
+                resultList.add(bean);
+                continue;
+            }
+            //如果入院初诊=出院诊断 过滤
+            if (chuyuanzhenduan.equals(bean.getRuyuanchuzhen())) {
+                bean.setFlag(false);
+                resultList.add(bean);
+                continue;
+            }
+            //有专科记录 过滤
+            if (bean.isZhuanke() == true) {
+                bean.setFlag(false);
+                resultList.add(bean);
+                continue;
+            }
+            if (bean.getShangjiyishichafangluList() == null) {
+                bean.setFlag(false);
+                resultList.add(bean);
+                continue;
+            }
+            Set<String> illNames = samilarService.getAllIllNames(chuyuanzhenduan);
+            List<Shangjiyishichafanglu> shangjiyishichafangluList = bean.getShangjiyishichafangluList();
+
+            Collections.sort(shangjiyishichafangluList, CompareUtil.createComparator(1, "last_modify_date_time"));
+            //跳出循环
+            lable1:
+            for (Shangjiyishichafanglu shangjiyishichafanglu : shangjiyishichafangluList) {
+                String clear_diagnose_name = shangjiyishichafanglu.getClear_diagnose_name();
+                String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
+                String[] split = clear_diagnose_name.split(" ");
+                for (String s : split) {
+                    for (String s1 : illNames) {
+                        if (s.contains(s1) || s1.contains(s)) {
+                            bean.setSjyscfTime(last_modify_date_time);
+                            bean.setSjyscfName(clear_diagnose_name);
+                            bean.setFlag(true);
+                            resultList.add(bean);
+                            break lable1;
+                        }
+                    }
+
+                }
+
+            }
+
+
+        }
+        return resultList;
+    }
+
+    public Map<String, StatisticsBean> analyzeData(List<CdssDiffBean> list) {
+        Map<String, StatisticsBean> staMap = new HashMap<>();
+        for (CdssDiffBean cdssDiffBean : list) {
+            String chuyuanzhenduan = cdssDiffBean.getChuyuanzhenduan();
+            String addmissionTime = cdssDiffBean.getAdmission_time();
+            String resultValue = cdssDiffBean.getSjyscfTime();
+            List<String> samilarWord = samilarService.getSamilarWord(chuyuanzhenduan);
+            if (samilarWord.size() > 0) {
+                chuyuanzhenduan = samilarWord.get(0);
+            }
+            int l = (int) DateFormatUtil.dateDiff(DateFormatUtil.parseDateBySdf(resultValue, DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(addmissionTime, DateFormatUtil.DATETIME_PATTERN_SS));
+
+            if (staMap.containsKey(chuyuanzhenduan)) {
+                StatisticsBean statisticsBean = staMap.get(chuyuanzhenduan);
+                statisticsBean.setIllName(chuyuanzhenduan);
+                statisticsBean.setCount(statisticsBean.getCount() + 1);
+                statisticsBean.setDay(statisticsBean.getDay() + l);
+                staMap.put(chuyuanzhenduan, statisticsBean);
+            } else {
+                StatisticsBean statisticsBean = new StatisticsBean();
+                statisticsBean.setIllName(chuyuanzhenduan);
+                statisticsBean.setCount(1);
+                statisticsBean.setDay(l);
+                staMap.put(chuyuanzhenduan, statisticsBean);
+            }
+
+        }
+        return staMap;
     }
 
     public CdssDiffBean getCdssDiffBean(JSONArray array) {
@@ -784,7 +981,7 @@ public class CdssService {
             String zksjValue = getValue(zksj);
 
             if (StringUtils.isNotBlank(zksjValue)) {
-                //明确时间
+//明确时间
                 bean1.setZhuanke(true);
             } else {
                 bean1.setZhuanke(false);
