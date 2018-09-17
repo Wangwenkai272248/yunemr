@@ -4,19 +4,12 @@ import com.alibaba.fastjson.JSONObject;
 import jhmk.clinic.cms.controller.ruleService.*;
 import jhmk.clinic.cms.service.CdssRunRuleService;
 import jhmk.clinic.cms.service.CdssService;
-import jhmk.clinic.cms.service.ReadFileService;
 import jhmk.clinic.cms.service.TestService;
 import jhmk.clinic.core.base.BaseController;
-import jhmk.clinic.core.base.Constants;
 import jhmk.clinic.core.config.CdssConstans;
-import jhmk.clinic.core.util.DateFormatUtil;
-import jhmk.clinic.core.util.RedisCacheUtil;
+import jhmk.clinic.core.util.HttpClient;
 import jhmk.clinic.core.util.StringUtil;
 import jhmk.clinic.core.util.ThreadUtil;
-import jhmk.clinic.entity.bean.Binganshouye;
-import jhmk.clinic.entity.bean.MenZhen;
-import jhmk.clinic.entity.bean.Shangjiyishichafanglu;
-import jhmk.clinic.entity.bean.Shouyezhenduan;
 import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import jhmk.clinic.entity.cdss.CdssRunRuleBean;
@@ -36,11 +29,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import static jhmk.clinic.cms.service.InitService.caseList;
+import static jhmk.clinic.cms.service.InitService.diseaseNames;
 
 
 @Controller
@@ -301,7 +296,6 @@ public class CdssController extends BaseController {
     @ResponseBody
     public void fuzzySearchForDept(HttpServletResponse response, @RequestBody(required = true) String map) throws IOException {
 
-        Set<String> diseaseNames = redisCacheUtil.getCacheSet("diseaseNames");
         JSONObject jsonObject = JSONObject.parseObject(map);
         //疾病名称
         String dept = jsonObject.getString("dept");
