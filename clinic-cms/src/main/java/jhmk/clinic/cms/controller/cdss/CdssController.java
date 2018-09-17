@@ -458,11 +458,10 @@ public class CdssController extends BaseController {
         String startTime = jsonObject.getString("startTime");
         String endTime = jsonObject.getString("endTime");
         String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime);
-        System.out.println(jsonStr);
         String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
         List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
-        List<CdssDiffBean> diffBeanList1 = cdssService.getDiffBeanList(diffBeanList);
-//        List<CdssDiffBean> diffBeanList1 = cdssService.getAllDiffBeanList(diffBeanList);
+//        List<CdssDiffBean> diffBeanList1 = cdssService.getDiffBeanList(diffBeanList);
+        List<CdssDiffBean> diffBeanList1 = cdssService.getAllDiffBeanList(diffBeanList);
         wirte(response,diffBeanList1);
     }
 
@@ -477,7 +476,6 @@ public class CdssController extends BaseController {
         String idList = jsonObject.getString("idList");
         String[] split = idList.split(",");
         String jsonStr = cdssService.getJsonStr1(split);
-        System.out.println(jsonStr);
         String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
         List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
         List<CdssDiffBean> diffBeanList1 = cdssService.getDiffBeanList(diffBeanList);

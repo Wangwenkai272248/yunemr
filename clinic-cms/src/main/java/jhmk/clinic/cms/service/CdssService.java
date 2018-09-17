@@ -777,15 +777,6 @@ public class CdssService {
         return json;
     }
 
-    public static void main(String[] args) {
-        List<String> list = new ArrayList<>();
-        list.add("a");
-        list.add("b");
-        list.add("c");
-        list.add("d");
-        System.out.println(list.toString());
-    }
-
     public List<CdssDiffBean> getDiffBeanList(String data) {
         List<CdssDiffBean> resultList = new ArrayList<>();
         if (StringUtils.isNotBlank(data)) {
