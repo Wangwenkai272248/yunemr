@@ -718,7 +718,7 @@ public class CdssService {
                 "\t\t\t\"exp\": \"=\",\n" +
                 "\t\t\t\"flag\": \"or\",\n" +
                 "\t\t\t\"unit\": \"\",\n" +
-                "\t\t\t\"values\": ["+substring+"]\n" +
+                "\t\t\t\"values\": [" + substring + "]\n" +
                 "\t\t}]\n" +
                 "\t],\n" +
                 "\t\"page\": 0,\n" +
@@ -869,11 +869,7 @@ public class CdssService {
                 continue;
             }
             //如果入院初诊=出院诊断 过滤
-            if (chuyuanzhenduan.equals(bean.getRuyuanchuzhen())) {
-                bean.setFlag(false);
-                resultList.add(bean);
-                continue;
-            }
+
             //有专科记录 过滤
             if (bean.isZhuanke() == true) {
                 bean.setFlag(false);
@@ -886,10 +882,16 @@ public class CdssService {
                 continue;
             }
             Set<String> illNames = samilarService.getAllIllNames(chuyuanzhenduan);
+            if (illNames.contains(bean.getRuyuanchuzhen())) {
+                bean.setFlag(false);
+                resultList.add(bean);
+                continue;
+            }
             List<Shangjiyishichafanglu> shangjiyishichafangluList = bean.getShangjiyishichafangluList();
 
             Collections.sort(shangjiyishichafangluList, CompareUtil.createComparator(1, "last_modify_date_time"));
             //跳出循环
+            boolean flag = false;
             lable1:
             for (Shangjiyishichafanglu shangjiyishichafanglu : shangjiyishichafangluList) {
                 String clear_diagnose_name = shangjiyishichafanglu.getClear_diagnose_name();
@@ -902,12 +904,18 @@ public class CdssService {
                             bean.setSjyscfName(clear_diagnose_name);
                             bean.setFlag(true);
                             resultList.add(bean);
+                            flag = true;
                             break lable1;
                         }
                     }
 
                 }
 
+            }
+            if (!flag) {
+                bean.setFlag(false);
+                resultList.add(bean);
+                continue;
             }
 
 
@@ -948,6 +956,7 @@ public class CdssService {
     public CdssDiffBean getCdssDiffBean(JSONArray array) {
         Iterator<Object> iterator = array.iterator();
         CdssDiffBean bean1 = new CdssDiffBean();
+        List<Shangjiyishichafanglu> sjysList = new ArrayList<>();
         while (iterator.hasNext()) {
             Map<String, JSONArray> next = (Map) iterator.next();
             JSONArray array1 = next.get("病案首页_就诊信息_就诊时间");
@@ -1000,18 +1009,12 @@ public class CdssService {
                     //明确时间
                     bean.setLast_modify_date_time(sjtjsjValue);
                 }
-
-
                 if (StringUtils.isNotBlank(sjtjsjValue) && StringUtils.isNotBlank(sjzdmcValue)) {
-                    List<Shangjiyishichafanglu> sjysList = bean1.getShangjiyishichafangluList();
-                    if (sjysList == null) {
-                        sjysList = new ArrayList<>();
-                    }
                     sjysList.add(bean);
-                    bean1.setShangjiyishichafangluList(sjysList);
                 }
 
             }
+            bean1.setShangjiyishichafangluList(sjysList);
         }
         return bean1;
     }
@@ -1027,6 +1030,22 @@ public class CdssService {
         return value;
     }
 
+    public List<CdssDiffBean> getRyeqCy(List<CdssDiffBean> diffBeanList) {
+        List<CdssDiffBean> resultList = new ArrayList<>();
+        for (CdssDiffBean bean : diffBeanList) {
+            String chuyuanzhenduan = bean.getChuyuanzhenduan();
+            String ruyuanchuzhen = bean.getRuyuanchuzhen();
+            if (StringUtils.isEmpty(chuyuanzhenduan)) {
+                continue;
+            }
+            Set<String> illNames = samilarService.getAllIllNames(chuyuanzhenduan);
+            if (illNames.contains(ruyuanchuzhen)) {
+                bean.setFlag(true);
+                resultList.add(bean);
+            }
+        }
+        return resultList;
+    }
 }
 
 

@@ -70,8 +70,6 @@ public class CdssController extends BaseController {
     RestTemplate restTemplate;
 
     /**
-     *
-     *
      * @param response
      */
     @PostMapping("/ranDomSelold")
@@ -457,16 +455,58 @@ public class CdssController extends BaseController {
         String deptName = jsonObject.getString("deptName");
         String startTime = jsonObject.getString("startTime");
         String endTime = jsonObject.getString("endTime");
+        String diseaseName = jsonObject.getString("diseaseName");
         String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime);
         String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
         List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
 //        List<CdssDiffBean> diffBeanList1 = cdssService.getDiffBeanList(diffBeanList);
         List<CdssDiffBean> diffBeanList1 = cdssService.getAllDiffBeanList(diffBeanList);
-        wirte(response,diffBeanList1);
+        //根据科室
+        if (StringUtils.isNotBlank(diseaseName)) {
+            List<CdssDiffBean> resultList = new ArrayList<>();
+            for (CdssDiffBean bean : diffBeanList1) {
+                if (diseaseName.equals(bean.getChuyuanzhenduan())) {
+                    resultList.add(bean);
+                }
+            }
+            wirte(response, resultList);
+        } else {
+            wirte(response, diffBeanList1);
+        }
+    }
+
+
+
+    @PostMapping("/getDataByDeptAndTimeSecond")
+    public void getDataByDeptAndTimeSecond(HttpServletResponse response, @RequestBody String map) {
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        String deptName = jsonObject.getString("deptName");
+        String startTime = jsonObject.getString("startTime");
+        String endTime = jsonObject.getString("endTime");
+        String diseaseName = jsonObject.getString("diseaseName");
+        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime);
+        String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
+        List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
+//        List<CdssDiffBean> diffBeanList1 = cdssService.getDiffBeanList(diffBeanList);
+        //获取入院等于出院数据
+        List<CdssDiffBean> diffBeanList1 = cdssService.getRyeqCy(diffBeanList);
+        //根据科室
+        if (StringUtils.isNotBlank(diseaseName)) {
+            List<CdssDiffBean> resultList = new ArrayList<>();
+            for (CdssDiffBean bean : diffBeanList1) {
+                if (diseaseName.equals(bean.getChuyuanzhenduan())) {
+                    resultList.add(bean);
+                }
+            }
+            wirte(response, resultList);
+        } else {
+            wirte(response, diffBeanList1);
+        }
     }
 
     /**
      * 分析数据
+     *
      * @param response
      * @param map
      */
@@ -480,13 +520,13 @@ public class CdssController extends BaseController {
         List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
         List<CdssDiffBean> diffBeanList1 = cdssService.getDiffBeanList(diffBeanList);
         Map<String, StatisticsBean> stringStatisticsBeanMap = cdssService.analyzeData(diffBeanList1);
-        List<StatisticsBean>result=new ArrayList<>();
-        for (Map.Entry<String,StatisticsBean>entry:stringStatisticsBeanMap.entrySet()){
+        List<StatisticsBean> result = new ArrayList<>();
+        for (Map.Entry<String, StatisticsBean> entry : stringStatisticsBeanMap.entrySet()) {
             StatisticsBean value = entry.getValue();
-            value.setAvgDay(value.getDay()/value.getCount());
+            value.setAvgDay(value.getDay() / value.getCount());
             result.add(value);
         }
-        wirte(response,result);
+        wirte(response, result);
     }
 
 }

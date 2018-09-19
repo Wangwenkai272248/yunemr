@@ -37,7 +37,6 @@ public class HttpClient {
         HttpPost httpPost = new HttpPost(Url);
         httpPost.setConfig(requestConfig);
         CloseableHttpResponse response = null;
-
         if (StringUtils.isNotBlank(expression)) {
             StringEntity entity = new StringEntity(expression, "UTF-8");
             entity.setContentEncoding("UTF-8");
