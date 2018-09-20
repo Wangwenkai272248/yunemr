@@ -24,16 +24,12 @@ public class InitService {
     static Set<String> liiNames = new HashSet<>();
     //病例集合
     public volatile static List<CdssRuleBean> caseList = new LinkedList<>();
-    public volatile static List<CdssRuleBean> randomcaseList = new LinkedList<>();
-
-
     public volatile static Set<String> diseaseNames = new HashSet<>();
 
     @PostConstruct
     public void init() throws Exception {
         System.out.println("初始化方法进来了啊");
         readFile2Cache();
-//        addCase2cache();
         getRandomAllData();
         addDiseaseName2Cache();
     }

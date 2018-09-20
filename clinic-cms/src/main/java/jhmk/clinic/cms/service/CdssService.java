@@ -831,7 +831,21 @@ public class CdssService {
             Set<String> illNames = samilarService.getAllIllNames(chuyuanzhenduan);
             List<Shangjiyishichafanglu> shangjiyishichafangluList = bean.getShangjiyishichafangluList();
 
-            Collections.sort(shangjiyishichafangluList, CompareUtil.createComparator(1, "last_modify_date_time"));
+            Collections.sort(shangjiyishichafangluList, new Comparator<Shangjiyishichafanglu>() {
+                @Override
+                public int compare(Shangjiyishichafanglu o1, Shangjiyishichafanglu o2) {
+                    String d1 = o1.getLast_modify_date_time();
+                    String d2 = o2.getLast_modify_date_time();
+                    Date date1 = DateFormatUtil.parseDateBySdf(d1, DateFormatUtil.DATETIME_PATTERN_SS);
+                    Date date2 = DateFormatUtil.parseDateBySdf(d2, DateFormatUtil.DATETIME_PATTERN_SS);
+                    if (date1.getTime() > date2.getTime()) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+
+                }
+            });
             //跳出循环
             lable1:
             for (Shangjiyishichafanglu shangjiyishichafanglu : shangjiyishichafangluList) {
