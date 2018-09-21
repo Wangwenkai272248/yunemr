@@ -35,6 +35,7 @@ import static jhmk.clinic.core.util.MongoUtils.getCollection;
 public class CdssService {
     @Autowired
     SamilarService samilarService;
+
     MongoCollection<Document> binganshouye = getCollection(CdssConstans.DATASOURCE, CdssConstans.BINGANSHOUYE);
     //入院记录
     static MongoCollection<Document> ruyuanjilu = getCollection(CdssConstans.DATASOURCE, CdssConstans.RUYUANJILU);
@@ -828,7 +829,7 @@ public class CdssService {
             if (bean.getShangjiyishichafangluList() == null) {
                 continue;
             }
-            Set<String> illNames = samilarService.getAllIllNames(chuyuanzhenduan);
+//            List<String> illNames = samilarService.getSamilarWord(chuyuanzhenduan);
             List<Shangjiyishichafanglu> shangjiyishichafangluList = bean.getShangjiyishichafangluList();
 
             Collections.sort(shangjiyishichafangluList, new Comparator<Shangjiyishichafanglu>() {
@@ -853,15 +854,13 @@ public class CdssService {
                 String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
                 String[] split = clear_diagnose_name.split(" ");
                 for (String s : split) {
-                    for (String s1 : illNames) {
-                        if (s.contains(s1) || s1.contains(s)) {
+                        if (s.contains(chuyuanzhenduan) || chuyuanzhenduan.contains(s)) {
                             bean.setSjyscfTime(last_modify_date_time);
                             bean.setSjyscfName(clear_diagnose_name);
                             bean.setFlag(true);
                             resultList.add(bean);
                             break lable1;
                         }
-                    }
 
                 }
 
@@ -876,8 +875,9 @@ public class CdssService {
         List<CdssDiffBean> resultList = new ArrayList<>();
         for (CdssDiffBean bean : oldList) {
             String chuyuanzhenduan = bean.getChuyuanzhenduan();
+            String ruyuanchuzhen = bean.getRuyuanchuzhen();
             //出诊断=null
-            if (StringUtils.isEmpty(chuyuanzhenduan)) {
+            if (StringUtils.isEmpty(chuyuanzhenduan)||StringUtils.isEmpty(ruyuanchuzhen)) {
                 bean.setFlag(false);
                 resultList.add(bean);
                 continue;
@@ -895,8 +895,7 @@ public class CdssService {
                 resultList.add(bean);
                 continue;
             }
-            Set<String> illNames = samilarService.getAllIllNames(chuyuanzhenduan);
-            if (illNames.contains(bean.getRuyuanchuzhen())) {
+            if (chuyuanzhenduan.contains(bean.getRuyuanchuzhen()) || bean.getRuyuanchuzhen().contains(chuyuanzhenduan)) {
                 bean.setFlag(false);
                 resultList.add(bean);
                 continue;
@@ -912,15 +911,13 @@ public class CdssService {
                 String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
                 String[] split = clear_diagnose_name.split(" ");
                 for (String s : split) {
-                    for (String s1 : illNames) {
-                        if (s.contains(s1) || s1.contains(s)) {
-                            bean.setSjyscfTime(last_modify_date_time);
-                            bean.setSjyscfName(clear_diagnose_name);
-                            bean.setFlag(true);
-                            resultList.add(bean);
-                            flag = true;
-                            break lable1;
-                        }
+                    if (s.contains(chuyuanzhenduan) || chuyuanzhenduan.contains(s)) {
+                        bean.setSjyscfTime(last_modify_date_time);
+                        bean.setSjyscfName(clear_diagnose_name);
+                        bean.setFlag(true);
+                        resultList.add(bean);
+                        flag = true;
+                        break lable1;
                     }
 
                 }
@@ -943,12 +940,7 @@ public class CdssService {
             String chuyuanzhenduan = cdssDiffBean.getChuyuanzhenduan();
             String addmissionTime = cdssDiffBean.getAdmission_time();
             String resultValue = cdssDiffBean.getSjyscfTime();
-            List<String> samilarWord = samilarService.getSamilarWord(chuyuanzhenduan);
-            if (samilarWord.size() > 0) {
-                chuyuanzhenduan = samilarWord.get(0);
-            }
             int l = (int) DateFormatUtil.dateDiff(DateFormatUtil.parseDateBySdf(resultValue, DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(addmissionTime, DateFormatUtil.DATETIME_PATTERN_SS));
-
             if (staMap.containsKey(chuyuanzhenduan)) {
                 StatisticsBean statisticsBean = staMap.get(chuyuanzhenduan);
                 statisticsBean.setIllName(chuyuanzhenduan);
@@ -1052,8 +1044,7 @@ public class CdssService {
             if (StringUtils.isEmpty(chuyuanzhenduan)) {
                 continue;
             }
-            Set<String> illNames = samilarService.getAllIllNames(chuyuanzhenduan);
-            if (illNames.contains(ruyuanchuzhen)) {
+            if (chuyuanzhenduan.contains(ruyuanchuzhen)||ruyuanchuzhen.contains(chuyuanzhenduan)) {
                 bean.setFlag(true);
                 resultList.add(bean);
             }
