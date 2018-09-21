@@ -53,8 +53,11 @@ public class CdssConstans {
 
 
 //    private static final String head = "http://192.168.8.20:8010";
+    private static final String head = "http://192.168.8.20:8010";
+//    private static final String ESHEAD = "http://192.168.132.13:8805";
+    private static final String ESHEAD = "http://192.168.8.31:8877";
+    public static final String QUERY = ESHEAD+"/med/cdss/query.json";
 //    private static final String head = "http://192.168.132.7:8010";
-    private static final String head = "http://192.168.132.13:8800";
 
     //获取疾病同义词
     public static final String getSamilarWord = head + "/med/cdss/getSamilarWord.json";
