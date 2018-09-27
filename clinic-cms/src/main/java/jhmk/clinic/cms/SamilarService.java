@@ -1,15 +1,13 @@
 package jhmk.clinic.cms;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import jhmk.clinic.core.config.CdssConstans;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author ziyu.zhou
@@ -60,7 +58,11 @@ public class SamilarService {
         JSONObject jsonObject = JSONObject.parseObject(jsonData);
         Object result = jsonObject.get("result");
         if (result!=null){
-
+            JSONArray resultArray = (JSONArray) result;
+            Iterator<Object> iterator = resultArray.iterator();
+            while (iterator.hasNext()){
+                Object next = iterator.next();
+            }
         }
         return nameList;
     }
