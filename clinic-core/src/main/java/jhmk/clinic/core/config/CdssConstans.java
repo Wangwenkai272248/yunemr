@@ -6,6 +6,7 @@ public class CdssConstans {
     public static final String BINGANSHOUYE = "binganshouye";
     public static final String ZHUANKEJILU = "zhuankejilu";
     public static final String BINGLIZHENDUAN = "binglizhenduan";
+    public static final String SHOUCIBINGCHENGJILU = "shoucibingchengjilu";
     public static final String SHOUYEZHENDUAN = "shouyezhenduan";
     public static final String RUYUANJILU = "ruyuanjilu";
     public static final String SJYSCFL = "shangjiyishichafanglu";
