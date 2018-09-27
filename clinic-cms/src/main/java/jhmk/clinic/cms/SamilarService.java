@@ -49,6 +49,28 @@ public class SamilarService {
         return null;
     }
 
+    public String getQuery(String name) {
+        List<String> list = new ArrayList<>();
+        String params = getParam(name);
+        Object parse = JSONObject.parse(params);
+        try {
+
+            String sames = restTemplate.postForObject(CdssConstans.QUERY, parse, String.class);
+           return sames;
+        } catch (Exception e) {
+
+        }
+//        if (sames != null && !symbol.equals(sames.trim())) {
+//            JSONArray objects = JSONArray.parseArray(sames);
+//            Iterator<Object> iterator = objects.iterator();
+//            while (iterator.hasNext()) {
+//                Object next = iterator.next();
+//                list.add(next.toString());
+//            }
+//        }
+        return null;
+    }
+
     /**
      * 解析json数据获取同义词
      * @return
