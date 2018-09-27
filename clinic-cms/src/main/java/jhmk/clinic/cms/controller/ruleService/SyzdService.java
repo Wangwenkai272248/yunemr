@@ -1,13 +1,18 @@
 package jhmk.clinic.cms.controller.ruleService;
 
+import com.alibaba.fastjson.JSONObject;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
+import jhmk.clinic.cms.SamilarService;
+import jhmk.clinic.cms.entity.JsonRootBean;
+import jhmk.clinic.cms.entity.ResultService;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
 import jhmk.clinic.entity.bean.Shouyezhenduan;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,6 +29,8 @@ import static jhmk.clinic.core.util.MongoUtils.getCollection;
 public class SyzdService {
 
     MongoCollection<Document> shouyezhenduan = getCollection(CdssConstans.DATASOURCE, CdssConstans.SHOUYEZHENDUAN);
+    @Autowired
+    SamilarService samilarService;
 
     /**
      * 获取首页诊断疾病集合
@@ -161,12 +168,69 @@ public class SyzdService {
 
             list.add(shouyezhenduan);
         }
-        Collections.sort(list,new CompareUtil.ImComparator(1,"diagnosis_time"));
+        Collections.sort(list, new CompareUtil.ImComparator(1, "diagnosis_time"));
         return list;
     }
 
+    //获取出院诊断为目标疾病名的数据
+    public Set<String> getSyzdByDiseaseName(String name) {
+        Set<String> list = new HashSet<>();
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_name", name)),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "出院诊断")),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
+                , new Document("$skip", CdssConstans.BEGINCOUNT),
+                new Document("$limit", 1000)
+        );
+        AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+        for (Document document : binli) {
+            final String id = document.getString("_id");
+            ArrayList binglizhenduanList = (ArrayList) document.get("shouyezhenduan");
+            final Iterator iterator = binglizhenduanList.iterator();
+            while (iterator.hasNext()) {
+                final Document binglizhenduan = (Document) iterator.next();
+                String diagnosis_num = binglizhenduan.getString("diagnosis_num");
+                String diagnosis_name = binglizhenduan.getString("diagnosis_name");
+                String diagnosis_type_name = binglizhenduan.getString("diagnosis_type_name");
+                if (name.equals(diagnosis_name) && "1".equals(diagnosis_num) && "入院初诊".equals(diagnosis_type_name)) {
+                    list.add(id);
+                }
+            }
+        }
+        return list;
+    }
+
+
+    //获取出院诊断为目标疾病名的数据
+    public Set<String> getIdList(String name) {
+        Set<String> list = new HashSet<>();
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$shouyezhenduan"),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "出院诊断")),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
+        );
+        AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+        for (Document document : binli) {
+            String id = document.getString("_id");
+            Document binglizhenduan = (Document) document.get("shouyezhenduan");
+            if (Objects.nonNull(binglizhenduan)) {
+                String diagnosis_name = binglizhenduan.getString("diagnosis_name");
+                final String query = samilarService.getQuery(diagnosis_name);
+                final JsonRootBean ryczNameBean = JSONObject.parseObject(query, JsonRootBean.class);
+                final String grandFa = ResultService.getGrandFa(ryczNameBean.getResult());
+                if (grandFa != null && grandFa.equals(name)) {
+                    list.add(id);
+                }
+            }
+        }
+        return list;
+
+    }
+
     @Test
-    public void setShouyezhenduan() {
-        getAllData();
+    public void main() {
+        getSyzdByDiseaseName("肺炎");
     }
 }
