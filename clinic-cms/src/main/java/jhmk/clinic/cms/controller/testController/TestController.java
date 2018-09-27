@@ -1,6 +1,5 @@
 package jhmk.clinic.cms.controller.testController;
 
-import com.alibaba.fastjson.JSONObject;
 import jhmk.clinic.cms.controller.ruleService.BasyService;
 import jhmk.clinic.cms.controller.ruleService.SyzdService;
 import jhmk.clinic.cms.function.demo1.Demo1Service;
@@ -12,9 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author ziyu.zhou
@@ -33,8 +30,8 @@ public class TestController {
     @PostMapping("/demo1")
     public void getAllData(HttpServletResponse response, @RequestBody(required = false) String map) {
         Map<String, Integer> resuiltMap = new HashMap<>();
-        final Set<String> syzdByDiseaseName = syzdService.getSyzdByDiseaseName(map);
-        final Map<String, Set<String>> stringSetMap = demo1Service.selYizhuById(syzdByDiseaseName);
+        Set<String> syzdByDiseaseName = syzdService.getSyzdByDiseaseName(map);
+        Map<String, Set<String>> stringSetMap = demo1Service.selYizhuById(syzdByDiseaseName);
         for (Map.Entry<String, Set<String>> entry : stringSetMap.entrySet()) {
             Set<String> value = entry.getValue();
             for (String name : value) {
@@ -44,10 +41,23 @@ public class TestController {
                     resuiltMap.put(name, 1);
 
                 }
+
             }
         }
-        String fileNmae = "/data/1/CDSS/"+map+".txt";
-        Write2File.wfile(JSONObject.toJSONString(resuiltMap),fileNmae);
+        ArrayList<Map.Entry<String, Integer>> entries = new ArrayList<>(resuiltMap.entrySet());
+        Collections.sort(entries, new Comparator<Map.Entry<String, Integer>>() {
+            @Override
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+
+                return o2.getValue().compareTo(o1.getValue());
+            }
+        });
+        List<String>data=new ArrayList<>();
+        for (Map.Entry<String, Integer>enrty:entries) {
+            data.add(enrty.getKey()+":"+enrty.getValue());
+        }
+        String fileNmae = "/data/1/CDSS/" + map + ".txt";
+        Write2File.w2fileList(data, fileNmae);
         System.out.println("写完啦");
     }
 }

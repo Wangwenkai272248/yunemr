@@ -180,8 +180,8 @@ public class SyzdService {
                 new Document("$match", new Document("shouyezhenduan.diagnosis_name", name)),
                 new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "出院诊断")),
                 new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
-                , new Document("$skip", CdssConstans.BEGINCOUNT),
-                new Document("$limit", 1000)
+//                , new Document("$skip", CdssConstans.BEGINCOUNT),
+//                new Document("$limit", 100)
         );
         AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
         for (Document document : binli) {
