@@ -288,6 +288,35 @@ public class Demo1Service {
 
         return map;
     }
+    public Map<String, Set<String>> selDrugYizhuById(Set<String> ids) {
+        Map<String, Set<String>> map = new HashMap<>();
+        for (String id : ids) {
+            List<Document> countPatientId2 = Arrays.asList(
+                    //过滤数据
+                    new Document("$unwind", "$yizhu"),
+                    new Document("$match", new Document("_id", id)),
+                    new Document("$match", new Document("yizhu.order_class_convert_name", "药品")),
+                    new Document("$project", new Document("patient_id", 1).append("visit_id", 1).append("yizhu", 1)
+                    )
+
+            );
+            AggregateIterable<Document> output = yizhu.aggregate(countPatientId2);
+            Set<String> set = new HashSet<>();
+            for (Document document : output) {
+                Document yizhuDocu = (Document) document.get("yizhu");
+                if (yizhuDocu == null) {
+                    continue;
+                }
+                if (yizhuDocu.get("order_item_name") != null) {
+                    set.add(yizhuDocu.getString("order_item_name"));
+                }
+
+            }
+            map.put(id, set);
+        }
+
+        return map;
+    }
 
     public List<Demo1ZhenduanBean> selShouyezhenduan(Set<String> ids) {
         List<Demo1ZhenduanBean> beanList = new ArrayList<>();

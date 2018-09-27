@@ -31,7 +31,7 @@ public class TestController {
     public void getAllData(HttpServletResponse response, @RequestBody(required = false) String map) {
         Map<String, Integer> resuiltMap = new HashMap<>();
         Set<String> syzdByDiseaseName = syzdService.getSyzdByDiseaseName(map);
-        Map<String, Set<String>> stringSetMap = demo1Service.selYizhuById(syzdByDiseaseName);
+        Map<String, Set<String>> stringSetMap = demo1Service.selDrugYizhuById(syzdByDiseaseName);
         for (Map.Entry<String, Set<String>> entry : stringSetMap.entrySet()) {
             Set<String> value = entry.getValue();
             for (String name : value) {
