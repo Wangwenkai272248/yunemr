@@ -11,10 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author ziyu.zhou
@@ -32,18 +29,18 @@ public class ReadExcelUtils {
     private Row row;
 
     public ReadExcelUtils(String filepath) {
-        if(filepath==null){
+        if (filepath == null) {
             return;
         }
         String ext = filepath.substring(filepath.lastIndexOf("."));
         try {
             InputStream is = new FileInputStream(filepath);
-            if(".xls".equals(ext)){
+            if (".xls".equals(ext)) {
                 wb = new HSSFWorkbook(is);
-            }else if(".xlsx".equals(ext)){
+            } else if (".xlsx".equals(ext)) {
                 wb = new XSSFWorkbook(is);
-            }else{
-                wb=null;
+            } else {
+                wb = null;
             }
         } catch (FileNotFoundException e) {
             logger.error("FileNotFoundException", e);
@@ -59,8 +56,8 @@ public class ReadExcelUtils {
      * @return String 表头内容的数组
      * @author zengwendong
      */
-    public String[] readExcelTitle() throws Exception{
-        if(wb==null){
+    public String[] readExcelTitle() throws Exception {
+        if (wb == null) {
             throw new Exception("Workbook对象为空！");
         }
         sheet = wb.getSheetAt(0);
@@ -83,11 +80,11 @@ public class ReadExcelUtils {
      * @return Map 包含单元格数据内容的Map对象
      * @author zengwendong
      */
-    public Map<Integer, Map<Integer,String>> readExcelContent() throws Exception{
-        if(wb==null){
+    public Map<Integer, Map<Integer, String>> readExcelContent() throws Exception {
+        if (wb == null) {
             throw new Exception("Workbook对象为空！");
         }
-        Map<Integer, Map<Integer,String>> content = new HashMap<Integer, Map<Integer,String>>();
+        Map<Integer, Map<Integer, String>> content = new HashMap<Integer, Map<Integer, String>>();
 
         sheet = wb.getSheetAt(0);
         // 得到总行数
@@ -98,7 +95,7 @@ public class ReadExcelUtils {
         for (int i = 1; i <= rowNum; i++) {
             row = sheet.getRow(i);
             int j = 0;
-            Map<Integer,String> cellValue = new HashMap<Integer, String>();
+            Map<Integer, String> cellValue = new HashMap<Integer, String>();
             while (j < colNum) {
                 String obj = getCellFormatValue(row.getCell(j)).toString();
                 cellValue.put(j, obj);
@@ -110,7 +107,6 @@ public class ReadExcelUtils {
     }
 
     /**
-     *
      * 根据Cell类型设置数据
      *
      * @param cell
@@ -154,48 +150,53 @@ public class ReadExcelUtils {
 
     /**
      * 判断文件是否存在.
-     * @param fileDir  文件路径
+     *
+     * @param fileDir 文件路径
      * @return
      */
-    public static boolean fileExist(String fileDir){
+    public static boolean fileExist(String fileDir) {
         boolean flag = false;
         File file = new File(fileDir);
         flag = file.exists();
         return flag;
     }
+
     /**
      * 判断文件的sheet是否存在.
+     *
      * @param fileDir   文件路径
-     * @param sheetName  表格索引名
+     * @param sheetName 表格索引名
      * @return
      */
-    public static boolean sheetExist(String fileDir,String sheetName) throws Exception{
+    public static boolean sheetExist(String fileDir, String sheetName) throws Exception {
         boolean flag = false;
         File file = new File(fileDir);
-        if(file.exists()){    //文件存在
+        if (file.exists()) {    //文件存在
             //创建workbook
             try {
                 workbook = new HSSFWorkbook(new FileInputStream(file));
                 //添加Worksheet（不添加sheet时生成的xls文件打开时会报错)
                 HSSFSheet sheet = workbook.getSheet(sheetName);
-                if(sheet!=null)
+                if (sheet != null)
                     flag = true;
             } catch (Exception e) {
                 throw e;
             }
 
-        }else{    //文件不存在
+        } else {    //文件不存在
             flag = false;
         }
         return flag;
     }
+
     /**
      * 创建新excel.
-     * @param fileDir  excel的路径
+     *
+     * @param fileDir   excel的路径
      * @param sheetName 要创建的表格索引
-     * @param titleRow excel的第一行即表格头
+     * @param titleRow  excel的第一行即表格头
      */
-    public static void createExcel(String fileDir,String sheetName,String titleRow[]) throws Exception{
+    public static void createExcel(String fileDir, String sheetName, String titleRow[]) throws Exception {
         //创建workbook
         workbook = new HSSFWorkbook();
         //添加Worksheet（不添加sheet时生成的xls文件打开时会报错)
@@ -205,7 +206,7 @@ public class ReadExcelUtils {
         try {
             //添加表头
             HSSFRow row = workbook.getSheet(sheetName).createRow(0);    //创建第一行
-            for(short i = 0;i < titleRow.length;i++){
+            for (short i = 0; i < titleRow.length; i++) {
                 HSSFCell cell = row.createCell(i);
                 cell.setCellValue(titleRow[i]);
             }
@@ -221,9 +222,11 @@ public class ReadExcelUtils {
             }
         }
     }
+
     /**
      * 删除文件.
-     * @param fileDir  文件路径
+     *
+     * @param fileDir 文件路径
      */
     public static boolean deleteExcel(String fileDir) {
         boolean flag = false;
@@ -240,13 +243,15 @@ public class ReadExcelUtils {
         }
         return flag;
     }
+
     /**
      * 往excel中写入(已存在的数据无法写入).
-     * @param fileDir    文件路径
-     * @param sheetName  表格索引
+     *
+     * @param fileDir   文件路径
+     * @param sheetName 表格索引
      * @throws Exception
      */
-    public static void writeToExcel(String fileDir,String sheetName,List<Map> mapList) throws Exception{
+    public static void writeToExcel(String fileDir, String sheetName, List<Map> mapList) throws Exception {
         //创建workbook
         File file = new File(fileDir);
         try {
@@ -262,18 +267,18 @@ public class ReadExcelUtils {
         // 获取表格的总行数
         // int rowCount = sheet.getLastRowNum() + 1; // 需要加一
         // 获取表头的列数
-        int columnCount = sheet.getRow(0).getLastCellNum()+1;
+        int columnCount = sheet.getRow(0).getLastCellNum() + 1;
         try {
             // 获得表头行对象
             HSSFRow titleRow = sheet.getRow(0);
-            if(titleRow!=null){
-                for(int rowId=0;rowId<mapList.size();rowId++){
+            if (titleRow != null) {
+                for (int rowId = 0; rowId < mapList.size(); rowId++) {
                     Map map = mapList.get(rowId);
-                    HSSFRow newRow=sheet.createRow(rowId+1);
+                    HSSFRow newRow = sheet.createRow(rowId + 1);
                     for (short columnIndex = 0; columnIndex < columnCount; columnIndex++) {  //遍历表头
                         String mapKey = titleRow.getCell(columnIndex).toString().trim().toString().trim();
                         HSSFCell cell = newRow.createCell(columnIndex);
-                        cell.setCellValue(map.get(mapKey)==null ? null : map.get(mapKey).toString());
+                        cell.setCellValue(map.get(mapKey) == null ? null : map.get(mapKey).toString());
                     }
                 }
             }
@@ -291,33 +296,32 @@ public class ReadExcelUtils {
         }
     }
 
-    public static void main(String[] args) {
-        /*判断文件是否存在
-        System.out.println(ExcelWrite.fileExist("E:/test2.xls"));
+    public static void main(String[] args) throws Exception {
+//        判断文件是否存在
+        System.out.println(fileExist("C:/Users/11075/Desktop/0912呼吸科统计数据(1).xlsx"));
         //创建文件
-        String title[] = {"id","name","password"};
-        ExcelWrite.createExcel("E:/test2.xls","sheet1",title);
-        List<Map> list=new ArrayList<Map>();
-        Map<String,String> map=new HashMap<String,String>();
+        String title[] = {"id", "name", "password"};
+        createExcel("E:/test2.xls", "sheet1", title);
+        List<Map> list = new ArrayList<Map>();
+        Map<String, String> map = new HashMap<String, String>();
         map.put("id", "111");
         map.put("name", "张三");
         map.put("password", "111！@#");
 
-        Map<String,String> map2=new HashMap<String,String>();
+        Map<String, String> map2 = new HashMap<String, String>();
         map2.put("id", "222");
         map2.put("name", "李四");
         map2.put("password", "222！@#");
         list.add(map);
         list.add(map2);
-        ExcelWrite.writeToExcel("E:/test2.xls","sheet1",list);
+        writeToExcel("E:/test2.xls", "sheet1", list);
 
-        String sql="select aaa,bbb,ccc from dddd";
-        String sqlForSplit = sql.substring(sql.toLowerCase().indexOf("select")+6,sql.toLowerCase().indexOf("from")).trim();
-        String sqlRemoveFrom=sql.substring(sql.toLowerCase().indexOf("from")+5).trim();
+        String sql = "select aaa,bbb,ccc from dddd";
+        String sqlForSplit = sql.substring(sql.toLowerCase().indexOf("select") + 6, sql.toLowerCase().indexOf("from")).trim();
+        String sqlRemoveFrom = sql.substring(sql.toLowerCase().indexOf("from") + 5).trim();
         System.out.println(sqlRemoveFrom);
-        String tableName=sqlRemoveFrom.indexOf(" ")==-1 ?  sqlRemoveFrom : sqlRemoveFrom.substring(0,sqlRemoveFrom.indexOf(" "));
+        String tableName = sqlRemoveFrom.indexOf(" ") == -1 ? sqlRemoveFrom : sqlRemoveFrom.substring(0, sqlRemoveFrom.indexOf(" "));
         System.out.println(tableName);
-        */
 
 
     }

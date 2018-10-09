@@ -11,10 +11,14 @@ import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.HttpClient;
 import jhmk.clinic.core.util.StringUtil;
 import jhmk.clinic.core.util.ThreadUtil;
+import jhmk.clinic.entity.bean.Chuyuanjilu;
+import jhmk.clinic.entity.bean.Yizhu;
 import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import jhmk.clinic.entity.cdss.CdssRunRuleBean;
 import jhmk.clinic.entity.cdss.StatisticsBean;
+import jhmk.clinic.entity.model.AtResponse;
+import jhmk.clinic.entity.model.ResponseCode;
 import jhmk.clinic.entity.pojo.repository.SysDiseasesRepository;
 import jhmk.clinic.entity.pojo.repository.SysHospitalDeptRepository;
 import org.apache.commons.lang3.StringUtils;
@@ -29,10 +33,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static jhmk.clinic.cms.service.InitService.caseList;
 import static jhmk.clinic.cms.service.InitService.diseaseNames;
@@ -49,6 +50,10 @@ public class CdssController extends BaseController {
     SysHospitalDeptRepository sysHospitalDeptRepository;
     @Autowired
     BasyService basyService;
+    @Autowired
+    YizhuService yizhuService;
+    @Autowired
+    CyjlService cyjlService;
     @Autowired
     BlzdService blzdService;
     @Autowired
@@ -450,7 +455,6 @@ public class CdssController extends BaseController {
     }
 
 
-
     @GetMapping("/demo1")
     public void demo1(HttpServletResponse response) {
         List<String> ss = samilarService.getSamilarWord("心力衰竭");
@@ -481,7 +485,6 @@ public class CdssController extends BaseController {
             wirte(response, diffBeanList1);
         }
     }
-
 
 
     @PostMapping("/getDataByDeptAndTimeSecond")
@@ -534,6 +537,33 @@ public class CdssController extends BaseController {
             result.add(value);
         }
         wirte(response, result);
+    }
+
+    @PostMapping("/getData")
+    public void getData(HttpServletResponse response, @RequestBody String map) {
+        AtResponse resp = new AtResponse();
+        String id = map.replaceAll("##2", "");
+        //获取出院记录src
+        Map<String, Object> params = new HashMap<>();
+        Chuyuanjilu cyjlSrrc = cyjlService.getScbcjlById(id);
+        params.put("cyjl", cyjlSrrc);
+        List<Yizhu> yizhus = yizhuService.selYizhu(id);
+        params.put("yizhu", yizhus);
+        List<Map<String, String>> srcById = sjyscflService.getSrcById(id);
+        params.put("sjyscf", srcById);
+        resp.setData(params);
+        resp.setResponseCode(ResponseCode.OK);
+        wirte(response, resp);
+    }
+
+    /**
+     * 记录分析后的数据 供机器学习
+     *
+     * @param response
+     * @param map
+     */
+    @PostMapping("/jiluData")
+    public void jiluData(HttpServletResponse response, @RequestBody String map) {
     }
 
 }

@@ -818,8 +818,9 @@ public class CdssService {
             if (StringUtils.isEmpty(chuyuanzhenduan)) {
                 continue;
             }
+             boolean isFas = samilarService.isFatherAndSon(chuyuanzhenduan,bean.getRuyuanchuzhen());
             //如果入院初诊=出院诊断 过滤
-            if (chuyuanzhenduan.equals(bean.getRuyuanchuzhen())) {
+            if (isFas) {
                 continue;
             }
             //有专科记录 过滤
@@ -854,13 +855,14 @@ public class CdssService {
                 String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
                 String[] split = clear_diagnose_name.split(" ");
                 for (String s : split) {
-                        if (s.contains(chuyuanzhenduan) || chuyuanzhenduan.contains(s)) {
-                            bean.setSjyscfTime(last_modify_date_time);
-                            bean.setSjyscfName(clear_diagnose_name);
-                            bean.setFlag(true);
-                            resultList.add(bean);
-                            break lable1;
-                        }
+                    boolean isFas1 = samilarService.isFatherAndSon(s,chuyuanzhenduan);
+                    if (isFas1) {
+                        bean.setSjyscfTime(last_modify_date_time);
+                        bean.setSjyscfName(clear_diagnose_name);
+                        bean.setFlag(true);
+                        resultList.add(bean);
+                        break lable1;
+                    }
 
                 }
 
@@ -877,7 +879,7 @@ public class CdssService {
             String chuyuanzhenduan = bean.getChuyuanzhenduan();
             String ruyuanchuzhen = bean.getRuyuanchuzhen();
             //出诊断=null
-            if (StringUtils.isEmpty(chuyuanzhenduan)||StringUtils.isEmpty(ruyuanchuzhen)) {
+            if (StringUtils.isEmpty(chuyuanzhenduan) || StringUtils.isEmpty(ruyuanchuzhen)) {
                 bean.setFlag(false);
                 resultList.add(bean);
                 continue;
@@ -1044,7 +1046,7 @@ public class CdssService {
             if (StringUtils.isEmpty(chuyuanzhenduan)) {
                 continue;
             }
-            if (chuyuanzhenduan.contains(ruyuanchuzhen)||ruyuanchuzhen.contains(chuyuanzhenduan)) {
+            if (chuyuanzhenduan.contains(ruyuanchuzhen) || ruyuanchuzhen.contains(chuyuanzhenduan)) {
                 bean.setFlag(true);
                 resultList.add(bean);
             }

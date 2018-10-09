@@ -226,5 +226,36 @@ public class SjyscflService {
         return stringMap;
     }
 
+    public List<Map<String,String>> getSrcById(String id) {
+        List<Document> countPatientId2 = Arrays.asList(
+                //过滤数据
+                new Document("$match", new Document("_id", id)),
+                new Document("$project", new Document("patient_id", 1).append("visit_id", 1).append("shangjiyishichafanglu", 1)
+                )
+
+        );
+        AggregateIterable<Document> output = shangjiyishichafanglu.aggregate(countPatientId2);
+
+        List<Map<String,String>> list = new ArrayList<>();
+        for (Document document : output) {
+
+            ArrayList<Document> shangjiyishichafangluDocList = (ArrayList<Document>) document.get("shangjiyishichafanglu");
+            if (shangjiyishichafangluDocList != null) {
+                for (Document document1 : shangjiyishichafangluDocList) {
+                    Object treatment_plan = document1.get("treatment_plan");
+                    if (Objects.nonNull(treatment_plan)) {
+                        Document treatment_plan1 = (Document) treatment_plan;
+                        Map<String,String>tempMap=new HashMap<>();
+                        String src = ((Document) treatment_plan).getString("src");
+                        String medicine = ((Document) treatment_plan).getString("medicine");
+                        tempMap.put("src",src);
+                        tempMap.put("medicine",medicine);
+                        list.add(tempMap);
+                    }
+                }
+            }
+        }
+        return list;
+    }
 
 }

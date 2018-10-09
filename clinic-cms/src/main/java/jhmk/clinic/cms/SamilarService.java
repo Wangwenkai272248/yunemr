@@ -2,6 +2,8 @@ package jhmk.clinic.cms;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import jhmk.clinic.cms.entity.JsonRootBean;
+import jhmk.clinic.cms.entity.ResultService;
 import jhmk.clinic.core.config.CdssConstans;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +29,6 @@ public class SamilarService {
      * @return
      */
     public List<String> getSamilarWord(String name) {
-        List<String> list = new ArrayList<>();
         String params = getParam(name);
         System.out.println(params);
         Object parse = JSONObject.parse(params);
@@ -56,7 +57,7 @@ public class SamilarService {
         try {
 
             String sames = restTemplate.postForObject(CdssConstans.QUERY, parse, String.class);
-           return sames;
+            return sames;
         } catch (Exception e) {
 
         }
@@ -71,23 +72,63 @@ public class SamilarService {
         return null;
     }
 
+
     /**
-     * 解析json数据获取同义词
+     * 判断是都是同类别病
+     *
+     * @param name
      * @return
      */
-    private List<String>analyzeData2getSamilar(String jsonData,String name){
-        List<String>nameList=new ArrayList<>();
+    public boolean isFatherAndSon(String name1, String name2) {
+        String params1 = getParam(name1);
+        String param2 = getParam(name2);
+        Object parse1 = JSONObject.parse(params1);
+        Object parse2 = JSONObject.parse(param2);
+        try {
+
+            String sames1 = restTemplate.postForObject(CdssConstans.QUERY, parse1, String.class);
+            String sames2 = restTemplate.postForObject(CdssConstans.QUERY, parse2, String.class);
+            final JsonRootBean ryczNameBean1 = JSONObject.parseObject(sames1, JsonRootBean.class);
+            final JsonRootBean ryczNameBean2 = JSONObject.parseObject(sames2, JsonRootBean.class);
+            final String grandFa1 = ResultService.getGrandFa(ryczNameBean1.getResult());
+            final String grandFa2 = ResultService.getGrandFa(ryczNameBean2.getResult());
+            if (grandFa1.equals(grandFa2)) {
+
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+        }
+
+        return false;
+    }
+
+
+    /**
+     * 解析json数据获取同义词
+     *
+     * @return
+     */
+    private List<String> analyzeData2getSamilar(String jsonData, String name) {
+        List<String> nameList = new ArrayList<>();
         JSONObject jsonObject = JSONObject.parseObject(jsonData);
         Object result = jsonObject.get("result");
-        if (result!=null){
+        if (result != null) {
             JSONArray resultArray = (JSONArray) result;
             Iterator<Object> iterator = resultArray.iterator();
-            while (iterator.hasNext()){
+            while (iterator.hasNext()) {
                 Object next = iterator.next();
+                System.out.println(next);
+                if (Objects.nonNull(next)) {
+                    JSONObject next1 = (JSONObject) next;
+                    Object disease_obj = next1.get("disease_obj");
+                }
             }
         }
         return nameList;
     }
+
     /**
      * 获取子疾病
      *

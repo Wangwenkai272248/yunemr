@@ -48,13 +48,12 @@ public class TestController {
         Collections.sort(entries, new Comparator<Map.Entry<String, Integer>>() {
             @Override
             public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-
                 return o2.getValue().compareTo(o1.getValue());
             }
         });
-        List<String>data=new ArrayList<>();
-        for (Map.Entry<String, Integer>enrty:entries) {
-            data.add(enrty.getKey()+":"+enrty.getValue());
+        List<String> data = new ArrayList<>();
+        for (Map.Entry<String, Integer> enrty : entries) {
+            data.add(enrty.getKey() + ":" + enrty.getValue());
         }
         String fileNmae = "/data/1/CDSS/" + map + ".txt";
         Write2File.w2fileList(data, fileNmae);
