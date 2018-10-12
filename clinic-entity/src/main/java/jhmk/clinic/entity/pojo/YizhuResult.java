@@ -18,6 +18,7 @@ public class YizhuResult {
     private Integer num;
     private String bId;
     private String drug;
+    private String mainIllName;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -105,5 +106,15 @@ public class YizhuResult {
 
     public void setDrug(final String drug) {
         this.drug = drug;
+    }
+
+    @Basic
+    @Column(name = "mainIllName", nullable = true, length = 255)
+    public String getMainIllName() {
+        return mainIllName;
+    }
+
+    public void setMainIllName(final String mainIllName) {
+        this.mainIllName = mainIllName;
     }
 }

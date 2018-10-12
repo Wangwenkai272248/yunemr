@@ -653,6 +653,7 @@ public class CdssController extends BaseController {
         List<YizhuResult> tempList = new ArrayList<>();
         //病历id
         String id = jsonObject.getString("id");
+        String mainIllName = jsonObject.getString("mainIllName");
         int num = jsonObject.getInteger("num") == null ? 1 : jsonObject.getInteger("num");
         String ori1 = jsonObject.getString("ori");
         List<YizhuResult> yizhuResults = JSONArray.parseArray(ori1, YizhuResult.class);
@@ -667,6 +668,7 @@ public class CdssController extends BaseController {
                 yizhuResult.setbId(id);
                 //次数
                 yizhuResult.setNum(num);
+                yizhuResult.setMainIllName(mainIllName);
                 yizhuResultRepService.save(yizhuResult);
             }
         }
@@ -709,6 +711,7 @@ public class CdssController extends BaseController {
             yizhuResult1.setOrderItemName(yizhuResult.getOrderItemName());
             yizhuResult1.setDrug(yizhuResult.getDrug());
             yizhuResult1.setPurpose(yizhuResult.getPurpose());
+            yizhuResult1.setMainIllName(yizhuResult.getMainIllName());
             //病历id
             yizhuResult1.setbId(id);
             int i = num + 1;
