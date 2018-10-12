@@ -30,7 +30,8 @@ public class InitService {
     public void init() throws Exception {
         System.out.println("初始化方法进来了啊");
         readFile2Cache();
-        getRandomAllData();
+//        getRandomAllData();
+        addCase2cache2();
         addDiseaseName2Cache();
     }
 
@@ -55,6 +56,11 @@ public class InitService {
             //病例诊断
             List<Map<String, String>> selbinglizhenduan1 = cdssService.selbinglizhenduan(id);
             cdssTestBean.setBinglizhenduan(selbinglizhenduan1);
+            String rycz = cdssService.getRycz(id);
+            cdssTestBean.setRycz(rycz);
+            String cyzd = cdssService.getMainDisease(id);
+            cdssTestBean.setCyzd(cyzd);
+
             //首页诊断
             List<Map<String, String>> syzdList = cdssService.selSyzd(id);
             cdssTestBean.setShouyezhenduan(syzdList);
@@ -98,6 +104,10 @@ public class InitService {
 //                        if (jianYan.size() > 0) {
 //                            cdssTestBean.setJianyanbaogao(jianYan);
 //                        }
+                        String rycz = cdssService.getRycz(id);
+                        cdssTestBean.setRycz(rycz);
+                        String cyzd = cdssService.getMainDisease(id);
+                        cdssTestBean.setCyzd(cyzd);
                         if (Objects.nonNull(cdssTestBean)) {
                             caseList.add(cdssTestBean);
                         }
