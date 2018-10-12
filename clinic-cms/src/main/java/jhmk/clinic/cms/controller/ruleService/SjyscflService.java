@@ -5,8 +5,8 @@ import com.mongodb.client.MongoCollection;
 import jhmk.clinic.cms.SamilarService;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
-import jhmk.clinic.entity.bean.Misdiagnosis;
-import jhmk.clinic.entity.bean.Shangjiyishichafanglu;
+import jhmk.clinic.core.util.DateFormatUtil;
+import jhmk.clinic.entity.bean.*;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -226,7 +226,7 @@ public class SjyscflService {
         return stringMap;
     }
 
-    public List<Map<String,String>> getSrcById(String id) {
+    public List<TreatmentPlan> getSrcById(String id, List<Yizhu> yizhus) {
         List<Document> countPatientId2 = Arrays.asList(
                 //过滤数据
                 new Document("$match", new Document("_id", id)),
@@ -236,25 +236,66 @@ public class SjyscflService {
         );
         AggregateIterable<Document> output = shangjiyishichafanglu.aggregate(countPatientId2);
 
-        List<Map<String,String>> list = new ArrayList<>();
+        List<TreatmentPlan> list = new ArrayList<>();
+        //第一次医嘱时间
+        String yizhudate = yizhus.get(0).getOrder_begin_time().substring(0, 10);
         for (Document document : output) {
 
             ArrayList<Document> shangjiyishichafangluDocList = (ArrayList<Document>) document.get("shangjiyishichafanglu");
             if (shangjiyishichafangluDocList != null) {
                 for (Document document1 : shangjiyishichafangluDocList) {
                     Object treatment_plan = document1.get("treatment_plan");
+                    String file_time_value = document1.getString("file_time_value");
+
                     if (Objects.nonNull(treatment_plan)) {
                         Document treatment_plan1 = (Document) treatment_plan;
-                        Map<String,String>tempMap=new HashMap<>();
+                        TreatmentPlan treatmentPlan = new TreatmentPlan();
                         String src = ((Document) treatment_plan).getString("src");
                         String medicine = ((Document) treatment_plan).getString("medicine");
-                        tempMap.put("src",src);
-                        tempMap.put("medicine",medicine);
-                        list.add(tempMap);
+                        treatmentPlan.setSrc(src);
+                        if (medicine == null) {
+                            continue;
+                        }
+                        String[] split = medicine.split(" ");
+                        List<Drug2Yizhu> list1 = new ArrayList<>();
+                        for (int i = 0; i < split.length; i++) {
+                            Drug2Yizhu drug2Yizhu = new Drug2Yizhu();
+                            String s = split[i];
+                            drug2Yizhu.setName(s);
+                            if (file_time_value.substring(0,10).equals(yizhudate)){
+                                for (Yizhu yizhu : yizhus) {
+                                    if (yizhu.getOrder_item_name().contains(s)) {
+                                        String order_begin_time = yizhu.getOrder_begin_time().substring(0, 10);
+                                        if (order_begin_time.equals(file_time_value.substring(0,10))) {
+                                            drug2Yizhu.setYizhuName(yizhu.getOrder_item_name());
+                                            continue;
+                                        }
+                                    }
+                                }
+                            }
+                            list1.add(drug2Yizhu);
+                        }
+                        treatmentPlan.setMedicine(list1);
+                        treatmentPlan.setFile_time_value(file_time_value);
+                        list.add(treatmentPlan);
                     }
                 }
             }
         }
+        Collections.sort(list, new Comparator<TreatmentPlan>() {
+            @Override
+            public int compare(TreatmentPlan o1, TreatmentPlan o2) {
+                String file_time_value1 = o1.getFile_time_value();
+                String file_time_value2 = o2.getFile_time_value();
+                Date date1 = DateFormatUtil.parseDateBySdf(file_time_value1, DateFormatUtil.DATETIME_PATTERN_SS);
+                Date date2 = DateFormatUtil.parseDateBySdf(file_time_value2, DateFormatUtil.DATETIME_PATTERN_SS);
+                if (date1.getTime() >= date2.getTime()) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+        });
         return list;
     }
 

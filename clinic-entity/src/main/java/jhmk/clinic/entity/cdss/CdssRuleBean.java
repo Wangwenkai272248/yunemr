@@ -14,6 +14,10 @@ public class CdssRuleBean {
     private String warnSource;//住院 门诊
     private String visit_id;
     private String pageSource;
+    //入院初诊
+    private String rycz;
+    //出院诊断
+    private String cyzd;
     private String quezhen;
     private String mainIllName;
     private Map<String, String> binganshouye;
@@ -176,6 +180,22 @@ public class CdssRuleBean {
 
     public void setMainIllName(String mainIllName) {
         this.mainIllName = mainIllName;
+    }
+
+    public String getRycz() {
+        return rycz;
+    }
+
+    public void setRycz(final String rycz) {
+        this.rycz = rycz;
+    }
+
+    public String getCyzd() {
+        return cyzd;
+    }
+
+    public void setCyzd(final String cyzd) {
+        this.cyzd = cyzd;
     }
 }
 

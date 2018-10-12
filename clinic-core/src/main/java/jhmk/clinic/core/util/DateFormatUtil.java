@@ -157,7 +157,6 @@ public class DateFormatUtil {
         Date parse = null;
         try {
             if(dateStr==null){
-                System.out.println(1111111);
             }
             parse = sdf.parse(dateStr);
 
