@@ -75,7 +75,7 @@ public class YizhuResultRepService extends BaseRepService<YizhuResult, Integer> 
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<YizhuResult> findAllByBIdAndNum(String bid, int num) {
-        return repository.findAllByBIdAndNum(bid,num);
+        return repository.findAllByBIdAndNum(bid, num);
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -83,4 +83,16 @@ public class YizhuResultRepService extends BaseRepService<YizhuResult, Integer> 
         return repository.getMaxBid(bid);
     }
 
+    /**
+     * 获取所有唯一疾病名
+     * @return
+     */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public List<String> getDistinctIllName() {
+        return repository.getDistinctIllName();
+    }
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public List<String> getDistinctBidByIllName(String illName) {
+        return repository.getDistinctBidByIllName(illName);
+    }
 }

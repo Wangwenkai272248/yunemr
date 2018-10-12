@@ -603,7 +603,7 @@ public class CdssController extends BaseController {
         List<Yizhu> yizhus = yizhuService.selYizhu(id);
         List<Yizhu> yizhusTemp = new ArrayList<>();
         for (Yizhu yizhu : yizhus) {
-            if (name.equals(yizhu.getOrder_item_name())){
+            if (name.equals(yizhu.getOrder_item_name())) {
                 yizhusTemp.add(yizhu);
             }
         }
@@ -683,9 +683,25 @@ public class CdssController extends BaseController {
         String delete = jsonObject.getString("delete");
         if (delete != null) {
             List<YizhuResult> deleteList = JSONArray.parseArray(delete, YizhuResult.class);
+            List<YizhuResult> temList = new ArrayList<>();
+            for (YizhuResult yizhuResult : deleteList) {
+                for (YizhuResult yizhuResult1 : tempList) {
+                    String orderItemName = yizhuResult.getOrderItemName();
+                    String purpose = yizhuResult.getPurpose();
+                    String orderItemName1 = yizhuResult1.getOrderItemName();
+                    String purpose1 = yizhuResult1.getPurpose();
+                    if (orderItemName.equals(orderItemName1)&&purpose.equals(purpose1)){
+                        tempList.remove(yizhuResult1);
+
+                    }
+                }
+
+
+            }
+
             List<YizhuChange> deleteChangeList = JSONArray.parseArray(delete, YizhuChange.class);
             changeList.addAll(deleteChangeList);
-            tempList.removeAll(deleteList);
+//            tempList.removeAll(temList);
         }
         for (YizhuChange yizhuChange : changeList) {
             //病历id
@@ -695,7 +711,7 @@ public class CdssController extends BaseController {
             yizhuChangeRepService.save(yizhuChange);
         }
 
-        if (bsjb!=null){
+        if (bsjb != null) {
             List<YizhuBsjb> deleteList = JSONArray.parseArray(bsjb, YizhuBsjb.class);
             for (YizhuBsjb yizhuBsjb : deleteList) {
                 //病历id
@@ -730,7 +746,7 @@ public class CdssController extends BaseController {
      * @param response
      * @param map
      */
-    @PostMapping("/getDataById")
+    @PostMapping("/getDataByIllName")
     public void getDataById(HttpServletResponse response, @RequestBody String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
         Map<Integer, YizhuTestBean> params = new HashMap<>();

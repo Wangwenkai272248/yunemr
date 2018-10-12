@@ -19,4 +19,11 @@ public interface YizhuResultRepository extends JpaRepository<YizhuResult, Intege
 
     @Query("select  max (y.num) from YizhuResult  y where y.bId=?1")
     int getMaxBid(String bid);
+
+    @Query("select  distinct (y.mainIllName) from YizhuResult  y where  y.mainIllName<>null")
+    List<String> getDistinctIllName();
+
+    @Query("select  distinct (y.bId) from YizhuResult  y where  y.mainIllName=?1")
+    List<String> getDistinctBidByIllName(String illName);
+
 }
