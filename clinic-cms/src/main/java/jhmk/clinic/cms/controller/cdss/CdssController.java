@@ -683,7 +683,6 @@ public class CdssController extends BaseController {
         String delete = jsonObject.getString("delete");
         if (delete != null) {
             List<YizhuResult> deleteList = JSONArray.parseArray(delete, YizhuResult.class);
-            List<YizhuResult> temList = new ArrayList<>();
             for (YizhuResult yizhuResult : deleteList) {
                 for (YizhuResult yizhuResult1 : tempList) {
                     String orderItemName = yizhuResult.getOrderItemName();
@@ -695,7 +694,6 @@ public class CdssController extends BaseController {
 
                     }
                 }
-
 
             }
 
@@ -746,11 +744,10 @@ public class CdssController extends BaseController {
      * @param response
      * @param map
      */
-    @PostMapping("/getDataByIllName")
+    @PostMapping("/getDataById")
     public void getDataById(HttpServletResponse response, @RequestBody String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
         Map<Integer, YizhuTestBean> params = new HashMap<>();
-        List<YizhuResult> tempList = new ArrayList<>();
         //病历id
         String id = jsonObject.getString("id");
         int num = yizhuResultRepService.getMaxBid(id);
