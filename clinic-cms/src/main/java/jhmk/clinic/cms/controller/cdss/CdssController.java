@@ -1,5 +1,6 @@
 package jhmk.clinic.cms.controller.cdss;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import jhmk.clinic.cms.SamilarService;
 import jhmk.clinic.cms.controller.ruleService.*;
@@ -11,12 +12,25 @@ import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.HttpClient;
 import jhmk.clinic.core.util.StringUtil;
 import jhmk.clinic.core.util.ThreadUtil;
+import jhmk.clinic.entity.bean.Chuyuanjilu;
+import jhmk.clinic.entity.bean.TreatmentPlan;
+import jhmk.clinic.entity.bean.Yizhu;
 import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import jhmk.clinic.entity.cdss.CdssRunRuleBean;
 import jhmk.clinic.entity.cdss.StatisticsBean;
+import jhmk.clinic.entity.model.AtResponse;
+import jhmk.clinic.entity.model.ResponseCode;
+import jhmk.clinic.entity.pojo.YizhuBsjb;
+import jhmk.clinic.entity.pojo.YizhuChange;
+import jhmk.clinic.entity.pojo.YizhuResult;
 import jhmk.clinic.entity.pojo.repository.SysDiseasesRepository;
 import jhmk.clinic.entity.pojo.repository.SysHospitalDeptRepository;
+import jhmk.clinic.entity.service.YizhuBsjbRepService;
+import jhmk.clinic.entity.service.YizhuChangeRepService;
+import jhmk.clinic.entity.service.YizhuOriRepService;
+import jhmk.clinic.entity.service.YizhuResultRepService;
+import jhmk.clinic.entity.test.YizhuTestBean;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -29,10 +43,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static jhmk.clinic.cms.service.InitService.caseList;
 import static jhmk.clinic.cms.service.InitService.diseaseNames;
@@ -50,6 +61,10 @@ public class CdssController extends BaseController {
     @Autowired
     BasyService basyService;
     @Autowired
+    YizhuService yizhuService;
+    @Autowired
+    CyjlService cyjlService;
+    @Autowired
     BlzdService blzdService;
     @Autowired
     RyjuService ryjuService;
@@ -66,6 +81,14 @@ public class CdssController extends BaseController {
     TestService testService;
     @Autowired
     CdssRunRuleService cdssRunRuleService;
+    @Autowired
+    YizhuOriRepService yizhuOriRepService;
+    @Autowired
+    YizhuBsjbRepService yizhuBsjbRepService;
+    @Autowired
+    YizhuChangeRepService yizhuChangeRepService;
+    @Autowired
+    YizhuResultRepService yizhuResultRepService;
     @Autowired
     RestTemplate restTemplate;
 
@@ -178,9 +201,11 @@ public class CdssController extends BaseController {
     @ResponseBody
     public void ranDomSelByIllName(HttpServletResponse response, @RequestBody(required = false) String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
+        System.out.println("总数量为：" + caseList.size());
         if (StringUtils.isNotBlank(map)) {
             String dept_code = jsonObject.getString("dept_code");
             String illName = jsonObject.getString("illname");
+            String same = jsonObject.getString("same");
             List<CdssRuleBean> tem = new LinkedList<>();
             List<CdssRuleBean> resultTem = new LinkedList<>();
             if (StringUtils.isNotBlank(dept_code)) {
@@ -220,11 +245,27 @@ public class CdssController extends BaseController {
             if (resultTem.size() == 0) {
                 resultTem = caseList;
             }
-            int round = (int) (Math.random() * resultTem.size());
+            List<CdssRuleBean> list = new ArrayList<>();
+            if ("true".equals(same)) {
+                for (CdssRuleBean cdssRuleBean : resultTem) {
+                    String rycz = cdssRuleBean.getRycz();
+                    String cyzd = cdssRuleBean.getCyzd();
+                    if (rycz == null || cyzd == null) {
+                        continue;
+                    }
+//                    if (samilarService.isFatherAndSon(rycz, cyzd)) {
+                    if (rycz.equals(cyzd)) {
+                        list.add(cdssRuleBean);
+                    }
+                }
+            } else {
+                list.addAll(resultTem);
+            }
+            int round = (int) (Math.random() * list.size());
             CdssRuleBean cdssTestBean = null;
             try {
 
-                cdssTestBean = resultTem.get(round);
+                cdssTestBean = list.get(round);
             } catch (NullPointerException e) {
 
                 e.printStackTrace();
@@ -450,7 +491,6 @@ public class CdssController extends BaseController {
     }
 
 
-
     @GetMapping("/demo1")
     public void demo1(HttpServletResponse response) {
         List<String> ss = samilarService.getSamilarWord("心力衰竭");
@@ -481,7 +521,6 @@ public class CdssController extends BaseController {
             wirte(response, diffBeanList1);
         }
     }
-
 
 
     @PostMapping("/getDataByDeptAndTimeSecond")
@@ -534,6 +573,186 @@ public class CdssController extends BaseController {
             result.add(value);
         }
         wirte(response, result);
+    }
+
+    @PostMapping("/getData")
+    public void getData(HttpServletResponse response, @RequestBody String map) {
+        AtResponse resp = new AtResponse();
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        String id = jsonObject.getString("id").replaceAll("##2", "");
+        //获取出院记录src
+        Map<String, Object> params = new HashMap<>();
+        Chuyuanjilu cyjlSrrc = cyjlService.getScbcjlById(id);
+        params.put("cyjl", cyjlSrrc);
+        List<Yizhu> yizhus = yizhuService.selYizhu(id);
+        params.put("yizhu", yizhus);
+        List<TreatmentPlan> srcById = sjyscflService.getSrcById(id, yizhus);
+        params.put("sjyscf", srcById);
+        resp.setData(params);
+        resp.setResponseCode(ResponseCode.OK);
+        wirte(response, resp);
+    }
+
+    @PostMapping("/getTimeByName")
+    public void getTimeByName(HttpServletResponse response, @RequestBody String map) {
+        AtResponse resp = new AtResponse();
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        String id = jsonObject.getString("id").replaceAll("##2", "");
+        String name = jsonObject.getString("name");
+        //获取出院记录src
+        List<Yizhu> yizhus = yizhuService.selYizhu(id);
+        List<Yizhu> yizhusTemp = new ArrayList<>();
+        for (Yizhu yizhu : yizhus) {
+            if (name.equals(yizhu.getOrder_item_name())){
+                yizhusTemp.add(yizhu);
+            }
+        }
+        resp.setData(yizhusTemp);
+        resp.setResponseCode(ResponseCode.OK);
+        wirte(response, resp);
+    }
+
+    /**
+     * 医嘱模糊查询
+     *
+     * @param response
+     * @param map
+     */
+    @PostMapping("/fuzzyQueryYizhu")
+    public void fuzzyQueryYizhu(HttpServletResponse response, @RequestBody String map) {
+        AtResponse resp = new AtResponse();
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        String id = jsonObject.getString("id").replaceAll("##2", "");
+        String str = jsonObject.getString("str");
+        //获取出院记录src
+        Map<String, Object> params = new HashMap<>();
+        List<Yizhu> yizhus = yizhuService.selYizhu(id);
+        List<Yizhu> temp = new ArrayList<>();
+        for (Yizhu yizhu : yizhus) {
+            if (yizhu.getOrder_item_name().contains(str)) {
+                temp.add(yizhu);
+            }
+        }
+        params.put("yizhu", temp);
+        resp.setData(params);
+        resp.setResponseCode(ResponseCode.OK);
+        wirte(response, resp);
+    }
+
+
+    /**
+     * 记录分析后的数据 供机器学习
+     *
+     * @param response
+     * @param map
+     */
+    @PostMapping("/jiluData")
+    public void jiluData(HttpServletResponse response, @RequestBody String map) {
+        Map<String, Object> param = new HashMap<>();
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        List<YizhuResult> tempList = new ArrayList<>();
+        //病历id
+        String id = jsonObject.getString("id");
+        String mainIllName = jsonObject.getString("mainIllName");
+        int num = jsonObject.getInteger("num") == null ? 1 : jsonObject.getInteger("num");
+        String ori1 = jsonObject.getString("ori");
+        List<YizhuResult> yizhuResults = JSONArray.parseArray(ori1, YizhuResult.class);
+        tempList.addAll(yizhuResults);
+        String add = jsonObject.getString("add");
+        //伴随疾病
+        String bsjb = jsonObject.getString("bsjb");
+        //如过是第一次 保存原始医嘱 否则 不保存
+        if (num == 1) {
+            for (YizhuResult yizhuResult : yizhuResults) {
+                //病历id
+                yizhuResult.setbId(id);
+                //次数
+                yizhuResult.setNum(num);
+                yizhuResult.setMainIllName(mainIllName);
+                yizhuResultRepService.save(yizhuResult);
+            }
+        }
+
+        List<YizhuChange> changeList = new ArrayList<>();
+        if (add != null) {
+            List<YizhuResult> addList = JSONArray.parseArray(add, YizhuResult.class);
+            List<YizhuChange> addChangeList = JSONArray.parseArray(add, YizhuChange.class);
+            changeList.addAll(addChangeList);
+            tempList.addAll(addList);
+        }
+        String delete = jsonObject.getString("delete");
+        if (delete != null) {
+            List<YizhuResult> deleteList = JSONArray.parseArray(delete, YizhuResult.class);
+            List<YizhuChange> deleteChangeList = JSONArray.parseArray(delete, YizhuChange.class);
+            changeList.addAll(deleteChangeList);
+            tempList.removeAll(deleteList);
+        }
+        for (YizhuChange yizhuChange : changeList) {
+            //病历id
+            yizhuChange.setbId(id);
+            //次数
+            yizhuChange.setNum(num);
+            yizhuChangeRepService.save(yizhuChange);
+        }
+
+        if (bsjb!=null){
+            List<YizhuBsjb> deleteList = JSONArray.parseArray(bsjb, YizhuBsjb.class);
+            for (YizhuBsjb yizhuBsjb : deleteList) {
+                //病历id
+                yizhuBsjb.setbId(id);
+                //次数
+                yizhuBsjb.setNum(num);
+                yizhuBsjbRepService.save(yizhuBsjb);
+            }
+            param.put("bsjb", deleteList);
+        }
+        for (YizhuResult yizhuResult : tempList) {
+            YizhuResult yizhuResult1 = new YizhuResult();
+            yizhuResult1.setOrderItemName(yizhuResult.getOrderItemName());
+            yizhuResult1.setDrug(yizhuResult.getDrug());
+            yizhuResult1.setPurpose(yizhuResult.getPurpose());
+            yizhuResult1.setMainIllName(yizhuResult.getMainIllName());
+            //病历id
+            yizhuResult1.setbId(id);
+            int i = num + 1;
+            //次数
+            yizhuResult1.setNum(i);
+            yizhuResultRepService.save(yizhuResult1);
+        }
+        param.put("change", changeList);
+        param.put("result", tempList);
+        wirte(response, param);
+    }
+
+    /**
+     * 根据id获取之前所有内容
+     *
+     * @param response
+     * @param map
+     */
+    @PostMapping("/getDataById")
+    public void getDataById(HttpServletResponse response, @RequestBody String map) {
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        Map<Integer, YizhuTestBean> params = new HashMap<>();
+        List<YizhuResult> tempList = new ArrayList<>();
+        //病历id
+        String id = jsonObject.getString("id");
+        int num = yizhuResultRepService.getMaxBid(id);
+        for (int i = 1; i <= num; i++) {
+            YizhuTestBean tempyizhuTestBean = new YizhuTestBean();
+
+            List<YizhuResult> resultList = yizhuResultRepService.findAllByBIdAndNum(id, i);
+            List<YizhuChange> changeList = yizhuChangeRepService.findAllByBIdAndNum(id, i);
+            List<YizhuBsjb> nsjbList = yizhuBsjbRepService.findAllByBIdAndNum(id, i);
+            tempyizhuTestBean.setBid(id);
+            tempyizhuTestBean.setNum(i);
+            tempyizhuTestBean.setChangeList(changeList);
+            tempyizhuTestBean.setResultList(resultList);
+            tempyizhuTestBean.setBsjbList(nsjbList);
+            tempyizhuTestBean.setNum(i);
+            params.put(i, tempyizhuTestBean);
+        }
+        wirte(response, params);
     }
 
 }

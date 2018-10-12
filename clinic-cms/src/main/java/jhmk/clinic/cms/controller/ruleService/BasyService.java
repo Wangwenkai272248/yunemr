@@ -117,6 +117,31 @@ public class BasyService {
         }
         return null;
     }
+    public String getDischargeTime(String id) {
+        List<Misdiagnosis> misdiagnosisList = new LinkedList<>();
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$match", new Document("_id", id)),
+                new Document("$project", new Document("patient_id", 1).append("_id", 1).append("visit_id", 1).append("binganshouye", 1))
+//                , new Document("$skip", 5000),
+//                new Document("$limit", 10000)
+        );
+        AggregateIterable<Document> output = binganshouye.aggregate(countPatientId);
+        for (Document document : output) {
+            Misdiagnosis misdiagnosis = new Misdiagnosis();
+            if (document == null) {
+                continue;
+            }
+            misdiagnosis.setPatient_id(document.getString("patient_id"));
+            misdiagnosis.setVisit_id(document.getString("visit_id"));
+            misdiagnosis.setId(document.getString("_id"));
+            Document binganshouye = (Document) document.get("binganshouye");
+            Document patVisit = (Document) binganshouye.get("pat_visit");
+
+            String discharge_time = patVisit.getString("discharge_time");
+            return discharge_time;
+        }
+        return null;
+    }
 
     public Binganshouye getBeanById(String id) {
         List<Misdiagnosis> misdiagnosisList = new LinkedList<>();

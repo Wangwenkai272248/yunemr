@@ -20,6 +20,10 @@ public class CdssDiffBean {
     private String sjyscfName;
     //上级医师查房时间
     private String sjyscfTime;
+    //就诊时间
+//
+    private String jz_time;
+    private String discharge_time;
     private String admission_time;
     private Binganshouye binganshouye;
     private String ruyuanchuzhen;
@@ -34,7 +38,6 @@ public class CdssDiffBean {
     public void setId(String id) {
         this.id = id;
     }
-
 
 
     public String getAdmission_time() {
@@ -115,5 +118,21 @@ public class CdssDiffBean {
 
     public void setShouyezhenduanList(List<Shouyezhenduan> shouyezhenduanList) {
         this.shouyezhenduanList = shouyezhenduanList;
+    }
+
+    public String getJz_time() {
+        return jz_time;
+    }
+
+    public void setJz_time(final String jz_time) {
+        this.jz_time = jz_time;
+    }
+
+    public String getDischarge_time() {
+        return discharge_time;
+    }
+
+    public void setDischarge_time(final String discharge_time) {
+        this.discharge_time = discharge_time;
     }
 }

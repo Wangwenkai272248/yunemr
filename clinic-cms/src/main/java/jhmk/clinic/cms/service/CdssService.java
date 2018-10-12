@@ -7,6 +7,7 @@ import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import jhmk.clinic.cms.SamilarService;
+import jhmk.clinic.cms.controller.ruleService.BasyService;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
 import jhmk.clinic.core.util.DateFormatUtil;
@@ -33,6 +34,8 @@ import static jhmk.clinic.core.util.MongoUtils.getCollection;
 
 @Service
 public class CdssService {
+    @Autowired
+    BasyService basyService;
     @Autowired
     SamilarService samilarService;
 
@@ -81,6 +84,50 @@ public class CdssService {
             break;
         }
         return cdssRuleBean;
+    }
+
+    public String getRycz(String id) {
+        List<String> list = new ArrayList<>();
+
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$shouyezhenduan"),
+                new Document("$match", new Document("_id", id)),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "入院初诊")),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
+        );
+        AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+        String diagnosis_name = "";
+        for (Document document : binli) {
+            Document binglizhenduan = (Document) document.get("shouyezhenduan");
+            diagnosis_name = binglizhenduan.getString("diagnosis_name");
+        }
+        return diagnosis_name;
+    }
+
+    /**
+     * 获取出院诊断主诊断
+     *
+     * @param id
+     * @return
+     */
+    public String getMainDisease(String id) {
+        List<String> list = new ArrayList<>();
+
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$shouyezhenduan"),
+                new Document("$match", new Document("_id", id)),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "出院诊断")),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
+        );
+        AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+        String diagnosis_name = "";
+        for (Document document : binli) {
+            Document binglizhenduan = (Document) document.get("shouyezhenduan");
+            diagnosis_name = binglizhenduan.getString("diagnosis_name");
+        }
+        return diagnosis_name;
     }
 
     //查询病案首页
@@ -226,7 +273,6 @@ public class CdssService {
                 CdssRuleBean cdssRuleBean = new CdssRuleBean();
                 String diagnosis_name = shoueyezhenduan.getString("diagnosis_name");
                 if (liiNames.contains(diagnosis_name)) {
-
                     cdssRuleBean.setMainIllName(diagnosis_name);
                     cdssRuleBean.setId(document.getString("_id"));
                     beanList.add(cdssRuleBean);
@@ -791,10 +837,15 @@ public class CdssService {
                     JSONObject next = (JSONObject) iterator.next();
                     Set<String> strings = next.keySet();
                     for (String keyname : strings) {
+                        String temId = keyname.replaceAll("#2#", "");
+                        String admissionTime = basyService.getAdmissionTime(temId);
+                        String dischargeTime = basyService.getDischargeTime(temId);
                         String string = next.getString(keyname);
                         JSONArray array = JSONArray.parseArray(string);
                         CdssDiffBean cdssDiffBean = getCdssDiffBean(array);
                         cdssDiffBean.setId(keyname);
+                        cdssDiffBean.setAdmission_time(admissionTime);
+                        cdssDiffBean.setDischarge_time(dischargeTime);
                         resultList.add(cdssDiffBean);
                     }
 
@@ -818,8 +869,9 @@ public class CdssService {
             if (StringUtils.isEmpty(chuyuanzhenduan)) {
                 continue;
             }
+            boolean isFas = samilarService.isFatherAndSon(chuyuanzhenduan, bean.getRuyuanchuzhen());
             //如果入院初诊=出院诊断 过滤
-            if (chuyuanzhenduan.equals(bean.getRuyuanchuzhen())) {
+            if (isFas) {
                 continue;
             }
             //有专科记录 过滤
@@ -854,13 +906,14 @@ public class CdssService {
                 String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
                 String[] split = clear_diagnose_name.split(" ");
                 for (String s : split) {
-                        if (s.contains(chuyuanzhenduan) || chuyuanzhenduan.contains(s)) {
-                            bean.setSjyscfTime(last_modify_date_time);
-                            bean.setSjyscfName(clear_diagnose_name);
-                            bean.setFlag(true);
-                            resultList.add(bean);
-                            break lable1;
-                        }
+                    boolean isFas1 = samilarService.isFatherAndSon(s, chuyuanzhenduan);
+                    if (isFas1) {
+                        bean.setSjyscfTime(last_modify_date_time);
+                        bean.setSjyscfName(clear_diagnose_name);
+                        bean.setFlag(true);
+                        resultList.add(bean);
+                        break lable1;
+                    }
 
                 }
 
@@ -877,7 +930,7 @@ public class CdssService {
             String chuyuanzhenduan = bean.getChuyuanzhenduan();
             String ruyuanchuzhen = bean.getRuyuanchuzhen();
             //出诊断=null
-            if (StringUtils.isEmpty(chuyuanzhenduan)||StringUtils.isEmpty(ruyuanchuzhen)) {
+            if (StringUtils.isEmpty(chuyuanzhenduan) || StringUtils.isEmpty(ruyuanchuzhen)) {
                 bean.setFlag(false);
                 resultList.add(bean);
                 continue;
@@ -968,7 +1021,7 @@ public class CdssService {
             JSONArray array1 = next.get("病案首页_就诊信息_就诊时间");
             String value = getValue(array1);
             if (StringUtils.isNotBlank(value)) {
-                bean1.setAdmission_time(value);
+                bean1.setJz_time(value);
                 continue;
             }
             JSONArray rycz = next.get("住院首页诊断_诊断名称,住院首页诊断_诊断类型=入院初诊,住院首页诊断_诊断序号=1");
@@ -1044,7 +1097,7 @@ public class CdssService {
             if (StringUtils.isEmpty(chuyuanzhenduan)) {
                 continue;
             }
-            if (chuyuanzhenduan.contains(ruyuanchuzhen)||ruyuanchuzhen.contains(chuyuanzhenduan)) {
+            if (chuyuanzhenduan.contains(ruyuanchuzhen) || ruyuanchuzhen.contains(chuyuanzhenduan)) {
                 bean.setFlag(true);
                 resultList.add(bean);
             }
