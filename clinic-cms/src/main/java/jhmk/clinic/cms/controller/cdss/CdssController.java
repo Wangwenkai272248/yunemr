@@ -654,7 +654,7 @@ public class CdssController extends BaseController {
         //病历id
         String id = jsonObject.getString("id");
         String mainIllName = jsonObject.getString("mainIllName");
-        int num = jsonObject.getInteger("num");
+        int num = jsonObject.getInteger("num") == null ? 1 : jsonObject.getInteger("num");
         String ori1 = jsonObject.getString("ori");
         List<YizhuResult> yizhuResults = JSONArray.parseArray(ori1, YizhuResult.class);
         tempList.addAll(yizhuResults);
