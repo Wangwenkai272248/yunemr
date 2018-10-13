@@ -7,6 +7,7 @@ import jhmk.clinic.cms.service.CdssRunRuleService;
 import jhmk.clinic.cms.service.CdssService;
 import jhmk.clinic.cms.service.TestService;
 import jhmk.clinic.core.base.BaseController;
+import jhmk.clinic.core.util.CompareUtil;
 import jhmk.clinic.entity.pojo.YizhuBsjb;
 import jhmk.clinic.entity.pojo.YizhuChange;
 import jhmk.clinic.entity.pojo.YizhuResult;
@@ -28,10 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author ziyu.zhou
@@ -126,6 +124,7 @@ public class BlzkController extends BaseController {
 
     /**
      * 分析疾病  得到数量
+     *
      * @param response
      * @param map
      */
@@ -158,5 +157,37 @@ public class BlzkController extends BaseController {
             paramsList.add(params);
         }
         wirte(response, paramsList);
+    }
+
+    /**
+     * 分析数据 集中治疗方案
+     * @param response
+     * @param map
+     */
+    @PostMapping("/analyzeDistinctBidByIllNameAndManager")
+    @ResponseBody
+    public void analyzeDistinctBidByIllNameAndManager(HttpServletResponse response, @RequestBody(required = false) String map) {
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        String name = jsonObject.getString("name");
+        List<String> distinctIllName = yizhuResultRepService.getDistinctBidByIllName(name);
+        List<Map<Integer, YizhuTestBean>> paramsList = new ArrayList<>();
+        Map<Integer, List<List<YizhuResult>>> tempMap = new HashMap<>();
+        //病历id
+        int i = 1;
+        for (String id : distinctIllName) {
+            List<YizhuResult> yizhuResults = yizhuResultRepService.findAllByBIdAndNum(id, i);
+            Collections.sort(yizhuResults, CompareUtil.createComparator(1,"purpose","orderItemName"));
+            int yizhuSize = yizhuResults.size();
+            if (tempMap.containsKey(yizhuSize)) {
+                List<List<YizhuResult>> lists = tempMap.get(yizhuSize);
+                lists.add(yizhuResults);
+                tempMap.put(yizhuSize, lists);
+            } else {
+                List<List<YizhuResult>> lists = new ArrayList<>();
+                lists.add(yizhuResults);
+                tempMap.put(yizhuSize, lists);
+            }
+        }
+        wirte(response, tempMap);
     }
 }

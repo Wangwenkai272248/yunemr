@@ -655,6 +655,7 @@ public class CdssController extends BaseController {
         String id = jsonObject.getString("id");
         String mainIllName = jsonObject.getString("mainIllName");
         int num = jsonObject.getInteger("num") == null ? 1 : jsonObject.getInteger("num");
+        yizhuResultRepService.deleteAllByBIdAndNum(id, num);
         String ori1 = jsonObject.getString("ori");
         List<YizhuResult> yizhuResults = JSONArray.parseArray(ori1, YizhuResult.class);
         tempList.addAll(yizhuResults);
@@ -691,7 +692,7 @@ public class CdssController extends BaseController {
                     String purpose = yizhuResult.getPurpose();
                     String orderItemName1 = yizhuResult1.getOrderItemName();
                     String purpose1 = yizhuResult1.getPurpose();
-                    if (orderItemName.equals(orderItemName1)&&purpose.equals(purpose1)){
+                    if (orderItemName.equals(orderItemName1) && purpose.equals(purpose1)) {
                         tempList.remove(yizhuResult1);
 
                     }
