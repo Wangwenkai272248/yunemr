@@ -85,14 +85,22 @@ public class YizhuResultRepService extends BaseRepService<YizhuResult, Integer> 
 
     /**
      * 获取所有唯一疾病名
+     *
      * @return
      */
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<String> getDistinctIllName() {
         return repository.getDistinctIllName();
     }
+
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<String> getDistinctBidByIllName(String illName) {
         return repository.getDistinctBidByIllName(illName);
     }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteAllByBIdAndNum(String bid, int num) {
+        repository.deleteAllByBIdAndNum(bid, num);
+    }
+
 }

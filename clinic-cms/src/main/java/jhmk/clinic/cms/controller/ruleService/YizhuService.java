@@ -46,6 +46,10 @@ public class YizhuService {
 
                 String order_end_time = yizhuDocu.getString("order_end_time");
                 yizhu.setOrder_end_time(order_end_time);
+                String order_class_convert_name= yizhuDocu.getString("order_class_convert_name");
+                if (!"药品".equals(order_class_convert_name)){
+                    continue;
+                }
 
 
                 String order_properties_name = yizhuDocu.getString("order_properties_name");

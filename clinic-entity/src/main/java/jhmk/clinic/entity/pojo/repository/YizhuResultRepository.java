@@ -26,4 +26,6 @@ public interface YizhuResultRepository extends JpaRepository<YizhuResult, Intege
     @Query("select  distinct (y.bId) from YizhuResult  y where  y.mainIllName=?1")
     List<String> getDistinctBidByIllName(String illName);
 
+    void  deleteAllByBIdAndNum(String bid,int num);
+
 }
