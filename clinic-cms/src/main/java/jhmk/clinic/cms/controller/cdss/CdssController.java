@@ -655,6 +655,7 @@ public class CdssController extends BaseController {
         String id = jsonObject.getString("id");
         String mainIllName = jsonObject.getString("mainIllName");
         int num = jsonObject.getInteger("num");
+        System.out.println("数量为：========"+num);
         String ori1 = jsonObject.getString("ori");
         yizhuResultRepService.deleteAllByBIdAndNum(id,num);
         List<YizhuResult> yizhuResults = JSONArray.parseArray(ori1, YizhuResult.class);
@@ -663,7 +664,6 @@ public class CdssController extends BaseController {
         //伴随疾病
         String bsjb = jsonObject.getString("bsjb");
         //如过是第一次 保存原始医嘱 否则 不保存
-        if (num == 1) {
             for (YizhuResult yizhuResult : yizhuResults) {
                 //病历id
                 yizhuResult.setbId(id);
@@ -672,7 +672,6 @@ public class CdssController extends BaseController {
                 yizhuResult.setMainIllName(mainIllName);
                 yizhuResultRepService.save(yizhuResult);
             }
-        }
         if (add != null) {
             List<YizhuChange> addChangeList = JSONArray.parseArray(add, YizhuChange.class);
             for (YizhuChange yizhuChange : addChangeList) {
