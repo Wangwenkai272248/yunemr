@@ -153,10 +153,8 @@ public class CdssService {
             map.put("pat_info_age_value_unit", (String) patVisit.get("age_value_unit"));
             map.put("pat_info_marital_status_name", (String) patVisit.get("marital_status_name"));
             map.put("pat_visit_dept_discharge_from_name", (String) patVisit.get("dept_discharge_from_name"));
-
             map.put("pat_visit_dept_admission_to_name", (String) patVisit.get("dept_admission_to_name"));
             map.put("pat_visit_dept_admission_to_code", patVisit.getString("dept_admission_to_code"));
-
             break;
         }
         return map;
