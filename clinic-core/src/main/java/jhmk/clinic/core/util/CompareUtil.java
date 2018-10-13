@@ -114,6 +114,12 @@ public class CompareUtil {
                         } else if (sort == -1) {
                             return v2 > v1 ? 1 : -1;
                         }
+                    }else {
+                        if (sort == 1) {
+                            return ((String) value1).compareTo((String)value2) ;
+                        } else if (sort == -1) {
+                            return ((String) value2).compareTo((String)value1) ;
+                        }
                     }
                 }
 
