@@ -721,20 +721,6 @@ public class CdssController extends BaseController {
             }
             param.put("bsjb", deleteList);
         }
-        for (YizhuResult yizhuResult : tempList) {
-            YizhuResult yizhuResult1 = new YizhuResult();
-            yizhuResult1.setOrderItemName(yizhuResult.getOrderItemName());
-            yizhuResult1.setDrug(yizhuResult.getDrug());
-            yizhuResult1.setPurpose(yizhuResult.getPurpose());
-            yizhuResult1.setMainIllName(yizhuResult.getMainIllName());
-            //病历id
-            yizhuResult1.setbId(id);
-            int i = num + 1;
-            //次数
-            yizhuResult1.setNum(i);
-            yizhuResultRepService.save(yizhuResult1);
-        }
-//        param.put("change", changeList);
         param.put("result", tempList);
         wirte(response, param);
     }
