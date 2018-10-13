@@ -658,6 +658,8 @@ public class CdssController extends BaseController {
         System.out.println("数量为：========"+num);
         String ori1 = jsonObject.getString("ori");
         yizhuResultRepService.deleteAllByBIdAndNum(id,num);
+        yizhuChangeRepService.deleteAllByBIdAndNum(id,num);
+        yizhuBsjbRepService.deleteAllByBIdAndNum(id,num);
         List<YizhuResult> yizhuResults = JSONArray.parseArray(ori1, YizhuResult.class);
         tempList.addAll(yizhuResults);
         String add = jsonObject.getString("add");

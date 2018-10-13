@@ -78,5 +78,9 @@ public class YizhuChangeRepService extends BaseRepService<YizhuChange, Integer> 
         return repository.findAllByBIdAndNum(bid, num);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteAllByBIdAndNum(String bid, int num) {
+        repository.deleteAllByBIdAndNum(bid, num);
+    }
 
 }

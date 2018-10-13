@@ -15,5 +15,6 @@ public interface YizhuBsjbRepository extends JpaRepository<YizhuBsjb, Integer>, 
 
     List<YizhuBsjb> findAllByBId(String bid);
     List<YizhuBsjb> findAllByBIdAndNum(String bid, int num);
+    void  deleteAllByBIdAndNum(String bid,int num);
 
 }

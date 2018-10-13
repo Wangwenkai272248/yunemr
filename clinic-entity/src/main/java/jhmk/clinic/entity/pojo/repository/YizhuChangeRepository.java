@@ -16,5 +16,6 @@ public interface YizhuChangeRepository extends JpaRepository<YizhuChange, Intege
     List<YizhuChange> findAllByBId(String bid);
     List<YizhuChange> findAllByBIdAndNum(String bid,int num);
 
+    void  deleteAllByBIdAndNum(String bid,int num);
 
 }

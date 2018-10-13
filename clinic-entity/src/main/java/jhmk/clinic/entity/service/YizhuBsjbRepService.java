@@ -77,5 +77,8 @@ public class YizhuBsjbRepService extends BaseRepService<YizhuBsjb, Integer> {
     public List<YizhuBsjb> findAllByBIdAndNum(String bid, int num) {
         return repository.findAllByBIdAndNum(bid,num);
     }
-
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteAllByBIdAndNum(String bid, int num) {
+        repository.deleteAllByBIdAndNum(bid, num);
+    }
 }
