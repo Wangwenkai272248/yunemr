@@ -672,13 +672,15 @@ public class CdssController extends BaseController {
                 yizhuResultRepService.save(yizhuResult);
             }
         }
-
-        List<YizhuChange> changeList = new ArrayList<>();
         if (add != null) {
-            List<YizhuResult> addList = JSONArray.parseArray(add, YizhuResult.class);
             List<YizhuChange> addChangeList = JSONArray.parseArray(add, YizhuChange.class);
-            changeList.addAll(addChangeList);
-            tempList.addAll(addList);
+            for (YizhuChange yizhuChange : addChangeList) {
+                //病历id
+                yizhuChange.setbId(id);
+                //次数
+                yizhuChange.setNum(num);
+                yizhuChangeRepService.save(yizhuChange);
+            }
         }
         String delete = jsonObject.getString("delete");
         if (delete != null) {
@@ -698,16 +700,15 @@ public class CdssController extends BaseController {
             }
 
             List<YizhuChange> deleteChangeList = JSONArray.parseArray(delete, YizhuChange.class);
-            changeList.addAll(deleteChangeList);
-//            tempList.removeAll(temList);
+            for (YizhuChange yizhuChange : deleteChangeList) {
+                //病历id
+                yizhuChange.setbId(id);
+                //次数
+                yizhuChange.setNum(num);
+                yizhuChangeRepService.save(yizhuChange);
+            }
         }
-        for (YizhuChange yizhuChange : changeList) {
-            //病历id
-            yizhuChange.setbId(id);
-            //次数
-            yizhuChange.setNum(num);
-            yizhuChangeRepService.save(yizhuChange);
-        }
+
 
         if (bsjb != null) {
             List<YizhuBsjb> deleteList = JSONArray.parseArray(bsjb, YizhuBsjb.class);
@@ -733,7 +734,7 @@ public class CdssController extends BaseController {
             yizhuResult1.setNum(i);
             yizhuResultRepService.save(yizhuResult1);
         }
-        param.put("change", changeList);
+//        param.put("change", changeList);
         param.put("result", tempList);
         wirte(response, param);
     }
