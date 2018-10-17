@@ -226,7 +226,7 @@ public class BlzkController extends BaseController {
                     continue;
                 }
                 sb = new StringBuilder();
-                if ("add".equals(change.getStatus())){
+                if ("add".equals(change.getStatus())) {
                     sb.append(change.getPurpose()).append("/").append(change.getDrug());
                     String changeTemp = sb.toString();
                     if (addMap.containsKey(changeTemp)) {
@@ -234,7 +234,7 @@ public class BlzkController extends BaseController {
                     } else {
                         addMap.put(changeTemp, 1);
                     }
-                }else if ("delete".equals(change.getStatus())){
+                } else if ("delete".equals(change.getStatus())) {
                     sb.append(change.getPurpose()).append("/").append(change.getDrug());
                     String changeTemp = sb.toString();
                     if (deleteMap.containsKey(changeTemp)) {
@@ -260,9 +260,17 @@ public class BlzkController extends BaseController {
             }
         }
         Map<String, Object> paeams = new HashMap<>();
-        paeams.put("add", addMap);
-        paeams.put("delete", deleteMap);
-        paeams.put("bsjb", bsjbMap);
+//        ArrayList<Map.Entry<String, Integer>> addList = new ArrayList<>(addMap.entrySet());
+//        Collections.sort(addList, new Comparator<Map.Entry<String, Integer>>() {
+//            @Override
+//            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+//                return o1.getValue().compareTo(o2.getValue());
+//            }
+//        });
+//        ArrayList<Map.Entry<Object, Integer>> addList = CompareUtil.compareMapForValue(addMap);
+        paeams.put("add", CompareUtil.compareMapForValue(addMap));
+        paeams.put("delete", CompareUtil.compareMapForValue(deleteMap));
+        paeams.put("bsjb", CompareUtil.compareMapForValue(bsjbMap));
         wirte(response, paeams);
     }
 
