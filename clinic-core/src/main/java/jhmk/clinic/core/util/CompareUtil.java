@@ -114,11 +114,11 @@ public class CompareUtil {
                         } else if (sort == -1) {
                             return v2 > v1 ? 1 : -1;
                         }
-                    }else {
+                    } else {
                         if (sort == 1) {
-                            return ((String) value1).compareTo((String)value2) ;
+                            return ((String) value1).compareTo((String) value2);
                         } else if (sort == -1) {
-                            return ((String) value2).compareTo((String)value1) ;
+                            return ((String) value2).compareTo((String) value1);
                         }
                     }
                 }
@@ -218,5 +218,15 @@ public class CompareUtil {
         return sortedMap;
     }
 
+    public static ArrayList<Map.Entry<Object, Integer>> compareMapForValue(Map tempMap) {
+        ArrayList<Map.Entry<Object, Integer>> tepmList = new ArrayList<>(tempMap.entrySet());
+        Collections.sort(tepmList, new Comparator<Map.Entry<Object, Integer>>() {
+            @Override
+            public int compare(Map.Entry<Object, Integer> o1, Map.Entry<Object, Integer> o2) {
+                return o1.getValue().compareTo(o2.getValue());
+            }
+        });
+        return tepmList;
+    }
 
 }
