@@ -250,7 +250,7 @@ public class BlzkController extends BaseController {
                     continue;
                 }
                 sb = new StringBuilder();
-                sb.append(change.getPurpose()).append("/").append(change.getDrug());
+                sb.append(change.getPurpose()).append("/").append(change.getDrug()).append("/").append(change.getBsjb());
                 String changeTemp = sb.toString();
                 if (bsjbMap.containsKey(changeTemp)) {
                     bsjbMap.put(changeTemp, bsjbMap.get(changeTemp) + 1);
