@@ -215,7 +215,8 @@ public class BlzkController extends BaseController {
         JSONObject jsonObject = JSONObject.parseObject(map);
         String name = jsonObject.getString("name");
         List<String> distinctIllName = yizhuResultRepService.getDistinctBidByMainIllName(name);
-        Map<String, Integer> changeMap = new HashMap<>();
+        Map<String, Integer> addMap = new HashMap<>();
+        Map<String, Integer> deleteMap = new HashMap<>();
         Map<String, Integer> bsjbMap = new HashMap<>();
         for (String bid : distinctIllName) {
             List<YizhuChange> allByBId = yizhuChangeRepService.findAllByBId(bid);
@@ -225,12 +226,22 @@ public class BlzkController extends BaseController {
                     continue;
                 }
                 sb = new StringBuilder();
-                sb.append(change.getPurpose()).append("-").append(change.getDrug());
-                String changeTemp = sb.toString();
-                if (changeMap.containsKey(changeTemp)) {
-                    changeMap.put(changeTemp, changeMap.get(changeTemp) + 1);
-                } else {
-                    changeMap.put(changeTemp, 1);
+                if ("add".equals(change.getStatus())){
+                    sb.append(change.getPurpose()).append("/").append(change.getDrug());
+                    String changeTemp = sb.toString();
+                    if (addMap.containsKey(changeTemp)) {
+                        addMap.put(changeTemp, addMap.get(changeTemp) + 1);
+                    } else {
+                        addMap.put(changeTemp, 1);
+                    }
+                }else if ("delete".equals(change.getStatus())){
+                    sb.append(change.getPurpose()).append("/").append(change.getDrug());
+                    String changeTemp = sb.toString();
+                    if (deleteMap.containsKey(changeTemp)) {
+                        deleteMap.put(changeTemp, deleteMap.get(changeTemp) + 1);
+                    } else {
+                        deleteMap.put(changeTemp, 1);
+                    }
                 }
             }
             List<YizhuBsjb> nsjbList = yizhuBsjbRepService.findAllByBId(bid);
@@ -239,7 +250,7 @@ public class BlzkController extends BaseController {
                     continue;
                 }
                 sb = new StringBuilder();
-                sb.append(change.getPurpose()).append("-").append(change.getDrug());
+                sb.append(change.getPurpose()).append("/").append(change.getDrug());
                 String changeTemp = sb.toString();
                 if (bsjbMap.containsKey(changeTemp)) {
                     bsjbMap.put(changeTemp, bsjbMap.get(changeTemp) + 1);
@@ -249,7 +260,8 @@ public class BlzkController extends BaseController {
             }
         }
         Map<String, Object> paeams = new HashMap<>();
-        paeams.put("change", changeMap);
+        paeams.put("add", addMap);
+        paeams.put("delete", deleteMap);
         paeams.put("bsjb", bsjbMap);
         wirte(response, paeams);
     }
