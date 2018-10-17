@@ -151,52 +151,7 @@ public class CdssController extends BaseController {
         wirte(response, o);
     }
 
-    //    @PostMapping("/ranDomSel")
-//    @ResponseBody
-//    public void ranDomSelByIllName(HttpServletResponse response, @RequestBody(required = false) String map) {
-//        JSONObject jsonObject = JSONObject.parseObject(map);
-//        if (StringUtils.isNotBlank(map) && jsonObject != null && StringUtils.isNotBlank(jsonObject.getString("dept_code"))) {
-//            String dept_code = jsonObject.getString("dept_code");
-//            List<CdssRuleBean> tem = new LinkedList<>();
-//            if (StringUtil.isChinese(dept_code)) {
-//
-//                for (CdssRuleBean cdssRuleBean : caseList) {
-//                    if (dept_code.equals(cdssRuleBean.getBinganshouye().get("pat_visit_dept_admission_to_name"))) {
-//                        tem.add(cdssRuleBean);
-//                    }
-//                }
-//                int round = (int) (Math.random() * tem.size());
-//                CdssRuleBean cdssTestBean = null;
-//                try {
-//
-//                    cdssTestBean = tem.get(round);
-//                } catch (NullPointerException e) {
-//
-//                    e.printStackTrace();
-//                    logger.info("错误提示{}" + e.getMessage());
-//                    ranDomSelByIllName(response, map);
-//                }
-//                Object o = JSONObject.toJSON(cdssTestBean);
-//                wirte(response, o);
-//            }
-//
-//        } else {
-//            int round = (int) (Math.random() * caseList.size());
-//            CdssRuleBean cdssTestBean = null;
-//            try {
-//
-//                cdssTestBean = caseList.get(round);
-//            } catch (NullPointerException e) {
-//
-//                e.printStackTrace();
-//                logger.info("错误提示{}" + e.getMessage());
-//                ranDomSelByIllName(response, map);
-//            }
-//            Object o = JSONObject.toJSON(cdssTestBean);
-//            wirte(response, o);
-//        }
-//
-//    }
+
     @PostMapping("/ranDomSel")
     @ResponseBody
     public void ranDomSelByIllName(HttpServletResponse response, @RequestBody(required = false) String map) {

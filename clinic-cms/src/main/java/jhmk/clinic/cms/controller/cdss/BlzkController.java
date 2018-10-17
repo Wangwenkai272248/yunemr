@@ -19,6 +19,7 @@ import jhmk.clinic.entity.service.YizhuChangeRepService;
 import jhmk.clinic.entity.service.YizhuOriRepService;
 import jhmk.clinic.entity.service.YizhuResultRepService;
 import jhmk.clinic.entity.test.YizhuTestBean;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,7 +169,7 @@ public class BlzkController extends BaseController {
      * @param response
      * @param map
      */
-        @PostMapping("/analyzeDistinctBidByIllNameAndManager")
+    @PostMapping("/analyzeDistinctBidByIllNameAndManager")
     @ResponseBody
     public void analyzeDistinctBidByIllNameAndManager(HttpServletResponse response, @RequestBody(required = false) String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
@@ -192,14 +193,65 @@ public class BlzkController extends BaseController {
             bsjbList.add(nsjbList);
 
         }
-        Map<String,Object>paeams=new HashMap<>();
+        Map<String, Object> paeams = new HashMap<>();
         List<Map.Entry<String, Integer>> entries = zlfaService.analyzeYizhuResult(list);
-        paeams.put("yizhu",entries);
+        paeams.put("yizhu", entries);
         List<Map.Entry<String, Integer>> analyzeYizhuChange = zlfaService.analyzeYizhuChange(changelist);
-        paeams.put("change",analyzeYizhuChange);
+        paeams.put("change", analyzeYizhuChange);
         List<Map.Entry<String, Integer>> analyzeYizhuBsjb = zlfaService.analyzeYizhuBsjb(bsjbList);
-        paeams.put("bsjb",analyzeYizhuBsjb);
-
+        paeams.put("bsjb", analyzeYizhuBsjb);
         wirte(response, paeams);
     }
+
+    /**
+     * 解析所有变化和伴随疾病
+     *
+     * @param response
+     * @param map
+     */
+    @PostMapping("/analyzeChangeAndBsjb")
+    @ResponseBody
+    public void analyzeChangeAndBsjb(HttpServletResponse response, @RequestBody(required = false) String map) {
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        String name = jsonObject.getString("name");
+        List<String> distinctIllName = yizhuResultRepService.getDistinctBidByMainIllName(name);
+        Map<String, Integer> changeMap = new HashMap<>();
+        Map<String, Integer> bsjbMap = new HashMap<>();
+        for (String bid : distinctIllName) {
+            List<YizhuChange> allByBId = yizhuChangeRepService.findAllByBId(bid);
+            StringBuilder sb = null;
+            for (YizhuChange change : allByBId) {
+                if (StringUtils.isEmpty(change.getPurpose()) && StringUtils.isEmpty(change.getDrug())) {
+                    continue;
+                }
+                sb = new StringBuilder();
+                sb.append(change.getPurpose()).append("-").append(change.getDrug());
+                String changeTemp = sb.toString();
+                if (changeMap.containsKey(changeTemp)) {
+                    changeMap.put(changeTemp, changeMap.get(changeTemp) + 1);
+                } else {
+                    changeMap.put(changeTemp, 1);
+                }
+            }
+            List<YizhuBsjb> nsjbList = yizhuBsjbRepService.findAllByBId(bid);
+            for (YizhuBsjb change : nsjbList) {
+                if (StringUtils.isEmpty(change.getPurpose()) && StringUtils.isEmpty(change.getDrug())) {
+                    continue;
+                }
+                sb = new StringBuilder();
+                sb.append(change.getPurpose()).append("-").append(change.getDrug());
+                String changeTemp = sb.toString();
+                if (bsjbMap.containsKey(changeTemp)) {
+                    bsjbMap.put(changeTemp, changeMap.get(changeTemp) + 1);
+                } else {
+                    bsjbMap.put(changeTemp, 1);
+                }
+            }
+        }
+        Map<String, Object> paeams = new HashMap<>();
+        paeams.put("change", changeMap);
+        paeams.put("bsjb", bsjbMap);
+        wirte(response, paeams);
+    }
+
 }

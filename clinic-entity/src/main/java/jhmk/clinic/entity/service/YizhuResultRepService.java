@@ -74,6 +74,11 @@ public class YizhuResultRepService extends BaseRepService<YizhuResult, Integer> 
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public List<YizhuResult> findAllByMainIllName(String mainillname) {
+        return repository.findAllByMainIllName(mainillname);
+    }
+
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<YizhuResult> findAllByBIdAndNum(String bid, int num) {
         return repository.findAllByBIdAndNum(bid, num);
     }
@@ -91,6 +96,11 @@ public class YizhuResultRepService extends BaseRepService<YizhuResult, Integer> 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<String> getDistinctIllName() {
         return repository.getDistinctIllName();
+    }
+
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public List<String> getDistinctBidByMainIllName(String mainIllName) {
+        return repository.getDistinctBidByMainIllName(mainIllName);
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
