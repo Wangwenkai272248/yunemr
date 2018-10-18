@@ -14,6 +14,9 @@ public class Yizhu implements Serializable {
     private String order_end_time;
     private String order_properties_name;//长期 临时医嘱
     private String order_status_name;//停止
+    private String frequency_name;//频次
+    private String dosage_value;//剂量
+    private String dosage_value_unit;//单位
 
     public String getOrder_item_name() {
         return order_item_name;
@@ -53,5 +56,29 @@ public class Yizhu implements Serializable {
 
     public void setOrder_status_name(String order_status_name) {
         this.order_status_name = order_status_name;
+    }
+
+    public String getFrequency_name() {
+        return frequency_name;
+    }
+
+    public void setFrequency_name(final String frequency_name) {
+        this.frequency_name = frequency_name;
+    }
+
+    public String getDosage_value() {
+        return dosage_value;
+    }
+
+    public void setDosage_value(final String dosage_value) {
+        this.dosage_value = dosage_value;
+    }
+
+    public String getDosage_value_unit() {
+        return dosage_value_unit;
+    }
+
+    public void setDosage_value_unit(final String dosage_value_unit) {
+        this.dosage_value_unit = dosage_value_unit;
     }
 }

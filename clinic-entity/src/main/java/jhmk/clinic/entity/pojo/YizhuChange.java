@@ -20,6 +20,11 @@ public class YizhuChange {
     private String bId;
     private String status;
     private String drug;
+    private String mainIllName;
+    private String illname;
+    private String orderBeginTime;
+    private String orderEndTime;
+    private String orderPropertiesName;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -126,5 +131,55 @@ public class YizhuChange {
 
     public void setDrug(final String drug) {
         this.drug = drug;
+    }
+
+    @Basic
+    @Column(name = "main_ill_name", nullable = true, length = 255)
+    public String getMainIllName() {
+        return mainIllName;
+    }
+
+    public void setMainIllName(final String mainIllName) {
+        this.mainIllName = mainIllName;
+    }
+
+    @Basic
+    @Column(name = "illname", nullable = true, length = 50)
+    public String getIllname() {
+        return illname;
+    }
+
+    public void setIllname(final String illname) {
+        this.illname = illname;
+    }
+
+    @Basic
+    @Column(name = "order_begin_time", nullable = true, length = 50)
+    public String getOrderBeginTime() {
+        return orderBeginTime;
+    }
+
+    public void setOrderBeginTime(final String orderBeginTime) {
+        this.orderBeginTime = orderBeginTime;
+    }
+
+    @Basic
+    @Column(name = "order_end_time", nullable = true, length = 50)
+    public String getOrderEndTime() {
+        return orderEndTime;
+    }
+
+    public void setOrderEndTime(final String orderEndTime) {
+        this.orderEndTime = orderEndTime;
+    }
+
+    @Basic
+    @Column(name = "order_properties_name", nullable = true, length = 50)
+    public String getOrderPropertiesName() {
+        return orderPropertiesName;
+    }
+
+    public void setOrderPropertiesName(final String orderPropertiesName) {
+        this.orderPropertiesName = orderPropertiesName;
     }
 }

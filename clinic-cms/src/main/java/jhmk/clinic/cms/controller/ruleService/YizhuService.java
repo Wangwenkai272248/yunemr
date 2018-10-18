@@ -39,6 +39,11 @@ public class YizhuService {
             }
             Yizhu yizhu = new Yizhu();
             if (yizhuDocu.get("order_item_name") != null) {
+                String order_class_convert_name= yizhuDocu.getString("order_class_convert_name");
+                if (!"药品".equals(order_class_convert_name)){
+                    continue;
+                }
+
                 String order_item_name = yizhuDocu.getString("order_item_name");
                 yizhu.setOrder_item_name(order_item_name);
                 String order_begin_time = yizhuDocu.getString("order_begin_time");
@@ -46,14 +51,20 @@ public class YizhuService {
 
                 String order_end_time = yizhuDocu.getString("order_end_time");
                 yizhu.setOrder_end_time(order_end_time);
-                String order_class_convert_name= yizhuDocu.getString("order_class_convert_name");
-                if (!"药品".equals(order_class_convert_name)){
-                    continue;
-                }
+
 
 
                 String order_properties_name = yizhuDocu.getString("order_properties_name");
                 yizhu.setOrder_properties_name(order_properties_name);
+
+
+                String frequencyName = yizhuDocu.getString("frequency_name");
+                yizhu.setFrequency_name(frequencyName);
+
+                String dosageValue = yizhuDocu.getString("dosage_value");
+                yizhu.setDosage_value(dosageValue);
+                String dosageValueUnit = yizhuDocu.getString("dosage_value_unit");
+                yizhu.setDosage_value_unit(dosageValueUnit);
 
                 orderList.add(yizhu);
             }
