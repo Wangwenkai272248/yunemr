@@ -1,5 +1,6 @@
 package jhmk.clinic.entity.bean;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Objects;
  * @date 2018/7/19 17:55
  */
 
-public class Binganshouye {
+public class Binganshouye implements Serializable{
 
     private String id;//性别
     private String patient_id;//性别
