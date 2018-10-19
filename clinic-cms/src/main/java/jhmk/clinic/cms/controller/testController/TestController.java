@@ -3,7 +3,10 @@ package jhmk.clinic.cms.controller.testController;
 import jhmk.clinic.cms.controller.ruleService.BasyService;
 import jhmk.clinic.cms.controller.ruleService.SyzdService;
 import jhmk.clinic.cms.function.demo1.Demo1Service;
+import jhmk.clinic.cms.service.CdssService;
+import jhmk.clinic.cms.service.ReadFileService;
 import jhmk.clinic.cms.service.Write2File;
+import jhmk.clinic.entity.bean.Binganshouye;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +26,8 @@ public class TestController {
     @Autowired
     Demo1Service demo1Service;
     @Autowired
+    CdssService cdssService;
+    @Autowired
     BasyService basyService;
     @Autowired
     SyzdService syzdService;
@@ -41,7 +46,6 @@ public class TestController {
                     resuiltMap.put(name, 1);
 
                 }
-
             }
         }
         ArrayList<Map.Entry<String, Integer>> entries = new ArrayList<>(resuiltMap.entrySet());
@@ -58,5 +62,28 @@ public class TestController {
         String fileNmae = "/data/1/CDSS/" + map + ".txt";
         Write2File.w2fileList(data, fileNmae);
         System.out.println("写完啦");
+    }
+
+    /**
+     * 获取入院出院科室 科出院诊断名
+     */
+    @PostMapping("/getData1019")
+    public void test() {
+        List<String> list = ReadFileService.readSourceList("assignId");
+
+        List<String> result = new ArrayList<>();
+        StringBuilder sb = null;
+        for (String id : list) {
+            sb = new StringBuilder();
+            String cyzd = cdssService.getCyzdByPidAndVid(id);
+            Binganshouye beanByPidAndVid = basyService.getBeanByPidAndVid(id);
+            String pat_visit_dept_admission_to_name = beanByPidAndVid.getPat_visit_dept_admission_to_name();
+            String pat_visit_dept_discharge_from_name = beanByPidAndVid.getPat_visit_dept_discharge_from_name();
+            sb.append(cyzd).append("==").append(pat_visit_dept_admission_to_name).append("==").append(pat_visit_dept_discharge_from_name);
+            result.add(sb.toString());
+        }
+        Write2File.w2fileList(list, "/data/1/CDSS/1019data.txt");
+
+
     }
 }
