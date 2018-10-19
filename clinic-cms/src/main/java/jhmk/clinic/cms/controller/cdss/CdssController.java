@@ -165,7 +165,6 @@ public class CdssController extends BaseController {
             List<CdssRuleBean> resultTem = new LinkedList<>();
             if (StringUtils.isNotBlank(dept_code)) {
                 if (StringUtil.isChinese(dept_code)) {
-
                     for (CdssRuleBean cdssRuleBean : caseList) {
                         if (dept_code.equals(cdssRuleBean.getBinganshouye().get("pat_visit_dept_admission_to_name"))) {
                             tem.add(cdssRuleBean);
@@ -189,7 +188,6 @@ public class CdssController extends BaseController {
                                 }
                             } else {
                                 resultTem.add(cdssRuleBean);
-
                             }
                         }
                     }
@@ -233,7 +231,6 @@ public class CdssController extends BaseController {
             int round = (int) (Math.random() * caseList.size());
             CdssRuleBean cdssTestBean = null;
             try {
-
                 cdssTestBean = caseList.get(round);
             } catch (NullPointerException e) {
 
