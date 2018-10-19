@@ -311,6 +311,30 @@ public class CdssService {
         return beanList;
     }
 
+    public String getCyzdByPidAndVid(String id) {
+        String name = "";
+        String[] split = id.split(",");
+        String pid = split[0];
+        String vid = split[1];
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$shouyezhenduan"),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "出院诊断")),
+                new Document("$match", new Document("patient_id", pid)),
+                new Document("$match", new Document("visit_id", vid)),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
+        );
+        AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+        for (Document document : binli) {
+            Document shoueyezhenduan = (Document) document.get("shouyezhenduan");
+            if (Objects.nonNull(shoueyezhenduan)) {
+                name = shoueyezhenduan.getString("diagnosis_name");
+            }
+
+        }
+        return name;
+    }
+
 
     //根据id查询入院记录
     public CdssRuleBean selruyuanjiluById(String id) throws NullPointerException {
