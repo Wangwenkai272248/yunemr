@@ -9,6 +9,8 @@ public class Shangjiyishichafanglu {
     private String clear_diagnose_name;//确诊名
     private String clear_diagnose;//是否确诊
     private String last_modify_date_time;//修改时间
+    private String jbmc;//疾病名称
+    private String zjsrc;//张杰src
 
     public String getClear_diagnose_name() {
         return clear_diagnose_name;
@@ -32,5 +34,21 @@ public class Shangjiyishichafanglu {
 
     public void setLast_modify_date_time(String last_modify_date_time) {
         this.last_modify_date_time = last_modify_date_time;
+    }
+
+    public String getJbmc() {
+        return jbmc;
+    }
+
+    public void setJbmc(String jbmc) {
+        this.jbmc = jbmc;
+    }
+
+    public String getZjsrc() {
+        return zjsrc;
+    }
+
+    public void setZjsrc(String zjsrc) {
+        this.zjsrc = zjsrc;
     }
 }
