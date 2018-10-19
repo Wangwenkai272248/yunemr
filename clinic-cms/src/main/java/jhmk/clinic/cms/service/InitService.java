@@ -33,8 +33,26 @@ public class InitService {
 //        getRandomAllData();
         addCase2cache2();
         addDiseaseName2Cache();
+        System.out.println("kaishila=============");
+//        test();
     }
-
+//    public void test() {
+//        CdssService cdssService = new CdssService();
+//        BasyService basyService=new BasyService();
+//        List<String> list = ReadFileService.readSourceList("testid");
+//        List<String> result = new ArrayList<>();
+//        StringBuilder sb = null;
+//        for (String id : list) {
+//            sb = new StringBuilder();
+//            String cyzd = cdssService.getCyzdByPidAndVid(id);
+//            Binganshouye beanByPidAndVid = basyService.getBeanByPidAndVid(id);
+//            String pat_visit_dept_admission_to_name = beanByPidAndVid.getPat_visit_dept_admission_to_name();
+//            String pat_visit_dept_discharge_from_name = beanByPidAndVid.getPat_visit_dept_discharge_from_name();
+//            sb.append(cyzd).append("==").append(pat_visit_dept_admission_to_name).append("==").append(pat_visit_dept_discharge_from_name);
+//            result.add(sb.toString());
+//        }
+//        Write2File.w2fileList(list, "/data/1/CDSS/1019data.txt");
+//    }
 
     //经理指定随机病例
     private void getRandomAllData() {

@@ -4,14 +4,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import jhmk.clinic.cms.SamilarService;
 import jhmk.clinic.cms.controller.ruleService.*;
-import jhmk.clinic.cms.service.CdssRunRuleService;
-import jhmk.clinic.cms.service.CdssService;
-import jhmk.clinic.cms.service.TestService;
+import jhmk.clinic.cms.service.*;
 import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.HttpClient;
 import jhmk.clinic.core.util.StringUtil;
 import jhmk.clinic.core.util.ThreadUtil;
+import jhmk.clinic.entity.bean.Binganshouye;
 import jhmk.clinic.entity.bean.Chuyuanjilu;
 import jhmk.clinic.entity.bean.TreatmentPlan;
 import jhmk.clinic.entity.bean.Yizhu;
@@ -455,7 +454,9 @@ public class CdssController extends BaseController {
         String startTime = jsonObject.getString("startTime");
         String endTime = jsonObject.getString("endTime");
         String diseaseName = jsonObject.getString("diseaseName");
-        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime);
+        int  page = jsonObject.getInteger("page");
+        int pageSize = jsonObject.getInteger("pageSize");
+        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime,page,pageSize);
         String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
         List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
 //        List<CdssDiffBean> diffBeanList1 = cdssService.getDiffBeanList(diffBeanList);
@@ -482,7 +483,10 @@ public class CdssController extends BaseController {
         String startTime = jsonObject.getString("startTime");
         String endTime = jsonObject.getString("endTime");
         String diseaseName = jsonObject.getString("diseaseName");
-        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime);
+        int  page = jsonObject.getInteger("page");
+        int pageSize = jsonObject.getInteger("pageSize");
+        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime,page,pageSize);
+//        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime);
         String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
         List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
 //        List<CdssDiffBean> diffBeanList1 = cdssService.getDiffBeanList(diffBeanList);
@@ -708,5 +712,24 @@ public class CdssController extends BaseController {
         }
         wirte(response, params);
     }
+    @PostMapping("/getData1019")
+    public void test() {
+        List<String> list = ReadFileService.readSourceList("testId");
 
+        List<String> result = new ArrayList<>();
+        StringBuilder sb = null;
+        for (String id : list) {
+            sb = new StringBuilder();
+            String cyzd = cdssService.getCyzdByPidAndVid(id);
+            Binganshouye beanByPidAndVid = basyService.getBeanByPidAndVid(id);
+            if (beanByPidAndVid==null){
+                continue;
+            }
+            String pat_visit_dept_admission_to_name = beanByPidAndVid.getPat_visit_dept_admission_to_name();
+            String pat_visit_dept_discharge_from_name = beanByPidAndVid.getPat_visit_dept_discharge_from_name();
+            sb.append(cyzd).append("==").append(pat_visit_dept_admission_to_name).append("==").append(pat_visit_dept_discharge_from_name);
+            result.add(sb.toString());
+        }
+        Write2File.w2fileList(result, "/data/1/CDSS/1019data.txt");
+    }
 }
