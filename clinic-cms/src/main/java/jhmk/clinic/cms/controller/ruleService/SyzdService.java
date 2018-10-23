@@ -105,6 +105,26 @@ public class SyzdService {
         return diagnosis_name;
     }
 
+    public String getRyczByPidAndVid(String id) {
+        String[] split = id.split(",");
+        String pid = split[0];
+        String vid = split[1];
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$shouyezhenduan"),
+                new Document("$match", new Document("patient_id", pid)),
+                new Document("$match", new Document("visit_id", vid)),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "入院初诊")),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
+        );
+        AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+        String diagnosis_name = "";
+        for (Document document : binli) {
+            Document binglizhenduan = (Document) document.get("shouyezhenduan");
+            diagnosis_name = binglizhenduan.getString("diagnosis_name");
+        }
+        return diagnosis_name;
+    }
     /**
      * 获取所有出院诊断个数
      *

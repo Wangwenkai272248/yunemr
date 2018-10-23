@@ -117,6 +117,36 @@ public class BasyService {
         }
         return null;
     }
+    public String getAdmissionTimByPidAndVid(String id) {
+        String[] split = id.split(",");
+        String pid = split[0];
+        String vid = split[1];
+        List<Misdiagnosis> misdiagnosisList = new LinkedList<>();
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$match", new Document("patient_id", pid)),
+                new Document("$match", new Document("visit_id", vid)),
+                new Document("$project", new Document("patient_id", 1).append("_id", 1).append("visit_id", 1).append("binganshouye", 1))
+//                , new Document("$skip", 5000),
+//                new Document("$limit", 10000)
+        );
+
+        AggregateIterable<Document> output = binganshouye.aggregate(countPatientId);
+        for (Document document : output) {
+            Misdiagnosis misdiagnosis = new Misdiagnosis();
+            if (document == null) {
+                continue;
+            }
+            misdiagnosis.setPatient_id(document.getString("patient_id"));
+            misdiagnosis.setVisit_id(document.getString("visit_id"));
+            misdiagnosis.setId(document.getString("_id"));
+            Document binganshouye = (Document) document.get("binganshouye");
+            Document patVisit = (Document) binganshouye.get("pat_visit");
+
+            String admission_time = patVisit.getString("admission_time");
+            return admission_time;
+        }
+        return null;
+    }
 
     public String getDischargeTime(String id) {
         List<Misdiagnosis> misdiagnosisList = new LinkedList<>();
@@ -208,14 +238,18 @@ public class BasyService {
             misdiagnosis.setAdmission_time(admission_time);
             String discharge_time = patVisit.getString("discharge_time");
             misdiagnosis.setDischarge_time(discharge_time);
-            String district_discharge_from_name = patVisit.getString("district_discharge_from_name");
+            String district_discharge_from_name = patVisit.getString("district_discharge_from_name");//出院科室
             misdiagnosis.setPat_visit_dept_discharge_from_name(district_discharge_from_name);
             String district_admission_to_name = patVisit.getString("district_admission_to_name");
             misdiagnosis.setPat_visit_dept_admission_to_name(district_admission_to_name);
             String dept_admission_from_name = patVisit.getString("dept_admission_from_name");
             misdiagnosis.setPat_visit_dept_discharge_from_name(dept_admission_from_name);
-            String dept_admission_to_name = patVisit.getString("dept_admission_to_name");
+            String dept_admission_to_name = patVisit.getString("dept_admission_to_name");//就诊科室
             misdiagnosis.setPat_visit_dept_admission_to_name(dept_admission_to_name);
+            String dept_discharge_from_name = patVisit.getString("dept_discharge_from_name");//就诊科室
+            misdiagnosis.setPat_visit_dept_discharge_from_name(dept_admission_to_name);
+
+
             misdiagnosis.setDept_admission_to_name(dept_admission_to_name);
             return misdiagnosis;
         }

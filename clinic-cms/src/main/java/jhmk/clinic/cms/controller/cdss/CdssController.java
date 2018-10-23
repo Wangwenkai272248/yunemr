@@ -89,6 +89,8 @@ public class CdssController extends BaseController {
     @Autowired
     YizhuResultRepService yizhuResultRepService;
     @Autowired
+    BiaozhuService biaozhuService;
+    @Autowired
     RestTemplate restTemplate;
 
     /**
@@ -123,18 +125,17 @@ public class CdssController extends BaseController {
     }
 
     @PostMapping("/getDataByPIdAndVId")
-    @ResponseBody
     public void getDataByPIdAndVId(HttpServletResponse response, @RequestBody(required = false) String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
         String pid = jsonObject.getString("pid");
         String vid = jsonObject.getString("vid");
-        //查询所有patientod
-        List<String> idList = cdssService.getAllIds();
-        int size = idList.size();
-        int round = (int) (Math.random() * size);
-        String id = idList.get(round);
+        String id = "BJDXDSYY#2#" + pid + "#" + vid;
+        logger.info("id为：{}", id);
         //查询  ruyuanjilu 一诉五史
         CdssRuleBean cdssTestBean = cdssService.selruyuanjiluById(id);
+        cdssTestBean.setId(id);
+        cdssTestBean.setPatient_id(pid);
+        cdssTestBean.setVisit_id(vid);
         //病案首页
         Map selbinganshouye = cdssService.selBasy(id);
         cdssTestBean.setBinganshouye(selbinganshouye);
@@ -155,7 +156,7 @@ public class CdssController extends BaseController {
     @ResponseBody
     public void ranDomSelByIllName(HttpServletResponse response, @RequestBody(required = false) String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
-        System.out.println("总数量为：" + caseList.size());
+        logger.info("随机病历查询条件为{}：", map);
         if (StringUtils.isNotBlank(map)) {
             String dept_code = jsonObject.getString("dept_code");
             String illName = jsonObject.getString("illname");
@@ -164,7 +165,12 @@ public class CdssController extends BaseController {
             List<CdssRuleBean> resultTem = new LinkedList<>();
             if (StringUtils.isNotBlank(dept_code)) {
                 if (StringUtil.isChinese(dept_code)) {
+                    logger.info("caseList的数量为：{}", caseList.size());
                     for (CdssRuleBean cdssRuleBean : caseList) {
+                        if (cdssRuleBean == null || cdssRuleBean.getBinganshouye() == null || cdssRuleBean.getBinganshouye().get("pat_visit_dept_admission_to_name") == null) {
+                            logger.info("有问题的数据：{}", JSONObject.toJSONString(cdssRuleBean));
+                            continue;
+                        }
                         if (dept_code.equals(cdssRuleBean.getBinganshouye().get("pat_visit_dept_admission_to_name"))) {
                             tem.add(cdssRuleBean);
                         }
@@ -175,6 +181,7 @@ public class CdssController extends BaseController {
             } else {
                 tem = caseList;
             }
+            logger.info("过完部门表结果数量为：{}", tem.size());
             if (StringUtils.isNotBlank(illName)) {
                 for (CdssRuleBean cdssRuleBean : tem) {
                     List<Map<String, String>> shouyezhenduan = cdssRuleBean.getShouyezhenduan();
@@ -194,6 +201,8 @@ public class CdssController extends BaseController {
             } else {
                 resultTem = tem;
             }
+            logger.info("过完疾病名结果数量为：{}", resultTem.size());
+
             if (resultTem.size() == 0) {
                 resultTem = caseList;
             }
@@ -210,9 +219,14 @@ public class CdssController extends BaseController {
                         list.add(cdssRuleBean);
                     }
                 }
+                if (list.size() == 0) {
+                    list.addAll(resultTem);
+                }
             } else {
                 list.addAll(resultTem);
             }
+            logger.info("过完同义词结果数量为：{}", list.size());
+
             int round = (int) (Math.random() * list.size());
             CdssRuleBean cdssTestBean = null;
             try {
@@ -453,11 +467,15 @@ public class CdssController extends BaseController {
         String deptName = jsonObject.getString("deptName");
         String startTime = jsonObject.getString("startTime");
         String endTime = jsonObject.getString("endTime");
-        String diseaseName = jsonObject.getString("diseaseName");
-        int  page = jsonObject.getInteger("page");
-        int pageSize = jsonObject.getInteger("pageSize");
-        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime,page,pageSize);
+            String diseaseName = jsonObject.getString("diseaseName");
+
+        int page = jsonObject.getInteger("page") == null ? 1 : jsonObject.getInteger("page");
+        int pageSize = jsonObject.getInteger("pageSize") == null ? 20 : jsonObject.getInteger("page");
+        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime, page, pageSize);
+        logger.info("条件信息：{}", jsonStr);
+
         String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
+        logger.info("结果信息：{}", s);
         List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
 //        List<CdssDiffBean> diffBeanList1 = cdssService.getDiffBeanList(diffBeanList);
         List<CdssDiffBean> diffBeanList1 = cdssService.getAllDiffBeanList(diffBeanList);
@@ -478,14 +496,21 @@ public class CdssController extends BaseController {
 
     @PostMapping("/getDataByDeptAndTimeSecond")
     public void getDataByDeptAndTimeSecond(HttpServletResponse response, @RequestBody String map) {
+        List<String> goodBingli = biaozhuService.getGoodBingli();
+        Write2File.w2fileList(goodBingli, "/data/1/CDSS/good.txt");
+//        logger.info(JSONObject.toJSONString(goodBingli));
+        logger.info("优质病历数量为,{},格式为：{}", goodBingli.size(), goodBingli.get(3));
+        logger.info("优质病历测试{}", goodBingli.contains("BJDXDSYY##2#001439833200#1"));
         JSONObject jsonObject = JSONObject.parseObject(map);
         String deptName = jsonObject.getString("deptName");
         String startTime = jsonObject.getString("startTime");
         String endTime = jsonObject.getString("endTime");
         String diseaseName = jsonObject.getString("diseaseName");
-        int  page = jsonObject.getInteger("page");
-        int pageSize = jsonObject.getInteger("pageSize");
-        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime,page,pageSize);
+        //优质病例标志
+        String flag = jsonObject.getString("flag");
+        int page = jsonObject.getInteger("page") == null ? 1 : jsonObject.getInteger("page");
+        int pageSize = jsonObject.getInteger("pageSize") == null ? 20 : jsonObject.getInteger("page");
+        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime, page, pageSize);
 //        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime);
         String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
         List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
@@ -497,7 +522,18 @@ public class CdssController extends BaseController {
             List<CdssDiffBean> resultList = new ArrayList<>();
             for (CdssDiffBean bean : diffBeanList1) {
                 if (diseaseName.equals(bean.getChuyuanzhenduan())) {
-                    resultList.add(bean);
+                    String id = bean.getId();
+                    if ("true".equals(flag)) {
+                        if (goodBingli.contains("BJDXDSYY##2#001439833200#1")) {
+                            System.out.println("确实有相同的================================");
+                        }
+                        if (goodBingli.contains(id)) {
+                            resultList.add(bean);
+                        }
+                    } else {
+                        resultList.add(bean);
+                    }
+
                 }
             }
             wirte(response, resultList);
@@ -611,25 +647,25 @@ public class CdssController extends BaseController {
         String id = jsonObject.getString("id");
         String mainIllName = jsonObject.getString("mainIllName");
         int num = jsonObject.getInteger("num");
-        System.out.println("数量为：========"+num);
+        System.out.println("数量为：========" + num);
         String ori1 = jsonObject.getString("ori");
-        yizhuResultRepService.deleteAllByBIdAndNum(id,num);
-        yizhuChangeRepService.deleteAllByBIdAndNum(id,num);
-        yizhuBsjbRepService.deleteAllByBIdAndNum(id,num);
+        yizhuResultRepService.deleteAllByBIdAndNum(id, num);
+        yizhuChangeRepService.deleteAllByBIdAndNum(id, num);
+        yizhuBsjbRepService.deleteAllByBIdAndNum(id, num);
         List<YizhuResult> yizhuResults = JSONArray.parseArray(ori1, YizhuResult.class);
         tempList.addAll(yizhuResults);
         String add = jsonObject.getString("add");
         //伴随疾病
         String bsjb = jsonObject.getString("bsjb");
         //如过是第一次 保存原始医嘱 否则 不保存
-            for (YizhuResult yizhuResult : yizhuResults) {
-                //病历id
-                yizhuResult.setbId(id);
-                //次数
-                yizhuResult.setNum(num);
-                yizhuResult.setMainIllName(mainIllName);
-                yizhuResultRepService.save(yizhuResult);
-            }
+        for (YizhuResult yizhuResult : yizhuResults) {
+            //病历id
+            yizhuResult.setbId(id);
+            //次数
+            yizhuResult.setNum(num);
+            yizhuResult.setMainIllName(mainIllName);
+            yizhuResultRepService.save(yizhuResult);
+        }
         if (add != null) {
             List<YizhuChange> addChangeList = JSONArray.parseArray(add, YizhuChange.class);
             for (YizhuChange yizhuChange : addChangeList) {
@@ -649,7 +685,7 @@ public class CdssController extends BaseController {
                     String purpose = yizhuResult.getPurpose();
                     String orderItemName1 = yizhuResult1.getOrderItemName();
                     String purpose1 = yizhuResult1.getPurpose();
-                    if (orderItemName.equals(orderItemName1)&&purpose.equals(purpose1)){
+                    if (orderItemName.equals(orderItemName1) && purpose.equals(purpose1)) {
                         tempList.remove(yizhuResult1);
 
                     }
@@ -712,22 +748,25 @@ public class CdssController extends BaseController {
         }
         wirte(response, params);
     }
+
     @PostMapping("/getData1019")
     public void test() {
         List<String> list = ReadFileService.readSourceList("testId");
-
         List<String> result = new ArrayList<>();
         StringBuilder sb = null;
         for (String id : list) {
             sb = new StringBuilder();
             String cyzd = cdssService.getCyzdByPidAndVid(id);
+            String rycz = syzdService.getRyczByPidAndVid(id);
+            String admissionTime = basyService.getAdmissionTimByPidAndVid(id);
             Binganshouye beanByPidAndVid = basyService.getBeanByPidAndVid(id);
-            if (beanByPidAndVid==null){
+            if (beanByPidAndVid == null) {
                 continue;
             }
             String pat_visit_dept_admission_to_name = beanByPidAndVid.getPat_visit_dept_admission_to_name();
             String pat_visit_dept_discharge_from_name = beanByPidAndVid.getPat_visit_dept_discharge_from_name();
-            sb.append(cyzd).append("==").append(pat_visit_dept_admission_to_name).append("==").append(pat_visit_dept_discharge_from_name);
+            sb.append(id).append("=").append(rycz).append("=").append(cyzd).append("=").append(pat_visit_dept_admission_to_name).append("=").append(pat_visit_dept_discharge_from_name).append("=").append(admissionTime);
+
             result.add(sb.toString());
         }
         Write2File.w2fileList(result, "/data/1/CDSS/1019data.txt");

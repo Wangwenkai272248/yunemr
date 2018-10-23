@@ -8,6 +8,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import jhmk.clinic.cms.SamilarService;
 import jhmk.clinic.cms.controller.ruleService.BasyService;
+import jhmk.clinic.cms.controller.ruleService.SjyscflService;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
 import jhmk.clinic.core.util.DateFormatUtil;
@@ -34,6 +35,8 @@ import static jhmk.clinic.core.util.MongoUtils.getCollection;
 
 @Service
 public class CdssService {
+    @Autowired
+    SjyscflService sjyscflService;
     @Autowired
     BasyService basyService;
     @Autowired
@@ -152,8 +155,8 @@ public class CdssService {
             map.put("pat_info_age_value", (String) patVisit.get("age_value"));
             map.put("pat_info_age_value_unit", (String) patVisit.get("age_value_unit"));
             map.put("pat_info_marital_status_name", (String) patVisit.get("marital_status_name"));
-            map.put("pat_visit_dept_discharge_from_name", (String) patVisit.get("dept_discharge_from_name"));
-            map.put("pat_visit_dept_admission_to_name", (String) patVisit.get("dept_admission_to_name"));
+            map.put("pat_visit_dept_discharge_from_name", patVisit.getString("dept_discharge_from_name"));
+            map.put("pat_visit_dept_admission_to_name", patVisit.getString("dept_admission_to_name"));
             map.put("pat_visit_dept_admission_to_code", patVisit.getString("dept_admission_to_code"));
             break;
         }
@@ -769,99 +772,101 @@ public class CdssService {
         return JSONObject.toJSONString(endparamMap);
     }
 
-    public String getJsonStr(String deptName, String start, String end,int page,int size) {
-        String json = "{\"expressions\": [[{  \"field\": \"病案首页_就诊信息_就诊科室\",  \"exp\": \"=\",     \"flag\": \"or\",   \"unit\": \"\",     \"values\": [\"" + deptName + "\"]       }], [{  \"field\": \"病案首页_就诊信息_就诊时间\",  \"exp\": \">=\",    \"flag\": \"or\",   \"unit\": \"\",     \"values\": [\"" + start + "\"]}], [{  \"field\": \"病案首页_就诊信息_就诊时间\",  \"exp\": \"<=\",    \"flag\": \"or\",   \"unit\": \"\",     \"values\": [\"" + end + "\"]}]  ],  \"page\": "+page+",  \"size\": "+size+",   \"result\": [ [{  \"field\": \"病案首页_就诊信息_就诊时间\",  \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }], [{  \"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=入院初诊,住院首页诊断_诊断序号=1\",  \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }], [{  \"field\": \"住院转科记录_转科时间\",     \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }], [{  \"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=出院诊断,住院首页诊断_诊断序号=1\",  \"exp\": \"等于\",    \"values\": [\"入院初诊\", \"出院诊断\"],     \"flag\": \"0\",    \"unit\": \"\"      }], [{  \"field\": \"住院上级医师查房录_上级医师查房示_是否明确诊断\",    \"exp\": \"等于\",    \"values\": [],    \"flag\": \"0\",    \"unit\": \"\"      }, {    \"field\": \"住院上级医师查房录_上级医师查房示_明确诊断名称\",    \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }, {    \"field\": \"住院上级医师查房录_文书最终提交时间\",  \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      },{  \"field\": \"住院上级医师查房录_上级医师查房示_章节src\",    \"exp\": \"等于\",    \"values\": [],    \"flag\": \"0\",    \"unit\": \"\"      },{  \"field\": \"住院上级医师查房录_上级医师查房示_疾病名称\",    \"exp\": \"等于\",    \"values\": [],    \"flag\": \"0\",    \"unit\": \"\"      }]  ] }";
+    public String getJsonStr(String deptName, String start, String end, int page, int size) {
+        String json = "{\"expressions\": [[{  \"field\": \"病案首页_就诊信息_就诊科室\",  \"exp\": \"=\",     \"flag\": \"or\",   \"unit\": \"\",     \"values\": [\"" + deptName + "\"]       }], [{  \"field\": \"病案首页_就诊信息_就诊时间\",  \"exp\": \">=\",    \"flag\": \"or\",   \"unit\": \"\",     \"values\": [\"" + start + "\"]}], [{  \"field\": \"病案首页_就诊信息_就诊时间\",  \"exp\": \"<=\",    \"flag\": \"or\",   \"unit\": \"\",     \"values\": [\"" + end + "\"]}]  ],  \"page\": " + page + ",  \"size\": " + size + ",   \"result\": [ [{  \"field\": \"病案首页_就诊信息_就诊时间\",  \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }], [{  \"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=入院初诊,住院首页诊断_诊断序号=1\",  \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }], [{  \"field\": \"住院转科记录_转科时间\",     \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }], [{  \"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=出院诊断,住院首页诊断_诊断序号=1\",  \"exp\": \"等于\",    \"values\": [\"入院初诊\", \"出院诊断\"],     \"flag\": \"0\",    \"unit\": \"\"      }], [{  \"field\": \"住院上级医师查房录_上级医师查房示_是否明确诊断\",    \"exp\": \"等于\",    \"values\": [],    \"flag\": \"0\",    \"unit\": \"\"      }, {    \"field\": \"住院上级医师查房录_上级医师查房示_明确诊断名称\",    \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }, {    \"field\": \"住院上级医师查房录_文书最终提交时间\",  \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      },{  \"field\": \"住院上级医师查房录_上级医师查房示_章节src\",    \"exp\": \"等于\",    \"values\": [],    \"flag\": \"0\",    \"unit\": \"\"      },{  \"field\": \"住院上级医师查房录_上级医师查房示_疾病名称\",    \"exp\": \"等于\",    \"values\": [],    \"flag\": \"0\",    \"unit\": \"\"      }]  ] }";
 //        String json = "{\"expressions\": [[{  \"field\": \"病案首页_就诊信息_就诊科室\",  \"exp\": \"=\",     \"flag\": \"or\",   \"unit\": \"\",     \"values\": [\"" + deptName + "\"]       }], [{  \"field\": \"病案首页_就诊信息_就诊时间\",  \"exp\": \">=\",    \"flag\": \"or\",   \"unit\": \"\",     \"values\": [\"" + start + "\"]}], [{  \"field\": \"病案首页_就诊信息_就诊时间\",  \"exp\": \"<=\",    \"flag\": \"or\",   \"unit\": \"\",     \"values\": [\"" + end + "\"]}]  ],  \"page\": 0,  \"size\": 3000,   \"result\": [ [{  \"field\": \"病案首页_就诊信息_就诊时间\",  \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }], [{  \"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=入院初诊,住院首页诊断_诊断序号=1\",  \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }], [{  \"field\": \"住院转科记录_转科时间\",     \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }], [{  \"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=出院诊断,住院首页诊断_诊断序号=1\",  \"exp\": \"等于\",    \"values\": [\"入院初诊\", \"出院诊断\"],     \"flag\": \"0\",    \"unit\": \"\"      }], [{    \"field\": \"住院上级医师查房录_上级医师查房示_明确诊断名称\",    \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }, {    \"field\": \"住院上级医师查房录_文书最终提交时间\",  \"exp\": \"等于\",    \"values\": [],   \"flag\": \"0\",    \"unit\": \"\"      }]  ] }";
         return json;
     }
-String s="{\n" +
-        "\t\"expressions\": [\n" +
-        "\t\t[{\n" +
-        "\t\t\t\"field\": \"病案首页_就诊信息_就诊科室\",\n" +
-        "\t\t\t\"exp\": \"=\",\n" +
-        "\t\t\t\"flag\": \"or\",\n" +
-        "\t\t\t\"unit\": \"\",\n" +
-        "\t\t\t\"values\": [\"\" + deptName + \"\"]\n" +
-        "\t\t}],\n" +
-        "\t\t[{\n" +
-        "\t\t\t\"field\": \"病案首页_就诊信息_就诊时间\",\n" +
-        "\t\t\t\"exp\": \">=\",\n" +
-        "\t\t\t\"flag\": \"or\",\n" +
-        "\t\t\t\"unit\": \"\",\n" +
-        "\t\t\t\"values\": [\"\" + start + \"\"]\n" +
-        "\t\t}],\n" +
-        "\t\t[{\n" +
-        "\t\t\t\"field\": \"病案首页_就诊信息_就诊时间\",\n" +
-        "\t\t\t\"exp\": \"<=\",\n" +
-        "\t\t\t\"flag\": \"or\",\n" +
-        "\t\t\t\"unit\": \"\",\n" +
-        "\t\t\t\"values\": [\"\" + end + \"\"]\n" +
-        "\t\t}]\n" +
-        "\t],\n" +
-        "\t\"page\": 0,\n" +
-        "\t\"size\": 3000,\n" +
-        "\t\"result\": [\n" +
-        "\t\t[{\n" +
-        "\t\t\t\"field\": \"病案首页_就诊信息_就诊时间\",\n" +
-        "\t\t\t\"exp\": \"等于\",\n" +
-        "\t\t\t\"values\": [],\n" +
-        "\t\t\t\"flag\": \"0\",\n" +
-        "\t\t\t\"unit\": \"\"\n" +
-        "\t\t}],\n" +
-        "\t\t[{\n" +
-        "\t\t\t\"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=入院初诊,住院首页诊断_诊断序号=1\",\n" +
-        "\t\t\t\"exp\": \"等于\",\n" +
-        "\t\t\t\"values\": [],\n" +
-        "\t\t\t\"flag\": \"0\",\n" +
-        "\t\t\t\"unit\": \"\"\n" +
-        "\t\t}],\n" +
-        "\t\t[{\n" +
-        "\t\t\t\"field\": \"住院转科记录_转科时间\",\n" +
-        "\t\t\t\"exp\": \"等于\",\n" +
-        "\t\t\t\"values\": [],\n" +
-        "\t\t\t\"flag\": \"0\",\n" +
-        "\t\t\t\"unit\": \"\"\n" +
-        "\t\t}],\n" +
-        "\t\t[{\n" +
-        "\t\t\t\"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=出院诊断,住院首页诊断_诊断序号=1\",\n" +
-        "\t\t\t\"exp\": \"等于\",\n" +
-        "\t\t\t\"values\": [\"入院初诊\", \"出院诊断\"],\n" +
-        "\t\t\t\"flag\": \"0\",\n" +
-        "\t\t\t\"unit\": \"\"\n" +
-        "\t\t}],\n" +
-        "\t\t[{\n" +
-        "\t\t\t\"field\": \"住院上级医师查房录_上级医师查房示_是否明确诊断\",\n" +
-        "\t\t\t\"exp\": \"等于\",\n" +
-        "\t\t\t\"values\": [],\n" +
-        "\t\t\t\"flag\": \"0\",\n" +
-        "\t\t\t\"unit\": \"\"\n" +
-        "\t\t}, {\n" +
-        "\t\t\t\"field\": \"住院上级医师查房录_上级医师查房示_明确诊断名称\",\n" +
-        "\t\t\t\"exp\": \"等于\",\n" +
-        "\t\t\t\"values\": [],\n" +
-        "\t\t\t\"flag\": \"0\",\n" +
-        "\t\t\t\"unit\": \"\"\n" +
-        "\t\t}, {\n" +
-        "\t\t\t\"field\": \"住院上级医师查房录_文书最终提交时间\",\n" +
-        "\t\t\t\"exp\": \"等于\",\n" +
-        "\t\t\t\"values\": [],\n" +
-        "\t\t\t\"flag\": \"0\",\n" +
-        "\t\t\t\"unit\": \"\"\n" +
-        "\t\t}, {\n" +
-        "\t\t\t\"field\": \"住院上级医师查房录_上级医师查房示_章节src\",\n" +
-        "\t\t\t\"exp\": \"等于\",\n" +
-        "\t\t\t\"values\": [],\n" +
-        "\t\t\t\"flag\": \"0\",\n" +
-        "\t\t\t\"unit\": \"\"\n" +
-        "\t\t}, {\n" +
-        "\t\t\t\"field\": \"住院上级医师查房录_上级医师查房示_疾病名称\",\n" +
-        "\t\t\t\"exp\": \"等于\",\n" +
-        "\t\t\t\"values\": [],\n" +
-        "\t\t\t\"flag\": \"0\",\n" +
-        "\t\t\t\"unit\": \"\"\n" +
-        "\t\t}]\n" +
-        "\t]\n" +
-        "}";
+
+    String s = "{\n" +
+            "\t\"expressions\": [\n" +
+            "\t\t[{\n" +
+            "\t\t\t\"field\": \"病案首页_就诊信息_就诊科室\",\n" +
+            "\t\t\t\"exp\": \"=\",\n" +
+            "\t\t\t\"flag\": \"or\",\n" +
+            "\t\t\t\"unit\": \"\",\n" +
+            "\t\t\t\"values\": [\"\" + deptName + \"\"]\n" +
+            "\t\t}],\n" +
+            "\t\t[{\n" +
+            "\t\t\t\"field\": \"病案首页_就诊信息_就诊时间\",\n" +
+            "\t\t\t\"exp\": \">=\",\n" +
+            "\t\t\t\"flag\": \"or\",\n" +
+            "\t\t\t\"unit\": \"\",\n" +
+            "\t\t\t\"values\": [\"\" + start + \"\"]\n" +
+            "\t\t}],\n" +
+            "\t\t[{\n" +
+            "\t\t\t\"field\": \"病案首页_就诊信息_就诊时间\",\n" +
+            "\t\t\t\"exp\": \"<=\",\n" +
+            "\t\t\t\"flag\": \"or\",\n" +
+            "\t\t\t\"unit\": \"\",\n" +
+            "\t\t\t\"values\": [\"\" + end + \"\"]\n" +
+            "\t\t}]\n" +
+            "\t],\n" +
+            "\t\"page\": 0,\n" +
+            "\t\"size\": 3000,\n" +
+            "\t\"result\": [\n" +
+            "\t\t[{\n" +
+            "\t\t\t\"field\": \"病案首页_就诊信息_就诊时间\",\n" +
+            "\t\t\t\"exp\": \"等于\",\n" +
+            "\t\t\t\"values\": [],\n" +
+            "\t\t\t\"flag\": \"0\",\n" +
+            "\t\t\t\"unit\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t[{\n" +
+            "\t\t\t\"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=入院初诊,住院首页诊断_诊断序号=1\",\n" +
+            "\t\t\t\"exp\": \"等于\",\n" +
+            "\t\t\t\"values\": [],\n" +
+            "\t\t\t\"flag\": \"0\",\n" +
+            "\t\t\t\"unit\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t[{\n" +
+            "\t\t\t\"field\": \"住院转科记录_转科时间\",\n" +
+            "\t\t\t\"exp\": \"等于\",\n" +
+            "\t\t\t\"values\": [],\n" +
+            "\t\t\t\"flag\": \"0\",\n" +
+            "\t\t\t\"unit\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t[{\n" +
+            "\t\t\t\"field\": \"住院首页诊断_诊断名称,住院首页诊断_诊断类型=出院诊断,住院首页诊断_诊断序号=1\",\n" +
+            "\t\t\t\"exp\": \"等于\",\n" +
+            "\t\t\t\"values\": [\"入院初诊\", \"出院诊断\"],\n" +
+            "\t\t\t\"flag\": \"0\",\n" +
+            "\t\t\t\"unit\": \"\"\n" +
+            "\t\t}],\n" +
+            "\t\t[{\n" +
+            "\t\t\t\"field\": \"住院上级医师查房录_上级医师查房示_是否明确诊断\",\n" +
+            "\t\t\t\"exp\": \"等于\",\n" +
+            "\t\t\t\"values\": [],\n" +
+            "\t\t\t\"flag\": \"0\",\n" +
+            "\t\t\t\"unit\": \"\"\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"field\": \"住院上级医师查房录_上级医师查房示_明确诊断名称\",\n" +
+            "\t\t\t\"exp\": \"等于\",\n" +
+            "\t\t\t\"values\": [],\n" +
+            "\t\t\t\"flag\": \"0\",\n" +
+            "\t\t\t\"unit\": \"\"\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"field\": \"住院上级医师查房录_文书最终提交时间\",\n" +
+            "\t\t\t\"exp\": \"等于\",\n" +
+            "\t\t\t\"values\": [],\n" +
+            "\t\t\t\"flag\": \"0\",\n" +
+            "\t\t\t\"unit\": \"\"\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"field\": \"住院上级医师查房录_上级医师查房示_章节src\",\n" +
+            "\t\t\t\"exp\": \"等于\",\n" +
+            "\t\t\t\"values\": [],\n" +
+            "\t\t\t\"flag\": \"0\",\n" +
+            "\t\t\t\"unit\": \"\"\n" +
+            "\t\t}, {\n" +
+            "\t\t\t\"field\": \"住院上级医师查房录_上级医师查房示_疾病名称\",\n" +
+            "\t\t\t\"exp\": \"等于\",\n" +
+            "\t\t\t\"values\": [],\n" +
+            "\t\t\t\"flag\": \"0\",\n" +
+            "\t\t\t\"unit\": \"\"\n" +
+            "\t\t}]\n" +
+            "\t]\n" +
+            "}";
+
     public String getJsonStr1(String[] ids) {
         StringBuilder sb = new StringBuilder();
         for (String id : ids) {
@@ -965,6 +970,8 @@ String s="{\n" +
                         String string = next.getString(keyname);
                         JSONArray array = JSONArray.parseArray(string);
                         CdssDiffBean cdssDiffBean = getCdssDiffBean(array);
+                        List<Shangjiyishichafanglu> sjyscflBean = sjyscflService.getSJYSCFLBean(temId);
+                        cdssDiffBean.setShangjiyishichafangluList(sjyscflBean);
                         cdssDiffBean.setId(keyname);
                         cdssDiffBean.setAdmission_time(admissionTime);
                         cdssDiffBean.setDischarge_time(dischargeTime);
@@ -1215,7 +1222,7 @@ String s="{\n" +
         if (array != null) {
             value = array.getString(0);
             if (value.equals("null")) {
-                return null;
+                return "";
             }
         }
         return value;
