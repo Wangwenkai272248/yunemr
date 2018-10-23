@@ -7,6 +7,7 @@ import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
 import jhmk.clinic.core.util.DateFormatUtil;
 import jhmk.clinic.entity.bean.*;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -95,12 +96,19 @@ public class SjyscflService {
         for (Document document : output) {
 
             ArrayList<Document> shangjiyishichafangluDocList = (ArrayList<Document>) document.get("shangjiyishichafanglu");
+            if (Objects.isNull(shangjiyishichafangluDocList)){
+                continue;
+            }
             for (Document shangjiyishichafangluDoc : shangjiyishichafangluDocList) {
 
                 //既往史
                 Document treatment_plan = (Document) shangjiyishichafangluDoc.get("treatment_plan");
                 if (Objects.nonNull(treatment_plan)) {
                     String clear_diagnose = treatment_plan.getString("clear_diagnose");
+                    String src = treatment_plan.getString("src");
+                    bean.setZjsrc(src);
+                    String disease_name = treatment_plan.getString("disease_name");
+                    bean.setJbmc(disease_name);
 //                    if (!"是".equals(clear_diagnose)) {
 //                        continue;
 //                    }
@@ -110,11 +118,15 @@ public class SjyscflService {
                     bean.setLast_modify_date_time(last_modify_date_time);
                     bean.setClear_diagnose(clear_diagnose);
                     bean.setClear_diagnose_name(clear_diagnose_name);
-                    list.add(bean);
+                    if (StringUtils.isNotBlank(clear_diagnose_name) && StringUtils.isNotBlank(last_modify_date_time)) {
+                        list.add(bean);
+                    }
                 }
             }
         }
-        Collections.sort(list, new CompareUtil.ImComparator(1, "last_modify_date_time"));
+        if (list.size() > 1) {
+            Collections.sort(list, new CompareUtil.ImComparator(1, "last_modify_date_time"));
+        }
         return list;
     }
 
@@ -261,11 +273,11 @@ public class SjyscflService {
                             Drug2Yizhu drug2Yizhu = new Drug2Yizhu();
                             String s = split[i];
                             drug2Yizhu.setName(s);
-                            if (file_time_value.substring(0,10).equals(yizhudate)){
+                            if (file_time_value.substring(0, 10).equals(yizhudate)) {
                                 for (Yizhu yizhu : yizhus) {
                                     if (yizhu.getOrder_item_name().contains(s)) {
                                         String order_begin_time = yizhu.getOrder_begin_time().substring(0, 10);
-                                        if (order_begin_time.equals(file_time_value.substring(0,10))) {
+                                        if (order_begin_time.equals(file_time_value.substring(0, 10))) {
                                             drug2Yizhu.setYizhuName(yizhu.getOrder_item_name());
                                             continue;
                                         }
