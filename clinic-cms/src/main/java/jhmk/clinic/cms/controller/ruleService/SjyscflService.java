@@ -104,21 +104,23 @@ public class SjyscflService {
                 //既往史
                 Document treatment_plan = (Document) shangjiyishichafangluDoc.get("treatment_plan");
                 if (Objects.nonNull(treatment_plan)) {
-                    String clear_diagnose = treatment_plan.getString("clear_diagnose");
-                    String src = treatment_plan.getString("src");
-                    bean.setZjsrc(src);
-                    String disease_name = treatment_plan.getString("disease_name");
-                    bean.setJbmc(disease_name);
+                    bean=new Shangjiyishichafanglu();
+
 //                    if (!"是".equals(clear_diagnose)) {
 //                        continue;
 //                    }
                     String clear_diagnose_name = treatment_plan.getString("clear_diagnose_name");
-                    bean = new Shangjiyishichafanglu();
                     String last_modify_date_time = shangjiyishichafangluDoc.getString("last_modify_date_time");
-                    bean.setLast_modify_date_time(last_modify_date_time);
-                    bean.setClear_diagnose(clear_diagnose);
-                    bean.setClear_diagnose_name(clear_diagnose_name);
                     if (StringUtils.isNotBlank(clear_diagnose_name) && StringUtils.isNotBlank(last_modify_date_time)) {
+                        bean = new Shangjiyishichafanglu();
+                        String clear_diagnose = treatment_plan.getString("clear_diagnose");
+                        String src = treatment_plan.getString("src");
+                        bean.setZjsrc(src);
+                        String disease_name = treatment_plan.getString("disease_name");
+                        bean.setJbmc(disease_name);
+                        bean.setClear_diagnose(clear_diagnose);
+                        bean.setLast_modify_date_time(last_modify_date_time);
+                        bean.setClear_diagnose_name(clear_diagnose_name);
                         list.add(bean);
                     }
                 }
