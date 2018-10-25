@@ -280,7 +280,10 @@ public class BlzkController extends BaseController {
      */
 
     @PostMapping("/getAllFangan")
-    public void getAllFangan(HttpServletResponse response) {
+    public void getAllFangan(HttpServletResponse response, @RequestBody String map) {
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        Integer page = jsonObject.getInteger("page");
+        Integer pageSize = jsonObject.getInteger("pageSize");
         //获取所有id
         List<String> distinctIllName = yizhuResultRepService.getAllDistinctBid();
         List<FanganBean> fanganBeanList = new ArrayList<>();
@@ -300,7 +303,11 @@ public class BlzkController extends BaseController {
                 fanganBeanList.add(fanganBeanByYizhuBsjb);
             }
         }
-        wirte(response, fanganBeanList);
+        System.out.println("总共多少天===================="+fanganBeanList.size());
+
+        List<FanganBean> fanganBeans = fanganBeanList.subList(page * pageSize, (page + 1) * pageSize);
+
+        wirte(response, fanganBeans);
     }
 
 }

@@ -144,6 +144,7 @@ public class ZlfaService {
     public FanganBean analyzeYizhuResult2Bean(List<YizhuResult> resultList) {
         List<FanganFieldBean> yizhuresultFieldBean = new ArrayList<>();
         FanganBean fanganBean = new FanganBean();
+        fanganBean.setType("方案");
         for (YizhuResult yizhuResult : resultList) {
             String _id = yizhuResult.getbId();
             String mainIllName = yizhuResult.getMainIllName();
@@ -155,13 +156,16 @@ public class ZlfaService {
             fanganFieldBean.setOrder_item_name(yizhuResult.getOrderItemName());
             yizhuresultFieldBean.add(fanganFieldBean);
         }
-        fanganBean.setFieldBeanList(yizhuresultFieldBean);
+        if (yizhuresultFieldBean.size() > 0) {
+            fanganBean.setFieldBeanList(yizhuresultFieldBean);
+        }
         return fanganBean;
     }
 
     public FanganBean analyzeBsjb(List<YizhuBsjb> resultList, String mainIllName) {
         List<FanganFieldBean> yizhuresultFieldBean = new ArrayList<>();
         FanganBean fanganBean = new FanganBean();
+        fanganBean.setType("伴随疾病");
         for (YizhuBsjb yizhuResult : resultList) {
             String _id = yizhuResult.getbId();
             fanganBean.setId(_id);
@@ -172,7 +176,9 @@ public class ZlfaService {
             fanganFieldBean.setOrder_item_name(yizhuResult.getOrderItemName());
             yizhuresultFieldBean.add(fanganFieldBean);
         }
-        fanganBean.setFieldBeanList(yizhuresultFieldBean);
+        if (yizhuresultFieldBean.size() > 0) {
+            fanganBean.setFieldBeanList(yizhuresultFieldBean);
+        }
         return fanganBean;
     }
 
@@ -182,6 +188,12 @@ public class ZlfaService {
         for (YizhuChange yizhuResult : resultList) {
             String _id = yizhuResult.getbId();
             fanganBean.setId(_id);
+            String status = yizhuResult.getStatus();
+            if ("add".equals(status)) {
+                fanganBean.setType("add");
+            } else {
+                fanganBean.setType("delete");
+            }
             String mainIllName = yizhuResult.getMainIllName();
             fanganBean.setIllName(mainIllName);
             FanganFieldBean fanganFieldBean = new FanganFieldBean();
@@ -190,7 +202,9 @@ public class ZlfaService {
             fanganFieldBean.setOrder_item_name(yizhuResult.getOrderItemName());
             yizhuresultFieldBean.add(fanganFieldBean);
         }
-        fanganBean.setFieldBeanList(yizhuresultFieldBean);
+        if (yizhuresultFieldBean.size() > 0) {
+            fanganBean.setFieldBeanList(yizhuresultFieldBean);
+        }
         return fanganBean;
     }
 }
