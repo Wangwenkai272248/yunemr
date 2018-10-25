@@ -278,6 +278,8 @@ public class BlzkController extends BaseController {
      *
      * @param response
      */
+
+    @PostMapping("/getAllFangan")
     public void getAllFangan(HttpServletResponse response) {
         //获取所有id
         List<String> distinctIllName = yizhuResultRepService.getAllDistinctBid();
