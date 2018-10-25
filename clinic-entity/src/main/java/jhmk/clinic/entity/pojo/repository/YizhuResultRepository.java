@@ -26,6 +26,8 @@ public interface YizhuResultRepository extends JpaRepository<YizhuResult, Intege
     @Query("select  distinct (y.mainIllName) from YizhuResult  y where  y.mainIllName<>null")
     List<String> getDistinctIllName();
 
+    @Query("select  distinct (y.bId) from YizhuResult  y")
+    List<String> getAllDistinctBid();
 
     @Query("select  distinct (y.bId) from YizhuResult  y where  y.mainIllName=?1")
     List<String> getDistinctBidByMainIllName(String mainIllName);

@@ -1141,6 +1141,28 @@ public class CdssService {
         return staMap;
     }
 
+    /**
+     * 统计分析数据  确诊时间 每天出现的次数
+     *
+     * @param list
+     * @return
+     */
+    public Map<Integer, Integer> analyzeData2DayHaveCount(List<CdssDiffBean> list) {
+        Map<Integer, Integer> staMap = new HashMap<>();
+        for (CdssDiffBean cdssDiffBean : list) {
+            String addmissionTime = cdssDiffBean.getAdmission_time();
+            String resultValue = cdssDiffBean.getSjyscfTime();
+            int l = (int) DateFormatUtil.dateDiff(DateFormatUtil.parseDateBySdf(resultValue, DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(addmissionTime, DateFormatUtil.DATETIME_PATTERN_SS));
+            if (staMap.containsKey(l)) {
+                staMap.put(l, staMap.get(l) + 1);
+            } else {
+                staMap.put(l, 1);
+            }
+
+        }
+        return staMap;
+    }
+
     public CdssDiffBean getCdssDiffBean(JSONArray array) {
         Iterator<Object> iterator = array.iterator();
         CdssDiffBean bean1 = new CdssDiffBean();

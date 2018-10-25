@@ -9,9 +9,7 @@ import jhmk.clinic.cms.service.TestService;
 import jhmk.clinic.cms.service.ZlfaService;
 import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.util.CompareUtil;
-import jhmk.clinic.entity.pojo.YizhuBsjb;
-import jhmk.clinic.entity.pojo.YizhuChange;
-import jhmk.clinic.entity.pojo.YizhuResult;
+import jhmk.clinic.entity.pojo.*;
 import jhmk.clinic.entity.pojo.repository.SysDiseasesRepository;
 import jhmk.clinic.entity.pojo.repository.SysHospitalDeptRepository;
 import jhmk.clinic.entity.service.YizhuBsjbRepService;
@@ -272,6 +270,35 @@ public class BlzkController extends BaseController {
         paeams.put("delete", CompareUtil.compareMapForValue(deleteMap));
         paeams.put("bsjb", CompareUtil.compareMapForValue(bsjbMap));
         wirte(response, paeams);
+    }
+
+
+    /**
+     * 获取所有方案
+     *
+     * @param response
+     */
+    public void getAllFangan(HttpServletResponse response) {
+        //获取所有id
+        List<String> distinctIllName = yizhuResultRepService.getAllDistinctBid();
+        List<FanganBean> fanganBeanList = new ArrayList<>();
+        //病历id
+        for (String id : distinctIllName) {
+            int num = yizhuResultRepService.getMaxBid(id);
+            for (int i = 1; i <= num; i++) {
+                List<YizhuResult> resultList = yizhuResultRepService.findAllByBIdAndNum(id, i);
+                String mainIllName = resultList.get(0).getMainIllName();//主疾病
+                FanganBean fanganBeanByYizhuresult = zlfaService.analyzeYizhuResult2Bean(resultList);
+                fanganBeanList.add(fanganBeanByYizhuresult);
+                List<YizhuChange> changeList = yizhuChangeRepService.findAllByBIdAndNum(id, i);
+                FanganBean fanganBeanByYizhuChange = zlfaService.analyzeYizhuChange2Bean(changeList);
+                fanganBeanList.add(fanganBeanByYizhuChange);
+                List<YizhuBsjb> nsjbList = yizhuBsjbRepService.findAllByBIdAndNum(id, i);
+                FanganBean fanganBeanByYizhuBsjb = zlfaService.analyzeBsjb(nsjbList, mainIllName);
+                fanganBeanList.add(fanganBeanByYizhuBsjb);
+            }
+        }
+        wirte(response, fanganBeanList);
     }
 
 }

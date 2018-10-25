@@ -1,8 +1,6 @@
 package jhmk.clinic.cms.service;
 
-import jhmk.clinic.entity.pojo.YizhuBsjb;
-import jhmk.clinic.entity.pojo.YizhuChange;
-import jhmk.clinic.entity.pojo.YizhuResult;
+import jhmk.clinic.entity.pojo.*;
 import jhmk.clinic.entity.service.YizhuBsjbRepService;
 import jhmk.clinic.entity.service.YizhuChangeRepService;
 import jhmk.clinic.entity.service.YizhuOriRepService;
@@ -137,4 +135,62 @@ public class ZlfaService {
         return entries;
     }
 
+    /**
+     * 解析医嘱方案
+     *
+     * @param resultList
+     * @return
+     */
+    public FanganBean analyzeYizhuResult2Bean(List<YizhuResult> resultList) {
+        List<FanganFieldBean> yizhuresultFieldBean = new ArrayList<>();
+        FanganBean fanganBean = new FanganBean();
+        for (YizhuResult yizhuResult : resultList) {
+            String _id = yizhuResult.getbId();
+            String mainIllName = yizhuResult.getMainIllName();
+            fanganBean.setId(_id);
+            fanganBean.setIllName(mainIllName);
+            FanganFieldBean fanganFieldBean = new FanganFieldBean();
+            fanganFieldBean.setPurpose(yizhuResult.getPurpose());
+            fanganFieldBean.setDurg(yizhuResult.getDrug());
+            fanganFieldBean.setOrder_item_name(yizhuResult.getOrderItemName());
+            yizhuresultFieldBean.add(fanganFieldBean);
+        }
+        fanganBean.setFieldBeanList(yizhuresultFieldBean);
+        return fanganBean;
+    }
+
+    public FanganBean analyzeBsjb(List<YizhuBsjb> resultList, String mainIllName) {
+        List<FanganFieldBean> yizhuresultFieldBean = new ArrayList<>();
+        FanganBean fanganBean = new FanganBean();
+        for (YizhuBsjb yizhuResult : resultList) {
+            String _id = yizhuResult.getbId();
+            fanganBean.setId(_id);
+            fanganBean.setIllName(mainIllName);
+            FanganFieldBean fanganFieldBean = new FanganFieldBean();
+            fanganFieldBean.setPurpose(yizhuResult.getPurpose());
+            fanganFieldBean.setDurg(yizhuResult.getDrug());
+            fanganFieldBean.setOrder_item_name(yizhuResult.getOrderItemName());
+            yizhuresultFieldBean.add(fanganFieldBean);
+        }
+        fanganBean.setFieldBeanList(yizhuresultFieldBean);
+        return fanganBean;
+    }
+
+    public FanganBean analyzeYizhuChange2Bean(List<YizhuChange> resultList) {
+        List<FanganFieldBean> yizhuresultFieldBean = new ArrayList<>();
+        FanganBean fanganBean = new FanganBean();
+        for (YizhuChange yizhuResult : resultList) {
+            String _id = yizhuResult.getbId();
+            fanganBean.setId(_id);
+            String mainIllName = yizhuResult.getMainIllName();
+            fanganBean.setIllName(mainIllName);
+            FanganFieldBean fanganFieldBean = new FanganFieldBean();
+            fanganFieldBean.setPurpose(yizhuResult.getPurpose());
+            fanganFieldBean.setDurg(yizhuResult.getDrug());
+            fanganFieldBean.setOrder_item_name(yizhuResult.getOrderItemName());
+            yizhuresultFieldBean.add(fanganFieldBean);
+        }
+        fanganBean.setFieldBeanList(yizhuresultFieldBean);
+        return fanganBean;
+    }
 }

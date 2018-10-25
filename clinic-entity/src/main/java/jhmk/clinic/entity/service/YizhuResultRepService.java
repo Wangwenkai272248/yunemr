@@ -102,6 +102,10 @@ public class YizhuResultRepService extends BaseRepService<YizhuResult, Integer> 
     public List<String> getDistinctBidByMainIllName(String mainIllName) {
         return repository.getDistinctBidByMainIllName(mainIllName);
     }
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public List<String> getAllDistinctBid() {
+        return repository.getAllDistinctBid();
+    }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<String> getDistinctBidByIllName(String illName) {

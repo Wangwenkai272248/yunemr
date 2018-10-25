@@ -467,7 +467,7 @@ public class CdssController extends BaseController {
         String deptName = jsonObject.getString("deptName");
         String startTime = jsonObject.getString("startTime");
         String endTime = jsonObject.getString("endTime");
-            String diseaseName = jsonObject.getString("diseaseName");
+        String diseaseName = jsonObject.getString("diseaseName");
 
         int page = jsonObject.getInteger("page") == null ? 1 : jsonObject.getInteger("page");
         int pageSize = jsonObject.getInteger("pageSize") == null ? 20 : jsonObject.getInteger("page");
@@ -522,11 +522,8 @@ public class CdssController extends BaseController {
             List<CdssDiffBean> resultList = new ArrayList<>();
             for (CdssDiffBean bean : diffBeanList1) {
                 if (diseaseName.equals(bean.getChuyuanzhenduan())) {
-                    String id = bean.getId();
                     if ("true".equals(flag)) {
-                        if (goodBingli.contains("BJDXDSYY##2#001439833200#1")) {
-                            System.out.println("确实有相同的================================");
-                        }
+                        String id = bean.getId();
                         if (goodBingli.contains(id)) {
                             resultList.add(bean);
                         }
