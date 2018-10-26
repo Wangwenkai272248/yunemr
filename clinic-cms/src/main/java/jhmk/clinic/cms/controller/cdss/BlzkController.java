@@ -281,6 +281,7 @@ public class BlzkController extends BaseController {
 
     @PostMapping("/getAllFangan")
     public void getAllFangan(HttpServletResponse response, @RequestBody String map) {
+        Map<String, Object> params = new HashMap<>();
         JSONObject jsonObject = JSONObject.parseObject(map);
         Integer page = jsonObject.getInteger("page");
         Integer pageSize = jsonObject.getInteger("pageSize");
@@ -293,21 +294,28 @@ public class BlzkController extends BaseController {
             for (int i = 1; i <= num; i++) {
                 List<YizhuResult> resultList = yizhuResultRepService.findAllByBIdAndNum(id, i);
                 String mainIllName = resultList.get(0).getMainIllName();//主疾病
-                FanganBean fanganBeanByYizhuresult = zlfaService.analyzeYizhuResult2Bean(resultList);
-                fanganBeanList.add(fanganBeanByYizhuresult);
+                FanganBean fanganBeanByYizhuresult = zlfaService.analyzeYizhuResult2Bean(resultList, mainIllName);
                 List<YizhuChange> changeList = yizhuChangeRepService.findAllByBIdAndNum(id, i);
-                FanganBean fanganBeanByYizhuChange = zlfaService.analyzeYizhuChange2Bean(changeList);
-                fanganBeanList.add(fanganBeanByYizhuChange);
+                FanganBean fanganBeanByYizhuChange = zlfaService.analyzeYizhuChange2Bean(changeList,mainIllName);
                 List<YizhuBsjb> nsjbList = yizhuBsjbRepService.findAllByBIdAndNum(id, i);
                 FanganBean fanganBeanByYizhuBsjb = zlfaService.analyzeBsjb(nsjbList, mainIllName);
-                fanganBeanList.add(fanganBeanByYizhuBsjb);
+                if (StringUtils.isNotBlank(fanganBeanByYizhuresult.getType())) {
+                    fanganBeanList.add(fanganBeanByYizhuresult);
+                }
+                if (StringUtils.isNotBlank(fanganBeanByYizhuChange.getType())) {
+                    fanganBeanList.add(fanganBeanByYizhuChange);
+                }
+                if (StringUtils.isNotBlank(fanganBeanByYizhuBsjb.getType())) {
+                    fanganBeanList.add(fanganBeanByYizhuBsjb);
+                }
             }
         }
-        System.out.println("总共多少天===================="+fanganBeanList.size());
-
+        int maxPageSize = fanganBeanList.size() / pageSize;
         List<FanganBean> fanganBeans = fanganBeanList.subList(page * pageSize, (page + 1) * pageSize);
-
-        wirte(response, fanganBeans);
+        params.put("maxPageSize", maxPageSize);
+        params.put("size", fanganBeanList.size());
+        params.put("data", fanganBeans);
+        wirte(response, params);
     }
 
 }

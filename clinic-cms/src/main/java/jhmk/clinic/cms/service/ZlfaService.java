@@ -141,13 +141,13 @@ public class ZlfaService {
      * @param resultList
      * @return
      */
-    public FanganBean analyzeYizhuResult2Bean(List<YizhuResult> resultList) {
+    public FanganBean analyzeYizhuResult2Bean(List<YizhuResult> resultList,String mainIllName) {
         List<FanganFieldBean> yizhuresultFieldBean = new ArrayList<>();
         FanganBean fanganBean = new FanganBean();
         fanganBean.setType("方案");
+        fanganBean.setIllName(mainIllName);
         for (YizhuResult yizhuResult : resultList) {
             String _id = yizhuResult.getbId();
-            String mainIllName = yizhuResult.getMainIllName();
             fanganBean.setId(_id);
             fanganBean.setIllName(mainIllName);
             FanganFieldBean fanganFieldBean = new FanganFieldBean();
@@ -165,12 +165,15 @@ public class ZlfaService {
     public FanganBean analyzeBsjb(List<YizhuBsjb> resultList, String mainIllName) {
         List<FanganFieldBean> yizhuresultFieldBean = new ArrayList<>();
         FanganBean fanganBean = new FanganBean();
-        fanganBean.setType("伴随疾病");
+        if (yizhuresultFieldBean.size() > 0) {
+            fanganBean.setType("伴随疾病");
+        }
         for (YizhuBsjb yizhuResult : resultList) {
             String _id = yizhuResult.getbId();
             fanganBean.setId(_id);
             fanganBean.setIllName(mainIllName);
             FanganFieldBean fanganFieldBean = new FanganFieldBean();
+            fanganFieldBean.setBsjbName(yizhuResult.getBsjb());
             fanganFieldBean.setPurpose(yizhuResult.getPurpose());
             fanganFieldBean.setDurg(yizhuResult.getDrug());
             fanganFieldBean.setOrder_item_name(yizhuResult.getOrderItemName());
@@ -182,9 +185,10 @@ public class ZlfaService {
         return fanganBean;
     }
 
-    public FanganBean analyzeYizhuChange2Bean(List<YizhuChange> resultList) {
+    public FanganBean analyzeYizhuChange2Bean(List<YizhuChange> resultList,String mainIllName) {
         List<FanganFieldBean> yizhuresultFieldBean = new ArrayList<>();
         FanganBean fanganBean = new FanganBean();
+        fanganBean.setIllName(mainIllName);
         for (YizhuChange yizhuResult : resultList) {
             String _id = yizhuResult.getbId();
             fanganBean.setId(_id);
@@ -194,8 +198,6 @@ public class ZlfaService {
             } else {
                 fanganBean.setType("delete");
             }
-            String mainIllName = yizhuResult.getMainIllName();
-            fanganBean.setIllName(mainIllName);
             FanganFieldBean fanganFieldBean = new FanganFieldBean();
             fanganFieldBean.setPurpose(yizhuResult.getPurpose());
             fanganFieldBean.setDurg(yizhuResult.getDrug());
