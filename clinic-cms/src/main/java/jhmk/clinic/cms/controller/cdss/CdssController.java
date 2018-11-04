@@ -329,7 +329,7 @@ public class CdssController extends BaseController {
         logger.info("进来啦===========开始查询数据库拉");
         ThreadUtil.ThreadPool instance = ThreadUtil.getInstance();
         //查询所有patientod
-        List<String> list = basyService.getAllIdByAddmissionDate("2018-04-01 00:00:00");
+        List<String> list = basyService.getAllIdByAddmissionDate("2017-10-01 00:00:00");
         int size = list.size();
         //每个线程操作 数量
         int ncount = size / 32;
@@ -371,7 +371,7 @@ public class CdssController extends BaseController {
                         }
                         Object parse = JSONObject.parse(string);
                         try {
-                            s = restTemplate.postForObject(CdssConstans.URLFORRULE, parse, String.class);
+                            s = restTemplate.postForObject(CdssConstans.URL, parse, String.class);
                             logger.info("匹配规则返回信息为{}", s);
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
@@ -415,7 +415,7 @@ public class CdssController extends BaseController {
             }
             Object parse = JSONObject.parse(string);
             try {
-                String s = restTemplate.postForObject(CdssConstans.URLFORRULE, parse, String.class);
+                String s = restTemplate.postForObject(CdssConstans.URL, parse, String.class);
                 logger.info("匹配规则返回信息为{}", s);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
