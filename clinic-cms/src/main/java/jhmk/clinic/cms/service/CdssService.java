@@ -255,6 +255,18 @@ public class CdssService {
         }
         return idList;
     }
+    public List<String> getAllIdsByAddmissionTime() {
+        List<String> idList = new LinkedList<>();
+        List<Document> output = Arrays.asList(
+                new Document("$project", new Document("_id", 1))
+        );
+        AggregateIterable<Document> aggregate = binganshouye.aggregate(output);
+        for (Document document : aggregate) {
+            String id = document.get("_id").toString();
+            idList.add(id);
+        }
+        return idList;
+    }
 
     //获取出院主疾病在疾病列表中的id
     public List<CdssRuleBean> getAllIdsByIllName() {

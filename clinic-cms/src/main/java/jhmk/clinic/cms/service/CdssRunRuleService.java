@@ -149,7 +149,8 @@ public class CdssRunRuleService {
             cdssRuleBean.setDept_code(patVisit.getString("district_admission_to_name"));
             cdssRuleBean.setDoctor_name(patVisit.getString("district_discharge_from_name"));
 //            cdssRuleBean.setDept_code(patVisit.getString("dept_admission_to_name"));
-//            cdssRuleBean.setDoctor_name(patVisit.getString("attending_doctor_name"));
+//            cdssRuleBean.setDoctor_id(patVisit.getString("attending_doctor_name"));
+            cdssRuleBean.setDoctor_name(patVisit.getString("attending_doctor_name"));
             break;
         }
         return cdssRuleBean;

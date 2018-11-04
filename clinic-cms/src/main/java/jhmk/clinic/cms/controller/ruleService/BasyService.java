@@ -117,6 +117,7 @@ public class BasyService {
         }
         return null;
     }
+
     public String getAdmissionTimByPidAndVid(String id) {
         String[] split = id.split(",");
         String pid = split[0];
@@ -281,12 +282,27 @@ public class BasyService {
      *
      * @return
      */
+    public List<String> getAllIdByAddmissionDate(String date) {
+        List<String> misdiagnosisList = new LinkedList<>();
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$match", new Document("binganshouye.pat_visit.admission_time", new Document("$gte", date))),
+                new Document("$project", new Document("patient_id", 1).append("_id", 1).append("visit_id", 1).append("binganshouye", 1))
+        );
+        AggregateIterable<Document> output = binganshouye.aggregate(countPatientId);
+        for (Document document : output) {
+            String id = document.getString("_id");
+            misdiagnosisList.add(id);
+
+        }
+        return misdiagnosisList;
+    }
+
     public List<String> getAllIdByDate(String date) {
         List<String> misdiagnosisList = new LinkedList<>();
         Set<String> dept = getDept("departmentMap", "呼吸科");
         List<Document> countPatientId = Arrays.asList(
-                new Document("$match", new Document("binganshouye.pat_visit.discharge_time", new Document("$gte", "2016-01-01 00:00:00"))),
-                new Document("$match", new Document("binganshouye.pat_visit.discharge_time", new Document("$lt", "2017-01-01 00:00:00"))),
+                new Document("$match", new Document("binganshouye.pat_visit.admission_time", new Document("$gte", "2018-01-01 00:00:00"))),
+//                new Document("$match", new Document("binganshouye.pat_visit.admission_time", new Document("$lt", "2017-01-01 00:00:00"))),
                 new Document("$project", new Document("patient_id", 1).append("_id", 1).append("visit_id", 1).append("binganshouye", 1))
         );
         AggregateIterable<Document> output = binganshouye.aggregate(countPatientId);

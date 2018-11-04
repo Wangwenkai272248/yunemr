@@ -326,12 +326,10 @@ public class CdssController extends BaseController {
     @PostMapping("/runRuleDatabase")
     @ResponseBody
     public void runRuleZhenDuan(HttpServletResponse response) throws IOException {
-//        ExecutorService exec = Executors.newFixedThreadPool(32);
+        logger.info("进来啦===========开始查询数据库拉");
         ThreadUtil.ThreadPool instance = ThreadUtil.getInstance();
-//        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("C:/嘉和美康文档/cdss文本文件/数据库拼接信息.txt")));
-
         //查询所有patientod
-        List<String> list = cdssService.getAllIds();
+        List<String> list = basyService.getAllIdByAddmissionDate("2018-04-01 00:00:00");
         int size = list.size();
         //每个线程操作 数量
         int ncount = size / 32;
@@ -364,6 +362,7 @@ public class CdssController extends BaseController {
                         List<Map<String, String>> jybg = cdssRunRuleService.getJYBG(_id);
                         bean.setJianyanbaogao(jybg);
                         bean.setWarnSource("住院");
+                        bean.setPageSource("testDatabasse");
 
                         String string = JSONObject.toJSONString(bean);
 //                        System.out.println(string);
@@ -384,6 +383,7 @@ public class CdssController extends BaseController {
             };
             instance.execute(runnable);
         }
+        logger.info("结束啦==================================");
 
     }
 
