@@ -7,7 +7,8 @@ import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import jhmk.clinic.cms.SamilarService;
-import jhmk.clinic.cms.controller.ruleService.*;
+import jhmk.clinic.cms.controller.ruleService.BasyService;
+import jhmk.clinic.cms.controller.ruleService.SjyscflService;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
 import jhmk.clinic.core.util.DateFormatUtil;
@@ -33,7 +34,7 @@ import static jhmk.clinic.core.util.MongoUtils.getCollection;
 
 
 @Service
-public class CdssService {
+public class CyCdssService {
     @Autowired
     SjyscflService sjyscflService;
     @Autowired
@@ -41,15 +42,15 @@ public class CdssService {
     @Autowired
     SamilarService samilarService;
 
-    MongoCollection<Document> binganshouye = getCollection(CdssConstans.DATASOURCE, CdssConstans.BINGANSHOUYE);
+    MongoCollection<Document> binganshouye = getCollection(CdssConstans.CYDATASOURCE, CdssConstans.BINGANSHOUYE);
     //入院记录
-    static MongoCollection<Document> ruyuanjilu = getCollection(CdssConstans.DATASOURCE, CdssConstans.RUYUANJILU);
-    static MongoCollection<Document> yizhu = getCollection(CdssConstans.DATASOURCE, CdssConstans.YIZHU);
+    static MongoCollection<Document> ruyuanjilu = getCollection(CdssConstans.CYDATASOURCE, CdssConstans.RUYUANJILU);
+    static MongoCollection<Document> yizhu = getCollection(CdssConstans.CYDATASOURCE, CdssConstans.YIZHU);
     //病理诊断 初诊
-    MongoCollection<Document> binglizhenduan = getCollection(CdssConstans.DATASOURCE, CdssConstans.BINGLIZHENDUAN);
-    MongoCollection<Document> shouyezhenduan = getCollection(CdssConstans.DATASOURCE, CdssConstans.SHOUYEZHENDUAN);
-    MongoCollection<Document> jianchabaogao = getCollection(CdssConstans.DATASOURCE, CdssConstans.JCBG);
-    MongoCollection<Document> jianyanbaogao = getCollection(CdssConstans.DATASOURCE, CdssConstans.JYBG);
+    MongoCollection<Document> binglizhenduan = getCollection(CdssConstans.CYDATASOURCE, CdssConstans.BINGLIZHENDUAN);
+    MongoCollection<Document> shouyezhenduan = getCollection(CdssConstans.CYDATASOURCE, CdssConstans.SHOUYEZHENDUAN);
+    MongoCollection<Document> jianchabaogao = getCollection(CdssConstans.CYDATASOURCE, CdssConstans.JCBG);
+    MongoCollection<Document> jianyanbaogao = getCollection(CdssConstans.CYDATASOURCE, CdssConstans.JYBG);
 
 
     //查询病案首页
@@ -94,7 +95,7 @@ public class CdssService {
         List<Document> countPatientId = Arrays.asList(
                 new Document("$unwind", "$shouyezhenduan"),
                 new Document("$match", new Document("_id", id)),
-                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "入院初诊")),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "入院初步诊断")),
                 new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
                 new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
         );
@@ -102,6 +103,28 @@ public class CdssService {
         String diagnosis_name = "";
         for (Document document : binli) {
             Document binglizhenduan = (Document) document.get("shouyezhenduan");
+            diagnosis_name = binglizhenduan.getString("diagnosis_name");
+        }
+        return diagnosis_name;
+    }
+
+    /**
+     *  朝阳医院 入院初诊
+     * @param id
+     * @return
+     */
+    public String getCyyyRycz(String id) {
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$binglizhenduan"),
+                new Document("$match", new Document("_id", id)),
+                new Document("$match", new Document("binglizhenduan.diagnosis_type_name", "入院初步诊断")),
+                new Document("$match", new Document("binglizhenduan.diagnosis_num", "1")),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("binglizhenduan", 1))
+        );
+        AggregateIterable<Document> binli = binglizhenduan.aggregate(countPatientId);
+        String diagnosis_name = "";
+        for (Document document : binli) {
+            Document binglizhenduan = (Document) document.get("binglizhenduan");
             diagnosis_name = binglizhenduan.getString("diagnosis_name");
         }
         return diagnosis_name;
@@ -254,7 +277,6 @@ public class CdssService {
         }
         return idList;
     }
-
     public List<String> getAllIdsByAddmissionTime() {
         List<String> idList = new LinkedList<>();
         List<Document> output = Arrays.asList(
@@ -502,7 +524,7 @@ public class CdssService {
             Document shoueyezhenduan = (Document) document.get("shouyezhenduan");
 
             String diagnosis_name = shoueyezhenduan.getString("diagnosis_name");
-            if (StringUtils.isNotBlank(diagnosis_name)) {
+            if (StringUtils.isEmpty(diagnosis_name)) {
                 diagnosis_name = shoueyezhenduan.getString("diagnosis_desc");
             }
             shouyezhenduanMap.put("diagnosis_name", diagnosis_name);

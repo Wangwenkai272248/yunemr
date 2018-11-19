@@ -31,8 +31,6 @@ import jhmk.clinic.entity.service.YizhuOriRepService;
 import jhmk.clinic.entity.service.YizhuResultRepService;
 import jhmk.clinic.entity.test.YizhuTestBean;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +42,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
-import static jhmk.clinic.cms.service.InitService.caseList;
-import static jhmk.clinic.cms.service.InitService.diseaseNames;
+import static jhmk.clinic.cms.service.InitService.*;
 
 
 @Controller
@@ -75,6 +72,8 @@ public class CdssController extends BaseController {
     SyzdService syzdService;
 
     @Autowired
+    CyCdssService cyCdssService;
+    @Autowired
     CdssService cdssService;
     @Autowired
     TestService testService;
@@ -93,68 +92,68 @@ public class CdssController extends BaseController {
     @Autowired
     RestTemplate restTemplate;
 
-    /**
-     * @param response
-     */
-    @PostMapping("/ranDomSelold")
-    @ResponseBody
-    public void ranDomSel(HttpServletResponse response, @RequestBody(required = false) String map) {
-        Subject subject = SecurityUtils.getSubject();
-        boolean authenticated = subject.isAuthenticated();
-        System.out.println(authenticated);
-        //查询所有patientod
-        List<String> idList = cdssService.getAllIds();
-        int size = idList.size();
-        int round = (int) (Math.random() * size);
-        String id = idList.get(round);
-        //查询  ruyuanjilu 一诉五史
-        CdssRuleBean cdssTestBean = cdssService.selruyuanjiluById(id);
-        //病案首页
-        Map selbinganshouye = cdssService.selBasy(id);
-        cdssTestBean.setBinganshouye(selbinganshouye);
-        //病例诊断
-        List<Map<String, String>> selbinglizhenduan1 = cdssService.selbinglizhenduan(id);
-        cdssTestBean.setBinglizhenduan(selbinglizhenduan1);
-        //首页诊断
-        List<Map<String, String>> syzdList = cdssService.selSyzd(id);
-        cdssTestBean.setShouyezhenduan(syzdList);
-        List<Map<String, List<Map<String, String>>>> jianYan = cdssService.getJianYan(id);
-//        cdssTestBean.setJianyanbaogao(jianYan);
-        Object o = JSONObject.toJSON(cdssTestBean);
-        wirte(response, o);
-    }
 
     @PostMapping("/getDataByPIdAndVId")
     public void getDataByPIdAndVId(HttpServletResponse response, @RequestBody(required = false) String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
         String pid = jsonObject.getString("pid");
         String vid = jsonObject.getString("vid");
-        String id = "BJDXDSYY#2#" + pid + "#" + vid;
-        logger.info("id为：{}", id);
-        //查询  ruyuanjilu 一诉五史
-        CdssRuleBean cdssTestBean = cdssService.selruyuanjiluById(id);
-        cdssTestBean.setId(id);
-        cdssTestBean.setPatient_id(pid);
-        cdssTestBean.setVisit_id(vid);
-        //病案首页
-        Map selbinganshouye = cdssService.selBasy(id);
-        cdssTestBean.setBinganshouye(selbinganshouye);
-        //病例诊断
-        List<Map<String, String>> selbinglizhenduan1 = cdssService.selbinglizhenduan(id);
-        cdssTestBean.setBinglizhenduan(selbinglizhenduan1);
-        //首页诊断
-        List<Map<String, String>> syzdList = cdssService.selSyzd(id);
-        cdssTestBean.setShouyezhenduan(syzdList);
-        List<Map<String, List<Map<String, String>>>> jianYan = cdssService.getJianYan(id);
+        String hospitalName = jsonObject.getString("hospitalName");
+        if ("cyyy".equals(hospitalName)) {
+//            String id = "BJCYYY#2#" + pid + "#" + vid;
+            String id = "BJCYYY#" + pid + "#" + vid;
+            CdssRuleBean cdssTestBean = cyCdssService.selruyuanjiluById(id);
+            cdssTestBean.setId(id);
+            cdssTestBean.setPatient_id(pid);
+            cdssTestBean.setVisit_id(vid);
+            //病案首页
+            Map selbinganshouye = cyCdssService.selBasy(id);
+            cdssTestBean.setBinganshouye(selbinganshouye);
+            //病例诊断
+            List<Map<String, String>> selbinglizhenduan1 = cyCdssService.selbinglizhenduan(id);
+            cdssTestBean.setBinglizhenduan(selbinglizhenduan1);
+            //首页诊断
+            List<Map<String, String>> syzdList = cyCdssService.selSyzd(id);
+            cdssTestBean.setShouyezhenduan(syzdList);
+            List<Map<String, List<Map<String, String>>>> jianYan = cyCdssService.getJianYan(id);
 //        cdssTestBean.setJianyanbaogao(jianYan);
-        Object o = JSONObject.toJSON(cdssTestBean);
-        wirte(response, o);
+            Object o = JSONObject.toJSON(cdssTestBean);
+            wirte(response, o);
+        } else {
+            String id = "BJDXDSYY#" + pid + "#" + vid;
+//            String id = "BJDXDSYY#2#" + pid + "#" + vid;
+            CdssRuleBean cdssTestBean = cdssService.selruyuanjiluById(id);
+            cdssTestBean.setId(id);
+            cdssTestBean.setPatient_id(pid);
+            cdssTestBean.setVisit_id(vid);
+            //病案首页
+            Map selbinganshouye = cdssService.selBasy(id);
+            cdssTestBean.setBinganshouye(selbinganshouye);
+            //病例诊断
+            List<Map<String, String>> selbinglizhenduan1 = cdssService.selbinglizhenduan(id);
+            cdssTestBean.setBinglizhenduan(selbinglizhenduan1);
+            //首页诊断
+            List<Map<String, String>> syzdList = cdssService.selSyzd(id);
+            cdssTestBean.setShouyezhenduan(syzdList);
+            List<Map<String, List<Map<String, String>>>> jianYan = cdssService.getJianYan(id);
+//        cdssTestBean.setJianyanbaogao(jianYan);
+            Object o = JSONObject.toJSON(cdssTestBean);
+            wirte(response, o);
+        }
+        //查询  ruyuanjilu 一诉五史
+
     }
 
 
+    /**
+     * 随机病例 北医三院
+     *
+     * @param response
+     * @param map
+     */
     @PostMapping("/ranDomSel")
     @ResponseBody
-    public void ranDomSelByIllName(HttpServletResponse response, @RequestBody(required = false) String map) {
+    public void ranDomSel(HttpServletResponse response, @RequestBody(required = false) String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
         logger.info("随机病历查询条件为{}：", map);
         if (StringUtils.isNotBlank(map)) {
@@ -236,7 +235,7 @@ public class CdssController extends BaseController {
 
                 e.printStackTrace();
                 logger.info("错误提示{}" + e.getMessage());
-                ranDomSelByIllName(response, map);
+                ranDomSelBysy(response, map);
             }
             Object o = JSONObject.toJSON(cdssTestBean);
             wirte(response, o);
@@ -249,7 +248,208 @@ public class CdssController extends BaseController {
 
                 e.printStackTrace();
                 logger.info("错误提示{}" + e.getMessage());
-                ranDomSelByIllName(response, map);
+                ranDomSelBysy(response, map);
+            }
+            Object o = JSONObject.toJSON(cdssTestBean);
+            wirte(response, o);
+        }
+    }
+
+    /**
+     * 随机病例 北医三院
+     *
+     * @param response
+     * @param map
+     */
+    @PostMapping("/ranDomSelBysy")
+    @ResponseBody
+    public void ranDomSelBysy(HttpServletResponse response, @RequestBody(required = false) String map) {
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        logger.info("随机病历查询条件为{}：", map);
+        if (StringUtils.isNotBlank(map)) {
+            String dept_code = jsonObject.getString("dept_code");
+            String illName = jsonObject.getString("illname");
+            String same = jsonObject.getString("same");
+            List<CdssRuleBean> tem = new LinkedList<>();
+            List<CdssRuleBean> resultTem = new LinkedList<>();
+            if (StringUtils.isNotBlank(dept_code)) {
+                if (StringUtil.isChinese(dept_code)) {
+                    logger.info("caseList的数量为：{}", caseList.size());
+                    for (CdssRuleBean cdssRuleBean : caseList) {
+                        if (cdssRuleBean == null || cdssRuleBean.getBinganshouye() == null || cdssRuleBean.getBinganshouye().get("pat_visit_dept_admission_to_name") == null) {
+                            logger.info("有问题的数据：{}", JSONObject.toJSONString(cdssRuleBean));
+                            continue;
+                        }
+                        if (dept_code.equals(cdssRuleBean.getBinganshouye().get("pat_visit_dept_admission_to_name"))) {
+                            tem.add(cdssRuleBean);
+                        }
+                    }
+                } else {
+                    tem = caseList;
+                }
+            } else {
+                tem = caseList;
+            }
+            logger.info("过完部门表结果数量为：{}", tem.size());
+            if (StringUtils.isNotBlank(illName)) {
+                for (CdssRuleBean cdssRuleBean : tem) {
+                    if (illName.equals(cdssRuleBean.getCyzd())){
+                        resultTem.add(cdssRuleBean);
+                    }
+                }
+            } else {
+                resultTem = tem;
+            }
+            logger.info("过完疾病名结果数量为：{}", resultTem.size());
+
+            if (resultTem.size() == 0) {
+                resultTem = caseList;
+            }
+            List<CdssRuleBean> list = new ArrayList<>();
+            if ("true".equals(same)) {
+                for (CdssRuleBean cdssRuleBean : resultTem) {
+                    String rycz = cdssRuleBean.getRycz();
+                    String cyzd = cdssRuleBean.getCyzd();
+                    if (rycz == null || cyzd == null) {
+                        continue;
+                    }
+//                    if (samilarService.isFatherAndSon(rycz, cyzd)) {
+                    if (rycz.equals(cyzd)) {
+                        list.add(cdssRuleBean);
+                    }
+                }
+                if (list.size() == 0) {
+                    list.addAll(resultTem);
+                }
+            } else {
+                list.addAll(resultTem);
+            }
+            logger.info("过完同义词结果数量为：{}", list.size());
+
+            int round = (int) (Math.random() * list.size());
+            CdssRuleBean cdssTestBean = null;
+            try {
+
+                cdssTestBean = list.get(round);
+            } catch (NullPointerException e) {
+
+                e.printStackTrace();
+                logger.info("错误提示{}" + e.getMessage());
+                ranDomSelBysy(response, map);
+            }
+            Object o = JSONObject.toJSON(cdssTestBean);
+            wirte(response, o);
+        } else {
+            int round = (int) (Math.random() * caseList.size());
+            CdssRuleBean cdssTestBean = null;
+            try {
+                cdssTestBean = caseList.get(round);
+            } catch (NullPointerException e) {
+
+                e.printStackTrace();
+                logger.info("错误提示{}" + e.getMessage());
+                ranDomSelBysy(response, map);
+            }
+            Object o = JSONObject.toJSON(cdssTestBean);
+            wirte(response, o);
+        }
+    }
+
+    /**
+     * 随机病例 朝阳
+     *
+     * @param response
+     * @param map
+     */
+    @PostMapping("/ranDomSelCyyy")
+    @ResponseBody
+    public void ranDomSelCyyy(HttpServletResponse response, @RequestBody(required = false) String map) {
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        logger.info("随机病历查询条件为{}：", map);
+        if (StringUtils.isNotBlank(map)) {
+            String dept_code = jsonObject.getString("dept_code");
+            String illName = jsonObject.getString("illname");
+            String same = jsonObject.getString("same");
+            List<CdssRuleBean> tem = new LinkedList<>();
+            List<CdssRuleBean> resultTem = new LinkedList<>();
+            if (StringUtils.isNotBlank(dept_code)) {
+                if (StringUtil.isChinese(dept_code)) {
+                    logger.info("caseList的数量为：{}", caseListCy.size());
+                    for (CdssRuleBean cdssRuleBean : caseListCy) {
+                        if (cdssRuleBean == null || cdssRuleBean.getBinganshouye() == null || cdssRuleBean.getBinganshouye().get("pat_visit_dept_admission_to_name") == null) {
+                            logger.info("有问题的数据：{}", JSONObject.toJSONString(cdssRuleBean));
+                            continue;
+                        }
+                        if (dept_code.equals(cdssRuleBean.getBinganshouye().get("pat_visit_dept_admission_to_name"))) {
+                            tem.add(cdssRuleBean);
+                        }
+                    }
+                } else {
+                    tem = caseListCy;
+                }
+            } else {
+                tem = caseListCy;
+            }
+            logger.info("过完部门表结果数量为：{}", tem.size());
+            if (StringUtils.isNotBlank(illName)) {
+                for (CdssRuleBean cdssRuleBean : tem) {
+                    String cyzd = cdssRuleBean.getCyzd();
+                    if (illName.equals(cyzd)) {
+                        resultTem.add(cdssRuleBean);
+                    }
+                }
+            } else {
+                resultTem = tem;
+            }
+            logger.info("过完疾病名结果数量为：{}", resultTem.size());
+
+            if (resultTem.size() == 0) {
+                resultTem = caseListCy;
+            }
+            List<CdssRuleBean> list = new ArrayList<>();
+            if ("true".equals(same)) {
+                for (CdssRuleBean cdssRuleBean : resultTem) {
+                    String rycz = cdssRuleBean.getRycz();
+                    String cyzd = cdssRuleBean.getCyzd();
+                    if (rycz == null || cyzd == null) {
+                        continue;
+                    }
+//                    if (samilarService.isFatherAndSon(rycz, cyzd)) {
+                    if (rycz.equals(cyzd)) {
+                        list.add(cdssRuleBean);
+                    }
+                }
+                if (list.size() == 0) {
+                    list.addAll(resultTem);
+                }
+            } else {
+                list.addAll(resultTem);
+            }
+            logger.info("过完同义词结果数量为：{}", list.size());
+
+            int round = (int) (Math.random() * list.size());
+            CdssRuleBean cdssTestBean = null;
+            try {
+
+                cdssTestBean = list.get(round);
+            } catch (NullPointerException e) {
+
+                e.printStackTrace();
+                logger.info("错误提示{}" + e.getMessage());
+                ranDomSelCyyy(response, map);
+            }
+            Object o = JSONObject.toJSON(cdssTestBean);
+            wirte(response, o);
+        } else {
+            int round = (int) (Math.random() * caseListCy.size());
+            CdssRuleBean cdssTestBean = null;
+            try {
+                cdssTestBean = caseListCy.get(round);
+            } catch (NullPointerException e) {
+
+                e.printStackTrace();
+                logger.info("错误提示{}" + e.getMessage());
+                ranDomSelCyyy(response, map);
             }
             Object o = JSONObject.toJSON(cdssTestBean);
             wirte(response, o);
@@ -449,7 +649,7 @@ public class CdssController extends BaseController {
 
             e.printStackTrace();
             logger.info("错误提示{}" + e.getMessage());
-            ranDomSelByIllName(response, map);
+            ranDomSelBysy(response, map);
         }
         Object o = JSONObject.toJSON(cdssTestBean);
         wirte(response, o);

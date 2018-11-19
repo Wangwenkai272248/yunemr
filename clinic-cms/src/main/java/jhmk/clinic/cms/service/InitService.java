@@ -24,6 +24,7 @@ public class InitService {
     static Set<String> liiNames = new HashSet<>();
     //病例集合
     public volatile static List<CdssRuleBean> caseList = new LinkedList<>();
+    public volatile static List<CdssRuleBean> caseListCy = new LinkedList<>();
     public volatile static Set<String> diseaseNames = new HashSet<>();
 
     @PostConstruct
@@ -31,10 +32,9 @@ public class InitService {
         System.out.println("初始化方法进来了啊");
         readFile2Cache();
 //        getRandomAllData();
-        addCase2cache2();
+//        addCase2cache2();
+        addCyCase2cache2();
         addDiseaseName2Cache();
-        System.out.println("kaishila=============");
-//        test();
     }
 //    public void test() {
 //        CdssService cdssService = new CdssService();
@@ -82,7 +82,7 @@ public class InitService {
             //首页诊断
             List<Map<String, String>> syzdList = cdssService.selSyzd(id);
             cdssTestBean.setShouyezhenduan(syzdList);
-            List<Map<String, List<Map<String, String>>>> jianYan = cdssService.getJianYan(id);
+//            List<Map<String, List<Map<String, String>>>> jianYan = cdssService.getJianYan(id);
 //            cdssTestBean.setJianyanbaogao(jianYan);
             caseList.add(cdssTestBean);
         }
@@ -128,6 +128,47 @@ public class InitService {
                         cdssTestBean.setCyzd(cyzd);
                         if (Objects.nonNull(cdssTestBean)) {
                             caseList.add(cdssTestBean);
+                        }
+                    }
+                }
+
+            };
+            executorService.execute(task);
+        }
+    }
+
+    /**
+     * 朝阳医院
+     */
+    private void addCyCase2cache2() {
+        CyCdssService cdssService = new CyCdssService();
+        List<CdssRuleBean> idList = cdssService.getAllIdsByIllName();
+//        MyThreadPoolManager myThreadPoolManager = MyThreadPoolManager.getsInstance();
+        ExecutorService executorService = MyThreadPoolManager.newBlockingExecutorsUseCallerRun();
+        for (CdssRuleBean cdssRuleBean : idList) {
+            String id = cdssRuleBean.getId();
+            CdssRuleBean cdssTestBean = cdssService.selruyuanjiluById(id);
+            Runnable task = new Runnable() {
+                @Override
+                public void run() {
+                    //查询  ruyuanjilu 一诉五史
+                    if (cdssTestBean.getRuyuanjilu() != null) {
+                        cdssTestBean.setMainIllName(cdssRuleBean.getMainIllName());
+                        //病案首页
+                        Map selbinganshouye = cdssService.selBasy(id);
+                        cdssTestBean.setBinganshouye(selbinganshouye);
+                        //病例诊断
+                        List<Map<String, String>> selbinglizhenduan1 = cdssService.selbinglizhenduan(id);
+                        cdssTestBean.setBinglizhenduan(selbinglizhenduan1);
+                        //首页诊断
+                        List<Map<String, String>> syzdList = cdssService.selSyzd(id);
+                        cdssTestBean.setShouyezhenduan(syzdList);
+                        String rycz = cdssService.getCyyyRycz(id);
+                        cdssTestBean.setRycz(rycz);
+                        String cyzd = cdssService.getMainDisease(id);
+                        cdssTestBean.setCyzd(cyzd);
+                        if (Objects.nonNull(cdssTestBean)) {
+                            caseListCy.add(cdssTestBean);
                         }
                     }
                 }
