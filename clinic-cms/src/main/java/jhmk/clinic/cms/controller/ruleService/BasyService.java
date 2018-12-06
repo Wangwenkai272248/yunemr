@@ -6,7 +6,11 @@ import jhmk.clinic.cms.service.ReadFileService;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.entity.bean.Binganshouye;
 import jhmk.clinic.entity.bean.Misdiagnosis;
+import jhmk.clinic.entity.cdss.CdssRuleBean;
+import jhmk.clinic.entity.pojo.SmUsers;
+import jhmk.clinic.entity.pojo.repository.service.SmUsersRepService;
 import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -20,6 +24,11 @@ import static jhmk.clinic.core.util.MongoUtils.getCollection;
 @Service
 public class BasyService {
     MongoCollection<Document> binganshouye = getCollection(CdssConstans.DATASOURCE, CdssConstans.BINGANSHOUYE);
+
+    @Autowired
+    SyzdService syzdService;
+    @Autowired
+    SmUsersRepService smUsersRepService;
 
     /**
      * 获取所有骨科信息
@@ -177,6 +186,7 @@ public class BasyService {
 
     /**
      * 获取住院号
+     *
      * @param id
      * @return
      */
@@ -422,6 +432,50 @@ public class BasyService {
             }
         }
         return idsList;
+    }
+
+
+    /**
+     * 根据医生id 和入院时间 获取数据
+     *
+     * @return
+     */
+    public List<CdssRuleBean> getBeanByDoctorIdAndDate(String doctor_id, String addmissionTime, String dischargeTime) {
+        List<CdssRuleBean> resultList = new ArrayList<>();
+        SmUsers one = smUsersRepService.findOne(doctor_id);
+        if (one != null) {
+            String userName = one.getUserName();
+            List<Document> countPatientId = Arrays.asList(
+                    new Document("$match", new Document("binganshouye.pat_visit.request_doctor_name", userName)),
+                    new Document("$match", new Document("binganshouye.pat_visit.admission_time", new Document("$gte", addmissionTime))),
+                    new Document("$match", new Document("binganshouye.pat_visit.admission_time", new Document("$lt", dischargeTime))),
+                    new Document("$project", new Document("patient_id", 1).append("_id", 1).append("visit_id", 1).append("binganshouye", 1))
+            );
+            AggregateIterable<Document> output = binganshouye.aggregate(countPatientId);
+            for (Document document : output) {
+                CdssRuleBean bean = new CdssRuleBean();
+                String id = document.getString("_id");
+                String patientId = document.getString("patient_id");
+                String visitId = document.getString("visit_id");
+                Document binganshouye = (Document) document.get("binganshouye");
+                Document patVisit = (Document) binganshouye.get("pat_visit");
+                String admission_time = patVisit.getString("admission_time");//入院时间
+                String discharge_time = patVisit.getString("discharge_time");//入院时间
+                bean.setId(id);
+                bean.setDoctor_name(userName);
+                bean.setDoctor_id(doctor_id);
+                bean.setPatient_id(patientId);
+                bean.setVisit_id(visitId);
+                bean.setAdmission_time(admission_time);
+                bean.setDischarge_time(discharge_time);
+                String cyzd = syzdService.getMainDisease(id);
+                bean.setCyzd(cyzd);
+                String rycz = syzdService.getRycz(id);
+                bean.setRycz(rycz);
+                resultList.add(bean);
+            }
+        }
+        return resultList;
     }
 
 }

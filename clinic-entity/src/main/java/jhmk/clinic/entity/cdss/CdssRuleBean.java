@@ -20,6 +20,8 @@ public class CdssRuleBean {
     private String cyzd;
     private String quezhen;
     private String mainIllName;
+    private String discharge_time;//出院
+    private String admission_time;//入院
     private Map<String, String> binganshouye;
     private Map<String, String> physicalSign;
     private List<Map<String, String>> binglizhenduan;
@@ -196,6 +198,22 @@ public class CdssRuleBean {
 
     public void setCyzd(final String cyzd) {
         this.cyzd = cyzd;
+    }
+
+    public String getDischarge_time() {
+        return discharge_time;
+    }
+
+    public void setDischarge_time(final String discharge_time) {
+        this.discharge_time = discharge_time;
+    }
+
+    public String getAdmission_time() {
+        return admission_time;
+    }
+
+    public void setAdmission_time(final String admission_time) {
+        this.admission_time = admission_time;
     }
 }
 
