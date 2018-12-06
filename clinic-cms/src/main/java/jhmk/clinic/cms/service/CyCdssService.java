@@ -7,7 +7,8 @@ import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import jhmk.clinic.cms.SamilarService;
-import jhmk.clinic.cms.controller.ruleService.*;
+import jhmk.clinic.cms.controller.ruleService.BasyService;
+import jhmk.clinic.cms.controller.ruleService.SjyscflService;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
 import jhmk.clinic.core.util.DateFormatUtil;
@@ -33,7 +34,7 @@ import static jhmk.clinic.core.util.MongoUtils.getCollection;
 
 
 @Service
-public class CdssService {
+public class CyCdssService {
     @Autowired
     SjyscflService sjyscflService;
     @Autowired
@@ -41,15 +42,15 @@ public class CdssService {
     @Autowired
     SamilarService samilarService;
 
-    MongoCollection<Document> binganshouye = getCollection(CdssConstans.DATASOURCE, CdssConstans.BINGANSHOUYE);
+    MongoCollection<Document> binganshouye = getCollection(CdssConstans.CYDATASOURCE, CdssConstans.BINGANSHOUYE);
     //入院记录
-    static MongoCollection<Document> ruyuanjilu = getCollection(CdssConstans.DATASOURCE, CdssConstans.RUYUANJILU);
-    static MongoCollection<Document> yizhu = getCollection(CdssConstans.DATASOURCE, CdssConstans.YIZHU);
+    static MongoCollection<Document> ruyuanjilu = getCollection(CdssConstans.CYDATASOURCE, CdssConstans.RUYUANJILU);
+    static MongoCollection<Document> yizhu = getCollection(CdssConstans.CYDATASOURCE, CdssConstans.YIZHU);
     //病理诊断 初诊
-    MongoCollection<Document> binglizhenduan = getCollection(CdssConstans.DATASOURCE, CdssConstans.BINGLIZHENDUAN);
-    MongoCollection<Document> shouyezhenduan = getCollection(CdssConstans.DATASOURCE, CdssConstans.SHOUYEZHENDUAN);
-    MongoCollection<Document> jianchabaogao = getCollection(CdssConstans.DATASOURCE, CdssConstans.JCBG);
-    MongoCollection<Document> jianyanbaogao = getCollection(CdssConstans.DATASOURCE, CdssConstans.JYBG);
+    MongoCollection<Document> binglizhenduan = getCollection(CdssConstans.CYDATASOURCE, CdssConstans.BINGLIZHENDUAN);
+    MongoCollection<Document> shouyezhenduan = getCollection(CdssConstans.CYDATASOURCE, CdssConstans.SHOUYEZHENDUAN);
+    MongoCollection<Document> jianchabaogao = getCollection(CdssConstans.CYDATASOURCE, CdssConstans.JCBG);
+    MongoCollection<Document> jianyanbaogao = getCollection(CdssConstans.CYDATASOURCE, CdssConstans.JYBG);
 
 
     //查询病案首页
@@ -94,7 +95,7 @@ public class CdssService {
         List<Document> countPatientId = Arrays.asList(
                 new Document("$unwind", "$shouyezhenduan"),
                 new Document("$match", new Document("_id", id)),
-                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "入院初诊")),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "入院初步诊断")),
                 new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
                 new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
         );
@@ -102,6 +103,28 @@ public class CdssService {
         String diagnosis_name = "";
         for (Document document : binli) {
             Document binglizhenduan = (Document) document.get("shouyezhenduan");
+            diagnosis_name = binglizhenduan.getString("diagnosis_name");
+        }
+        return diagnosis_name;
+    }
+
+    /**
+     *  朝阳医院 入院初诊
+     * @param id
+     * @return
+     */
+    public String getCyyyRycz(String id) {
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$binglizhenduan"),
+                new Document("$match", new Document("_id", id)),
+                new Document("$match", new Document("binglizhenduan.diagnosis_type_name", "入院初步诊断")),
+                new Document("$match", new Document("binglizhenduan.diagnosis_num", "1")),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("binglizhenduan", 1))
+        );
+        AggregateIterable<Document> binli = binglizhenduan.aggregate(countPatientId);
+        String diagnosis_name = "";
+        for (Document document : binli) {
+            Document binglizhenduan = (Document) document.get("binglizhenduan");
             diagnosis_name = binglizhenduan.getString("diagnosis_name");
         }
         return diagnosis_name;
@@ -254,7 +277,6 @@ public class CdssService {
         }
         return idList;
     }
-
     public List<String> getAllIdsByAddmissionTime() {
         List<String> idList = new LinkedList<>();
         List<Document> output = Arrays.asList(
@@ -502,7 +524,7 @@ public class CdssService {
             Document shoueyezhenduan = (Document) document.get("shouyezhenduan");
 
             String diagnosis_name = shoueyezhenduan.getString("diagnosis_name");
-            if (StringUtils.isNotBlank(diagnosis_name)) {
+            if (StringUtils.isEmpty(diagnosis_name)) {
                 diagnosis_name = shoueyezhenduan.getString("diagnosis_desc");
             }
             shouyezhenduanMap.put("diagnosis_name", diagnosis_name);
@@ -979,19 +1001,14 @@ public class CdssService {
                         String temId = keyname.replaceAll("#2#", "");
                         String admissionTime = basyService.getAdmissionTime(temId);
                         String dischargeTime = basyService.getDischargeTime(temId);
-                        String inpNo = basyService.getInpNo(temId);
                         String string = next.getString(keyname);
                         JSONArray array = JSONArray.parseArray(string);
                         CdssDiffBean cdssDiffBean = getCdssDiffBean(array);
                         List<Shangjiyishichafanglu> sjyscflBean = sjyscflService.getSJYSCFLBean(temId);
-                        if (sjyscflBean.size()==0){
-                            continue;
-                        }
                         cdssDiffBean.setShangjiyishichafangluList(sjyscflBean);
                         cdssDiffBean.setId(keyname);
                         cdssDiffBean.setAdmission_time(admissionTime);
                         cdssDiffBean.setDischarge_time(dischargeTime);
-                        cdssDiffBean.setInp_no(inpNo);
                         resultList.add(cdssDiffBean);
                     }
 
@@ -1133,65 +1150,6 @@ public class CdssService {
         return resultList;
     }
 
-    /**
-     * 获取软院诊断不等于出院诊断 且上级医师查房录 确诊等于是的
-     *
-     * @param oldList
-     * @return
-     */
-    public List<CdssDiffBean> getDiffBean(List<CdssDiffBean> oldList) {
-        List<CdssDiffBean> resultList = new ArrayList<>();
-        for (CdssDiffBean bean : oldList) {
-            String chuyuanzhenduan = bean.getChuyuanzhenduan();
-            String ruyuanchuzhen = bean.getRuyuanchuzhen();
-            //出诊断=null
-            if (StringUtils.isEmpty(chuyuanzhenduan) || StringUtils.isEmpty(ruyuanchuzhen)) {
-                continue;
-            }
-            //如果入院初诊=出院诊断 过滤
-
-            //有专科记录 过滤
-            if (bean.isZhuanke() == true) {
-                continue;
-            }
-            if (bean.getShangjiyishichafangluList() == null) {
-                continue;
-            }
-            if (chuyuanzhenduan.contains(bean.getRuyuanchuzhen()) || bean.getRuyuanchuzhen().contains(chuyuanzhenduan)) {
-                continue;
-            }
-            List<Shangjiyishichafanglu> shangjiyishichafangluList = bean.getShangjiyishichafangluList();
-
-            Collections.sort(shangjiyishichafangluList, CompareUtil.createComparator(1, "last_modify_date_time"));
-            //跳出循环
-            boolean flag = false;
-            lable1:
-            for (Shangjiyishichafanglu shangjiyishichafanglu : shangjiyishichafangluList) {
-                String clear_diagnose_name = shangjiyishichafanglu.getClear_diagnose_name();
-                String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
-                String[] split = clear_diagnose_name.split(" ");
-                for (String s : split) {
-                    if (s.contains(chuyuanzhenduan) || chuyuanzhenduan.contains(s)) {
-                        bean.setSjyscfTime(last_modify_date_time);
-                        bean.setSjyscfName(clear_diagnose_name);
-                        bean.setFlag(true);
-                        resultList.add(bean);
-                        flag = true;
-                        break lable1;
-                    }
-
-                }
-
-            }
-            if (!flag) {
-                continue;
-            }
-
-
-        }
-        return resultList;
-    }
-
     public Map<String, StatisticsBean> analyzeData(List<CdssDiffBean> list) {
         Map<String, StatisticsBean> staMap = new HashMap<>();
         for (CdssDiffBean cdssDiffBean : list) {
@@ -1236,26 +1194,6 @@ public class CdssService {
             }
 
         }
-        return staMap;
-    }
-
-    /**
-     * 统计分析数据
-     * key 次数 value 平均时长
-     *
-     * @param list
-     * @return
-     */
-    public Map<Integer, Integer> analyzeData2CountAndAvgDay(List<CdssDiffBean> list) {
-        Map<Integer, Integer> staMap = new HashMap<>();
-        int l = 0;
-        for (CdssDiffBean cdssDiffBean : list) {
-            String addmissionTime = cdssDiffBean.getAdmission_time();
-            String resultValue = cdssDiffBean.getSjyscfTime();
-            l += (int) DateFormatUtil.dateDiff(DateFormatUtil.parseDateBySdf(resultValue, DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(addmissionTime, DateFormatUtil.DATETIME_PATTERN_SS));
-        }
-        int avgDay = l / list.size();//平均时长
-        staMap.put(list.size(),avgDay);
         return staMap;
     }
 
@@ -1356,23 +1294,6 @@ public class CdssService {
             }
             if (chuyuanzhenduan.contains(ruyuanchuzhen) || ruyuanchuzhen.contains(chuyuanzhenduan)) {
                 bean.setFlag(true);
-                resultList.add(bean);
-            }
-        }
-        return resultList;
-    }
-
-    /**
-     * 获取优质病例
-     *
-     * @param diffBeanList
-     * @param inpNoList
-     * @return
-     */
-    public List<CdssDiffBean> getGoodData(List<CdssDiffBean> diffBeanList, List<String> inpNoList) {
-        List<CdssDiffBean> resultList = new ArrayList<>();
-        for (CdssDiffBean bean : diffBeanList) {
-            if (inpNoList.contains(bean.getInp_no())) {
                 resultList.add(bean);
             }
         }

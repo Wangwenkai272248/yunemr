@@ -49,16 +49,18 @@ public class CdssConstans {
     //        数据库
 //    public static final String DATASOURCE = "bysyalldata";
     public static final String DATASOURCE = "bysyalldept";
+    public static final String CYDATASOURCE = "CYYYDATA_NEW";
     public static final String HOST = "192.168.8.22";
-    public static final String URL = "http://192.168.8.22:8111/warn/rule/ruleMatch";
+    //    public static final String URL = "http://192.168.8.20:8111/warn/match/ruleMatch";
+    public static final String URL = "http://localhost:8111/warn/match/ruleMatch";
     public static final String URLFORRULE = "http://localhost:8111/warn/match/ruleMatch";
 
 
-//    private static final String head = "http://192.168.8.20:8010";
+    //    private static final String head = "http://192.168.8.20:8010";
     private static final String head = "http://192.168.8.20:8010";
-    private static final String ESHEAD = "http://192.168.132.13:8805";
-//    private static final String ESHEAD = "http://192.168.8.31:8877";
-    public static final String QUERY = ESHEAD+"/med/cdss/query.json";
+    //    private static final String ESHEAD = "http://192.168.132.13:8805";
+    private static final String ESHEAD = "http://192.168.8.31:8877";
+    public static final String QUERY = ESHEAD + "/med/cdss/query.json";
 //    private static final String head = "http://192.168.132.7:8010";
 
     //获取疾病同义词
@@ -70,12 +72,12 @@ public class CdssConstans {
     public static final String getParentList = head + "/med/cdss/getParentList.json";
 
     public static final int BEGINCOUNT = 0;
-//    public static final int ENDCOUNT = 800;
-    public static final int ENDCOUNT = 30000;
+//    public static final int ENDCOUNT = 2000;
+    public static final int ENDCOUNT = 15000;
 
 
     //es查询
-    public static final String patients="http://192.168.8.31:8833/med/advanced/allVariableJilian.json";
+    public static final String patients = "http://192.168.8.31:8833/med/advanced/allVariableJilian.json";
 //    public static final String patients="http://192.168.132.13:8800/med/advanced/allVariableJilian.json";
 
 
