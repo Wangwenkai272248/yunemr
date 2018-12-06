@@ -5,6 +5,7 @@ import jhmk.clinic.cms.SamilarService;
 import jhmk.clinic.cms.controller.ruleService.BasyService;
 import jhmk.clinic.cms.controller.ruleService.RyjuService;
 import jhmk.clinic.cms.controller.ruleService.SyzdService;
+import jhmk.clinic.cms.service.BiaozhuService;
 import jhmk.clinic.cms.service.CdssService;
 import jhmk.clinic.cms.service.ReadFileService;
 import jhmk.clinic.core.base.BaseController;
@@ -46,6 +47,8 @@ public class DataController extends BaseController {
     RyjuService ryjuService;
     @Autowired
     SyzdService syzdService;
+    @Autowired
+    BiaozhuService biaozhuService;
     @Autowired
     CdssService cdssService;
 
@@ -217,18 +220,19 @@ public class DataController extends BaseController {
     /**
      * 对比下这些医生ID，2018年7月-11月，初诊正确率有没有改变
      */
+
     @RequestMapping("/analyzeData20181206")
     public void analyzeData20181206(HttpServletResponse response, @RequestBody(required = false) String map) {
         JSONObject jsonObject = JSONObject.parseObject(map);
-//        String startTime = jsonObject.getString("startTime");
-//        String endTime = jsonObject.getString("endTime");
+        String startTime = jsonObject.getString("startTime");
+        String endTime = jsonObject.getString("endTime");
         List<String> list = ReadFileService.readSourceList("20181206doctorId");
         List<CdssRuleBean> resultList = new ArrayList<>();
         for (String id : list) {
-            List<CdssRuleBean> beanByDoctorIdAndDate = basyService.getBeanByDoctorIdAndDate(id, "2018-07-01 00:00:00", "2018-12-01 00:00:00");
+            List<CdssRuleBean> beanByDoctorIdAndDate = basyService.getBeanByDoctorIdAndDate(id, startTime, endTime);
             resultList.addAll(beanByDoctorIdAndDate);
         }
-        logger.info("结果数量为：{}",resultList.size());
+        logger.info("结果数量为：{}", resultList.size());
         Collections.sort(resultList, CompareUtil.createComparator(1, "doctor_id"));
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet("主表");
@@ -262,7 +266,9 @@ public class DataController extends BaseController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        biaozhuService.method2(resultList);
         wirte(response, "写入成功");
+
 
     }
 

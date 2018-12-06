@@ -7,9 +7,9 @@ package jhmk.clinic.entity.cdss;
 
 public class Date1206 {
     private String doctorId;
-    private int currect;
-    private int error;
-    private int all;
+    private float currect;
+    private float error;
+    private float all;
     private float avg;
 
     public String getDoctorId() {
@@ -20,27 +20,27 @@ public class Date1206 {
         this.doctorId = doctorId;
     }
 
-    public int getCurrect() {
+    public float getCurrect() {
         return currect;
     }
 
-    public void setCurrect(final int currect) {
+    public void setCurrect(final float currect) {
         this.currect = currect;
     }
 
-    public int getError() {
+    public float getError() {
         return error;
     }
 
-    public void setError(final int error) {
+    public void setError(final float error) {
         this.error = error;
     }
 
-    public int getAll() {
+    public float getAll() {
         return all;
     }
 
-    public void setAll(final int all) {
+    public void setAll(final float all) {
         this.all = all;
     }
 
