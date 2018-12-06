@@ -5,6 +5,7 @@ import jhmk.clinic.cms.controller.ruleService.BasyService;
 import jhmk.clinic.cms.controller.ruleService.RyjuService;
 import jhmk.clinic.cms.controller.ruleService.SyzdService;
 import jhmk.clinic.cms.service.CdssService;
+import jhmk.clinic.cms.service.ReadFileService;
 import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.HttpClient;
@@ -208,6 +209,14 @@ public class DataController extends BaseController {
 //        Write2File.w2fileList(allDiffBeanList, "2017年呼吸科确诊数据.txt");
 
         wirte(response, stringStatisticsBeanMap);
+    }
+
+    /**
+     * 对比下这些医生ID，2018年7月-11月，初诊正确率有没有改变
+     */
+    public void analyzeData20181206() {
+        List<String> list = ReadFileService.readFile2List("20181206doctorId");
+        
     }
 
 }
