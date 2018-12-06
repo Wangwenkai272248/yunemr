@@ -979,6 +979,7 @@ public class CdssService {
                         String temId = keyname.replaceAll("#2#", "");
                         String admissionTime = basyService.getAdmissionTime(temId);
                         String dischargeTime = basyService.getDischargeTime(temId);
+                        String inpNo = basyService.getInpNo(temId);
                         String string = next.getString(keyname);
                         JSONArray array = JSONArray.parseArray(string);
                         CdssDiffBean cdssDiffBean = getCdssDiffBean(array);
@@ -987,6 +988,7 @@ public class CdssService {
                         cdssDiffBean.setId(keyname);
                         cdssDiffBean.setAdmission_time(admissionTime);
                         cdssDiffBean.setDischarge_time(dischargeTime);
+                        cdssDiffBean.setInp_no(inpNo);
                         resultList.add(cdssDiffBean);
                     }
 
@@ -1128,6 +1130,65 @@ public class CdssService {
         return resultList;
     }
 
+    /**
+     * 获取软院诊断不等于出院诊断 且上级医师查房录 确诊等于是的
+     *
+     * @param oldList
+     * @return
+     */
+    public List<CdssDiffBean> getDiffBean(List<CdssDiffBean> oldList) {
+        List<CdssDiffBean> resultList = new ArrayList<>();
+        for (CdssDiffBean bean : oldList) {
+            String chuyuanzhenduan = bean.getChuyuanzhenduan();
+            String ruyuanchuzhen = bean.getRuyuanchuzhen();
+            //出诊断=null
+            if (StringUtils.isEmpty(chuyuanzhenduan) || StringUtils.isEmpty(ruyuanchuzhen)) {
+                continue;
+            }
+            //如果入院初诊=出院诊断 过滤
+
+            //有专科记录 过滤
+            if (bean.isZhuanke() == true) {
+                continue;
+            }
+            if (bean.getShangjiyishichafangluList() == null) {
+                continue;
+            }
+            if (chuyuanzhenduan.contains(bean.getRuyuanchuzhen()) || bean.getRuyuanchuzhen().contains(chuyuanzhenduan)) {
+                continue;
+            }
+            List<Shangjiyishichafanglu> shangjiyishichafangluList = bean.getShangjiyishichafangluList();
+
+            Collections.sort(shangjiyishichafangluList, CompareUtil.createComparator(1, "last_modify_date_time"));
+            //跳出循环
+            boolean flag = false;
+            lable1:
+            for (Shangjiyishichafanglu shangjiyishichafanglu : shangjiyishichafangluList) {
+                String clear_diagnose_name = shangjiyishichafanglu.getClear_diagnose_name();
+                String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
+                String[] split = clear_diagnose_name.split(" ");
+                for (String s : split) {
+                    if (s.contains(chuyuanzhenduan) || chuyuanzhenduan.contains(s)) {
+                        bean.setSjyscfTime(last_modify_date_time);
+                        bean.setSjyscfName(clear_diagnose_name);
+                        bean.setFlag(true);
+                        resultList.add(bean);
+                        flag = true;
+                        break lable1;
+                    }
+
+                }
+
+            }
+            if (!flag) {
+                continue;
+            }
+
+
+        }
+        return resultList;
+    }
+
     public Map<String, StatisticsBean> analyzeData(List<CdssDiffBean> list) {
         Map<String, StatisticsBean> staMap = new HashMap<>();
         for (CdssDiffBean cdssDiffBean : list) {
@@ -1172,6 +1233,26 @@ public class CdssService {
             }
 
         }
+        return staMap;
+    }
+
+    /**
+     * 统计分析数据
+     * key 次数 value 平均时长
+     *
+     * @param list
+     * @return
+     */
+    public Map<Integer, Integer> analyzeData2CountAndAvgDay(List<CdssDiffBean> list) {
+        Map<Integer, Integer> staMap = new HashMap<>();
+        int l = 0;
+        for (CdssDiffBean cdssDiffBean : list) {
+            String addmissionTime = cdssDiffBean.getAdmission_time();
+            String resultValue = cdssDiffBean.getSjyscfTime();
+            l += (int) DateFormatUtil.dateDiff(DateFormatUtil.parseDateBySdf(resultValue, DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(addmissionTime, DateFormatUtil.DATETIME_PATTERN_SS));
+        }
+        int avgDay = l / list.size();//平均时长
+        staMap.put(list.size(),avgDay);
         return staMap;
     }
 
@@ -1272,6 +1353,23 @@ public class CdssService {
             }
             if (chuyuanzhenduan.contains(ruyuanchuzhen) || ruyuanchuzhen.contains(chuyuanzhenduan)) {
                 bean.setFlag(true);
+                resultList.add(bean);
+            }
+        }
+        return resultList;
+    }
+
+    /**
+     * 获取优质病例
+     *
+     * @param diffBeanList
+     * @param inpNoList
+     * @return
+     */
+    public List<CdssDiffBean> getGoodData(List<CdssDiffBean> diffBeanList, List<String> inpNoList) {
+        List<CdssDiffBean> resultList = new ArrayList<>();
+        for (CdssDiffBean bean : diffBeanList) {
+            if (inpNoList.contains(bean.getInp_no())) {
                 resultList.add(bean);
             }
         }
