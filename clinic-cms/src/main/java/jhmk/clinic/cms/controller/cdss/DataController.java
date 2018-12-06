@@ -257,15 +257,15 @@ public class DataController extends BaseController {
             row1.createCell(6).setCellValue(bean.getCyzd());
             rowNum++;
         }
-        try {
-            FileOutputStream fos = new FileOutputStream("/data/1/CDSS/" + fileName);
-//            FileOutputStream fos = new FileOutputStream("C:/嘉和美康文档/3院测试数据/"+fileName);
-            workbook.write(fos);
-            System.out.println("写入成功");
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            FileOutputStream fos = new FileOutputStream("/data/1/CDSS/" + fileName);
+////            FileOutputStream fos = new FileOutputStream("C:/嘉和美康文档/3院测试数据/"+fileName);
+//            workbook.write(fos);
+//            System.out.println("写入成功");
+//            fos.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         biaozhuService.method2(resultList);
         wirte(response, "写入成功");
 
