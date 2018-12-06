@@ -228,6 +228,7 @@ public class DataController extends BaseController {
             List<CdssRuleBean> beanByDoctorIdAndDate = basyService.getBeanByDoctorIdAndDate(id, "2018-07-01 00:00:00", "2018-12-01 00:00:00");
             resultList.addAll(beanByDoctorIdAndDate);
         }
+        logger.info("结果数量为：{}",resultList.size());
         Collections.sort(resultList, CompareUtil.createComparator(1, "doctor_id"));
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet("主表");

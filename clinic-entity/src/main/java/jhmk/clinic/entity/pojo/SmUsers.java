@@ -3,7 +3,7 @@ package jhmk.clinic.entity.pojo;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "sm_users", schema = "jhmk_waring")
+@Table(name = "sm_users", schema = "yunemr")
 public class SmUsers {
     private String userId;
     private String userName;

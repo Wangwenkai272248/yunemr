@@ -445,6 +445,7 @@ public class BasyService {
         SmUsers one = smUsersRepService.findOne(doctor_id);
         if (one != null) {
             String userName = one.getUserName();
+            System.out.println("查询成功：" + userName);
             List<Document> countPatientId = Arrays.asList(
                     new Document("$match", new Document("binganshouye.pat_visit.request_doctor_name", userName)),
                     new Document("$match", new Document("binganshouye.pat_visit.admission_time", new Document("$gte", addmissionTime))),
@@ -474,6 +475,8 @@ public class BasyService {
                 bean.setRycz(rycz);
                 resultList.add(bean);
             }
+        } else {
+            System.out.println("查询失败："+doctor_id);
         }
         return resultList;
     }
