@@ -72,12 +72,13 @@ public class CdssConstans {
     public static final String getParentList = head + "/med/cdss/getParentList.json";
 
     public static final int BEGINCOUNT = 0;
-//    public static final int ENDCOUNT = 2000;
-    public static final int ENDCOUNT = 15000;
+//    public static final int ENDCOUNT = 20;
+    public static final int ENDCOUNT = 20000;
 
 
     //es查询
-    public static final String patients = "http://192.168.8.31:8833/med/advanced/allVariableJilian.json";
+//    public static final String patients = "http://192.168.8.31:8833/med/advanced/allVariableJilian.json";
+    public static final String patients = "http://192.168.8.20/search/bysy/med/advanced/allVariableJilian.json";
 //    public static final String patients="http://192.168.132.13:8800/med/advanced/allVariableJilian.json";
 
 

@@ -32,8 +32,8 @@ public class InitService {
         System.out.println("初始化方法进来了啊");
         readFile2Cache();
 //        getRandomAllData();
-//        addCase2cache2();
-        addCyCase2cache2();
+        addCase2cache2();
+//        addCyCase2cache2();
         addDiseaseName2Cache();
     }
 //    public void test() {
