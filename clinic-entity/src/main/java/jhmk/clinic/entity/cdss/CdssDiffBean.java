@@ -15,6 +15,8 @@ public class CdssDiffBean {
     private String id;
     //判断上级医师查房 是否等于 出院主诊断
     private boolean flag;
+    private boolean isGood;
+    private String inp_no;//住院号
     private boolean zhuanke;
     //上级医师查房疾病名
     private String sjyscfName;
@@ -132,7 +134,23 @@ public class CdssDiffBean {
         return discharge_time;
     }
 
-    public void setDischarge_time(final String discharge_time) {
+    public void setDischarge_time(String discharge_time) {
         this.discharge_time = discharge_time;
+    }
+
+    public String getInp_no() {
+        return inp_no;
+    }
+
+    public void setInp_no(String inp_no) {
+        this.inp_no = inp_no;
+    }
+
+    public boolean isGood() {
+        return isGood;
+    }
+
+    public void setGood(final boolean good) {
+        isGood = good;
     }
 }
