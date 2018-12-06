@@ -984,6 +984,9 @@ public class CdssService {
                         JSONArray array = JSONArray.parseArray(string);
                         CdssDiffBean cdssDiffBean = getCdssDiffBean(array);
                         List<Shangjiyishichafanglu> sjyscflBean = sjyscflService.getSJYSCFLBean(temId);
+                        if (sjyscflBean.size()==0){
+                            continue;
+                        }
                         cdssDiffBean.setShangjiyishichafangluList(sjyscflBean);
                         cdssDiffBean.setId(keyname);
                         cdssDiffBean.setAdmission_time(admissionTime);
