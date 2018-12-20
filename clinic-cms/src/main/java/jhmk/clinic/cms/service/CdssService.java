@@ -89,8 +89,6 @@ public class CdssService {
     }
 
     public String getRycz(String id) {
-        List<String> list = new ArrayList<>();
-
         List<Document> countPatientId = Arrays.asList(
                 new Document("$unwind", "$shouyezhenduan"),
                 new Document("$match", new Document("_id", id)),
@@ -979,7 +977,6 @@ public class CdssService {
                         String temId = keyname.replaceAll("#2#", "");
                         String admissionTime = basyService.getAdmissionTime(temId);
                         String dischargeTime = basyService.getDischargeTime(temId);
-                        String inpNo = basyService.getInpNo(temId);
                         String string = next.getString(keyname);
                         JSONArray array = JSONArray.parseArray(string);
                         CdssDiffBean cdssDiffBean = getCdssDiffBean(array);
@@ -991,7 +988,6 @@ public class CdssService {
                         cdssDiffBean.setId(keyname);
                         cdssDiffBean.setAdmission_time(admissionTime);
                         cdssDiffBean.setDischarge_time(dischargeTime);
-                        cdssDiffBean.setInp_no(inpNo);
                         resultList.add(cdssDiffBean);
                     }
 
