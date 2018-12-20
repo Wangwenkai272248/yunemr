@@ -24,10 +24,7 @@ import jhmk.clinic.entity.cdss.CdssRuleBean;
 import jhmk.clinic.entity.cdss.Date1206;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,11 +97,11 @@ public class DataController extends BaseController {
             Object o = JSONObject.toJSON(param);
             String s = null;
             try {
-                s = restTemplate.postForObject("http://192.168.132.7:8115/bzgj/collectionType/findById", o, String.class);
+                s = restTemplate.postForObject("http://localhost:8115/bzgj/collectionType/findById", o, String.class);
+//                s = restTemplate.postForObject("http://192.168.132.7:8115/bzgj/collectionType/findById", o, String.class);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-//            String s = restTemplate.postForObject("http://localhost:8115/bzgj/collectionType/findById", o, String.class);
             if (StringUtils.isNotBlank(s)) {
                 JSONObject object = JSONObject.parseObject(s);
                 if (object.getInteger("code") == 200) {
@@ -125,15 +122,16 @@ public class DataController extends BaseController {
 
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("sheet1");
-//        String fileName = "C:/嘉和美康文档/3院测试数据/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xls";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
-        String fileName = "/data/1/CDSS/data/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xlsx";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
+        String fileName = "C:/嘉和美康文档/3院测试数据/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xls";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
+//        String fileName = "/data/1/CDSS/data/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xlsx";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
         int rowNum = 1;
         String[] headers = {"ID", "PID", "VID", "科室名", "科室编码", "管床医师姓名", "入院时间", "出院时间", "出院主诊断", "入院主诊断", "上级医师查房", "入院诊断与出院诊断符合标识", "确诊时长(天)", "确诊项目与出院诊断是否一致", "推荐的列表", "辅助诊断命中的序列数"}; //headers表示excel表中第一行的表头
         XSSFRow row = sheet.createRow(0);
         //在excel表中添加表头
         for (int i = 0; i < headers.length; i++) {
             XSSFCell cell = row.createCell(i);
-            HSSFRichTextString text = new HSSFRichTextString(headers[i]);
+//            HSSFRichTextString text = new HSSFRichTextString(headers[i]);
+            XSSFRichTextString text = new XSSFRichTextString(headers[i]);
             cell.setCellValue(text);
         } //在表中存放查询到的数据放入对应的列
         for (Rule bean : gukeDataByCondition) {
@@ -561,7 +559,7 @@ public class DataController extends BaseController {
 //        int fbna = fbna(5);
 //        System.out.println(fbna);
 
-        hanio(6,'a','b','c');
+        hanio(6, 'a', 'b', 'c');
     }
 
     public static void hanio(int n, char a, char b, char c) {
