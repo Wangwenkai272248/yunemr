@@ -697,8 +697,6 @@ public class CdssController extends BaseController {
     @PostMapping("/getDataByDeptAndTimeSecond")
     public void getDataByDeptAndTimeSecond(HttpServletResponse response, @RequestBody String map) {
         List<String> goodBingli = biaozhuService.getGoodBingli();
-        Write2File.w2fileList(goodBingli, "/data/1/CDSS/good.txt");
-//        logger.info(JSONObject.toJSONString(goodBingli));
         logger.info("优质病历数量为,{},格式为：{}", goodBingli.size(), goodBingli.get(3));
         logger.info("优质病历测试{}", goodBingli.contains("BJDXDSYY##2#001439833200#1"));
         JSONObject jsonObject = JSONObject.parseObject(map);
@@ -736,6 +734,48 @@ public class CdssController extends BaseController {
             wirte(response, resultList);
         } else {
             wirte(response, diffBeanList1);
+        }
+    }
+
+    @PostMapping("/getGoodRecords")
+    public void getGoodRecords(HttpServletResponse response, @RequestBody String map) {
+        List<String> goodBingli = biaozhuService.get3HosputalGoodBingli();
+        logger.info("优质病历数量为,{}", goodBingli.size());
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        String deptName = jsonObject.getString("deptName");
+        String startTime = jsonObject.getString("startTime");
+        String endTime = jsonObject.getString("endTime");
+        String diseaseName = jsonObject.getString("diseaseName");
+        //优质病例标志
+        int page = jsonObject.getInteger("page") == null ? 1 : jsonObject.getInteger("page");
+        int pageSize = jsonObject.getInteger("pageSize") == null ? 20 : jsonObject.getInteger("page");
+        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime, page, pageSize);
+//        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime);
+        String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
+        List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
+        //获取优质病例数据
+        //根据科室
+        if (StringUtils.isNotBlank(diseaseName)) {
+            List<CdssDiffBean> resultList = new ArrayList<>();
+            for (CdssDiffBean bean : diffBeanList) {
+                if (diseaseName.equals(bean.getChuyuanzhenduan())) {
+                    String inpNo = bean.getInp_no();
+                    if (goodBingli.contains(inpNo)) {
+                        resultList.add(bean);
+                    }
+
+                }
+            }
+            wirte(response, resultList);
+        } else {
+            List<CdssDiffBean> resultList = new ArrayList<>();
+            for (CdssDiffBean bean : diffBeanList) {
+                String inpNo = bean.getInp_no();
+                if (goodBingli.contains(inpNo)) {
+                    resultList.add(bean);
+                }
+            }
+            wirte(response, resultList);
         }
     }
 

@@ -11,6 +11,7 @@ import jhmk.clinic.cms.controller.ruleService.*;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
 import jhmk.clinic.core.util.DateFormatUtil;
+import jhmk.clinic.core.util.StringUtil;
 import jhmk.clinic.entity.bean.Shangjiyishichafanglu;
 import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
@@ -148,13 +149,16 @@ public class CdssService {
             Document patInfo = (Document) binganshouye.get("pat_info");
             Document patVisit = (Document) binganshouye.get("pat_visit");
             //病案首页
+            if (StringUtils.isEmpty(patVisit.getString("dept_admission_to_code"))) {
+                return null;
+            }
+            map.put("pat_visit_dept_admission_to_code", patVisit.getString("dept_admission_to_code"));
             map.put("pat_info_sex_name", (String) patInfo.get("sex_name"));
             map.put("pat_info_age_value", (String) patVisit.get("age_value"));
             map.put("pat_info_age_value_unit", (String) patVisit.get("age_value_unit"));
             map.put("pat_info_marital_status_name", (String) patVisit.get("marital_status_name"));
             map.put("pat_visit_dept_discharge_from_name", patVisit.getString("dept_discharge_from_name"));
             map.put("pat_visit_dept_admission_to_name", patVisit.getString("dept_admission_to_name"));
-            map.put("pat_visit_dept_admission_to_code", patVisit.getString("dept_admission_to_code"));
             break;
         }
         return map;
@@ -981,7 +985,7 @@ public class CdssService {
                         JSONArray array = JSONArray.parseArray(string);
                         CdssDiffBean cdssDiffBean = getCdssDiffBean(array);
                         List<Shangjiyishichafanglu> sjyscflBean = sjyscflService.getSJYSCFLBean(temId);
-                        if (sjyscflBean.size()==0){
+                        if (sjyscflBean.size() == 0) {
                             continue;
                         }
                         cdssDiffBean.setShangjiyishichafangluList(sjyscflBean);
@@ -1251,7 +1255,7 @@ public class CdssService {
             l += (int) DateFormatUtil.dateDiff(DateFormatUtil.parseDateBySdf(resultValue, DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(addmissionTime, DateFormatUtil.DATETIME_PATTERN_SS));
         }
         int avgDay = l / list.size();//平均时长
-        staMap.put(list.size(),avgDay);
+        staMap.put(list.size(), avgDay);
         return staMap;
     }
 

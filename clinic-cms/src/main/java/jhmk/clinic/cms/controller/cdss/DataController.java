@@ -10,6 +10,7 @@ import jhmk.clinic.cms.entity.Rule;
 import jhmk.clinic.cms.service.BiaozhuService;
 import jhmk.clinic.cms.service.CdssService;
 import jhmk.clinic.cms.service.ReadFileService;
+import jhmk.clinic.cms.service.Write2File;
 import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
@@ -20,6 +21,7 @@ import jhmk.clinic.entity.bean.Misdiagnosis;
 import jhmk.clinic.entity.bean.Shangjiyishichafanglu;
 import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
+import jhmk.clinic.entity.cdss.Date1206;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -430,6 +432,63 @@ public class DataController extends BaseController {
         biaozhuService.method2(resultList);
         wirte(response, "写入成功");
 
+    }
+
+    @RequestMapping("/temp")
+    public void temp(HttpServletResponse response) {
+        List<String> list = ReadFileService.readSourceList("1206");
+        Map<String, Date1206> map = new HashMap<>();
+        for (String str : list) {
+            String[] split = str.split(",");
+            String doctor_id = split[3];
+            String rycz = split[5];
+            String cyzd = split[6];
+            String admission_time = split[0].substring(0, 7);
+//            boolean fatherAndSon = samilarService.isFatherAndSon(rycz, cyzd);
+            List<String> samilarWord = samilarService.getSamilarWord(cyzd);
+            boolean fatherAndSon = rycz.contains(cyzd) || cyzd.contains(rycz);
+            String bz = doctor_id + "/" + admission_time;
+            if (map.containsKey(bz)) {
+                Date1206 date1206 = map.get(bz);
+                if (fatherAndSon) {
+                    date1206.setAll(date1206.getAll() + 1);
+                    date1206.setCurrect(date1206.getCurrect() + 1);
+                } else {
+                    date1206.setError(date1206.getError() + 1);
+                    date1206.setAll(date1206.getAll() + 1);
+                }
+                map.put(bz, date1206);
+            } else {
+                Date1206 date1206 = new Date1206();
+                if (fatherAndSon) {
+                    date1206.setAll(1);
+                    date1206.setCurrect(1);
+                    date1206.setError(0);
+                    date1206.setDoctorId(bz);
+                } else {
+                    date1206.setAll(1);
+                    date1206.setCurrect(0);
+                    date1206.setError(1);
+                    date1206.setDoctorId(bz);
+                }
+                map.put(bz, date1206);
+            }
+        }
+        List<String> stringList = new ArrayList<>();
+        for (Map.Entry<String, Date1206> entry : map.entrySet()) {
+            String key = entry.getKey();
+            Date1206 value = entry.getValue();
+            float all = value.getAll();
+            float currect = value.getCurrect();
+            float error = value.getError();
+            float avg = currect / all;
+            stringList.add(key + "/" + currect + "/" + error + "/" + all + "/" + avg);
+        }
+        Collections.sort(stringList);
+
+//        Write2File.w2fileList(stringList, "/data/1/CDSS/avg.txt");
+        Write2File.w2fileList(stringList, "c:/嘉和美康文档/3院测试数据/avg.txt");
+
 
     }
 
@@ -498,40 +557,31 @@ public class DataController extends BaseController {
 //    }
 
     public static void main(String[] args) {
-        HSSFWorkbook workbook = new HSSFWorkbook();
-        HSSFSheet sheet = workbook.createSheet("信息表");
-        List<CdssRuleBean> classmateList = null;
-        String fileName = "20181206data" + ".xls";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
-        int rowNum = 1;
-        String[] headers = {"入院时间", "PID", "VID", "DoctorId", "DoctorName", "入院主诊断", "出院主诊断"}; //headers表示excel表中第一行的表头
-        HSSFRow row = sheet.createRow(0);
-        //在excel表中添加表头
-        for (int i = 0; i < headers.length; i++) {
-            HSSFCell cell = row.createCell(i);
-            HSSFRichTextString text = new HSSFRichTextString(headers[i]);
-            cell.setCellValue(text);
-        } //在表中存放查询到的数据放入对应的列
-        for (CdssRuleBean bean : classmateList) {
-            HSSFRow row1 = sheet.createRow(rowNum);
-            row1.createCell(0).setCellValue(bean.getAdmission_time());
-            row1.createCell(1).setCellValue(bean.getPatient_id());
-            row1.createCell(2).setCellValue(bean.getVisit_id());
-            row1.createCell(3).setCellValue(bean.getDoctor_id());
-            row1.createCell(4).setCellValue(bean.getDoctor_name());
-            row1.createCell(5).setCellValue(bean.getRycz());
-            row1.createCell(6).setCellValue(bean.getCyzd());
-            rowNum++;
+
+//        int fbna = fbna(5);
+//        System.out.println(fbna);
+
+        hanio(6,'a','b','c');
+    }
+
+    public static void hanio(int n, char a, char b, char c) {
+        if (n == 1) {
+//            hanio(1, a, b, c);
+            System.out.println("移动" + n + "号盘子从" + a + "到" + c);
+        } else {
+            hanio(n - 1, a, c, b);//把上面n-1个盘子从a借助b搬到c
+            System.out.println("移动" + n + "号盘子从" + a + "到" + c);//紧接着直接把n搬动c
+            hanio(n - 1, b, a, c);//再把b上的n-1个盘子借助a搬到c
         }
+    }
 
-
-        try {
-            FileOutputStream fos = new FileOutputStream("/data/1/CDSS/tcresult.xls");
-            workbook.write(fos);
-            System.out.println("写入成功");
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static int fbna(int n) {
+        if (n <= 2) {
+            return 1;
+        } else {
+            return fbna(n - 1) + fbna(n - 2);
         }
 
     }
+
 }
