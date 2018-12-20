@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import jhmk.clinic.cms.SamilarService;
 import jhmk.clinic.cms.controller.ruleService.BasyService;
 import jhmk.clinic.cms.controller.ruleService.RyjuService;
+import jhmk.clinic.cms.controller.ruleService.SjyscflService;
 import jhmk.clinic.cms.controller.ruleService.SyzdService;
+import jhmk.clinic.cms.entity.Rule;
 import jhmk.clinic.cms.service.BiaozhuService;
 import jhmk.clinic.cms.service.CdssService;
 import jhmk.clinic.cms.service.ReadFileService;
@@ -12,13 +14,20 @@ import jhmk.clinic.cms.service.Write2File;
 import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
+import jhmk.clinic.core.util.DateFormatUtil;
 import jhmk.clinic.core.util.HttpClient;
+import jhmk.clinic.entity.bean.CollectionType;
 import jhmk.clinic.entity.bean.Misdiagnosis;
+import jhmk.clinic.entity.bean.Shangjiyishichafanglu;
 import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import jhmk.clinic.entity.cdss.Date1206;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +35,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -52,36 +62,176 @@ public class DataController extends BaseController {
     @Autowired
     BiaozhuService biaozhuService;
     @Autowired
+    SjyscflService sjyscflService;
+    @Autowired
+    RestTemplate restTemplate;
+    @Autowired
     CdssService cdssService;
+
+    public static final String sympol = "&&";
 
     @RequestMapping("/getGukedata")
     @ResponseBody
-    public void getGukedata(HttpServletResponse response) {
-        List<Misdiagnosis> gukeData = basyService.getGukeData();
-        Set<Misdiagnosis> saveData = new HashSet<>();
-        for (Misdiagnosis bean : gukeData) {
+    public void getGukedata1(HttpServletResponse response, @RequestBody(required = false) String map) {
+        List<Rule> gukeDataByCondition = basyService.getGukeDataByCondition(JSONObject.parseObject(map));
+        logger.info("数量为：====》》》》{}", gukeDataByCondition.size());
+        for (Rule bean : gukeDataByCondition) {
             String id = bean.getId();
-            //获取既往史存在疾病
-            Misdiagnosis jwSdieases = ryjuService.getJWSdieases(id);
-            if (jwSdieases == null || jwSdieases.getHisDiseaseList() == null || jwSdieases.getHisDiseaseList().size() == 0) {
-                continue;
+            String rycz = cdssService.getRycz(id);
+            String cyzd = syzdService.getCyzd(id);
+            bean.setRycz(rycz);
+            bean.setCyzd(cyzd);
+            //入等于出
+            if (StringUtils.isNotBlank(rycz) && rycz.equals(cyzd)) {
+                bean.setReqc(1);
+            } else {
+                bean.setReqc(0);
             }
-            //获取出院诊断集合
-            List<String> syzd = syzdService.getDiseaseList(id);
-            List<String> hisDiseaseList = jwSdieases.getHisDiseaseList();
-            //遍历既往史存在疾病 如果首页诊断不存在 则保存
-            for (String s : hisDiseaseList) {
-                if (!syzd.contains(s)) {
-                    bean.setNowDiseaseList(hisDiseaseList);
-                    saveData.add(bean);
-                    continue;
+            String admission_time = bean.getBinganshouye().getAdmission_time();
+            List<Shangjiyishichafanglu> sjyscflBean = sjyscflService.getSJYSCFLBean(id);
+            String sjqzDate = sjyscflService.getSjqzDate(sjyscflBean, cyzd);
+            if (StringUtils.isNotBlank(sjqzDate)) {
+                int i = DateFormatUtil.dateDiff1(DateFormatUtil.parseDateBySdf(sjqzDate, DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(admission_time, DateFormatUtil.DATETIME_PATTERN_SS));
+                bean.setQzDay(i);
+            }
+            bean.setShangjiyishichafangluList(sjyscflBean);
+            Map<String, String> param = new HashMap<>();
+            param.put("id", id);
+            Object o = JSONObject.toJSON(param);
+            String s = null;
+            try {
+                s = restTemplate.postForObject("http://192.168.132.7:8115/bzgj/collectionType/findById", o, String.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+//            String s = restTemplate.postForObject("http://localhost:8115/bzgj/collectionType/findById", o, String.class);
+            if (StringUtils.isNotBlank(s)) {
+                JSONObject object = JSONObject.parseObject(s);
+                if (object.getInteger("code") == 200) {
+                    if (StringUtils.isNotBlank(object.getString("data"))) {
+                        CollectionType data = object.getObject("data", CollectionType.class);
+                        String 模型结果 = data.get模型结果();
+                        int hitNum = data.getHitNum();
+                        bean.setNumRate(hitNum);
+                        bean.setModelList(模型结果);
+                    } else {
+                        bean.setNumRate(-1);
+                        bean.setModelList(null);
+                    }
                 }
             }
+        }
 
+
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("sheet1");
+//        String fileName = "C:/嘉和美康文档/3院测试数据/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xls";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
+        String fileName = "/data/1/CDSS/data/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xlsx";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
+        int rowNum = 1;
+        String[] headers = {"ID", "PID", "VID", "科室名", "科室编码", "管床医师姓名", "入院时间", "出院时间", "出院主诊断", "入院主诊断", "上级医师查房", "入院诊断与出院诊断符合标识", "确诊时长(天)", "确诊项目与出院诊断是否一致", "推荐的列表", "辅助诊断命中的序列数"}; //headers表示excel表中第一行的表头
+        XSSFRow row = sheet.createRow(0);
+        //在excel表中添加表头
+        for (int i = 0; i < headers.length; i++) {
+            XSSFCell cell = row.createCell(i);
+            HSSFRichTextString text = new HSSFRichTextString(headers[i]);
+            cell.setCellValue(text);
+        } //在表中存放查询到的数据放入对应的列
+        for (Rule bean : gukeDataByCondition) {
+            XSSFRow row1 = sheet.createRow(rowNum);
+            row1.createCell(0).setCellValue(bean.getId());
+            row1.createCell(1).setCellValue(bean.getPatient_id());
+            row1.createCell(2).setCellValue(bean.getVisit_id());
+            row1.createCell(3).setCellValue(bean.getBinganshouye().getPat_visit_dept_admission_to_name());
+            row1.createCell(4).setCellValue(bean.getBinganshouye().getPat_visit_dept_admission_to_code());
+            row1.createCell(5).setCellValue(bean.getBinganshouye().getPat_visit_dept_request_doctor_name());
+            row1.createCell(6).setCellValue(bean.getBinganshouye().getAdmission_time());
+            row1.createCell(7).setCellValue(bean.getBinganshouye().getDischarge_time());
+            row1.createCell(8).setCellValue(bean.getCyzd());
+            row1.createCell(9).setCellValue(bean.getRycz());
+            row1.createCell(10).setCellValue(JSONObject.toJSONString(bean.getShangjiyishichafangluList()));
+            row1.createCell(11).setCellValue(bean.getReqc());
+            row1.createCell(12).setCellValue(bean.getQzDay());
+            row1.createCell(13).setCellValue(bean.getQzeqc());
+            row1.createCell(14).setCellValue(bean.getModelList());
+            row1.createCell(15).setCellValue(bean.getNumRate());
+
+            rowNum++;
+        }
+        try {
+            FileOutputStream fos = new FileOutputStream(fileName);
+//            FileOutputStream fos = new FileOutputStream("C:/嘉和美康文档/3院测试数据/"+fileName);
+            workbook.write(fos);
+            System.out.println("写入成功");
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//        biaozhuService.method2(resultList);
+//        wirte(response, "写入成功");
+//
+//
+//        BufferedWriter bufferedWriter = null;
+////        File file = new File("/data/1/CDSS/3院骨科漏诊数据.txt");
+//        File file = new File("C:/嘉和美康文档/3院测试数据/2018_12_20_3院骨科数据.txt");
+//        if (!file.exists()) {
+//            try {
+//                file.createNewFile();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        try {
+//            bufferedWriter = new BufferedWriter(new FileWriter(file));
+//            StringBuilder sb = null;
+//            for (Rule mz : gukeDataByCondition) {
+//                sb = new StringBuilder();
+//                sb.append(mz.getId())
+//                        .append(sympol)
+//                        .append(mz.getPatient_id())
+//                        .append(sympol)
+//                        .append(mz.getVisit_id())
+//                        .append(sympol)
+//                        .append(mz.getBinganshouye().getAdmission_time())
+//                        .append(sympol)
+//                        .append(mz.getBinganshouye().getDischarge_time())
+//                        .append(sympol)
+//                        .append(mz.getBinganshouye().getPat_visit_dept_admission_to_name())
+//                        .append(sympol)
+//                        .append(mz.getBinganshouye().getPat_visit_dept_admission_to_code())
+//                        .append(sympol)
+//                        .append(mz.getBinganshouye().getPat_visit_dept_request_doctor_name())
+//                        .append(sympol)
+//                        .append(JSONObject.toJSONString(mz.getShangjiyishichafangluList()));
+//                bufferedWriter.write(sb.toString());
+//                bufferedWriter.newLine();
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            try {
+//                bufferedWriter.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+        wirte(response, "导入文件成功");
+    }
+
+    public void getGukedata(HttpServletResponse response, @RequestBody(required = false) String map) {
+        List<Rule> gukeDataByCondition = basyService.getGukeDataByCondition(JSONObject.parseObject(map));
+        for (Rule bean : gukeDataByCondition) {
+            String id = bean.getId();
+            String rycz = cdssService.getRycz(id);
+            String cyzd = syzdService.getCyzd(id);
+            bean.setRycz(rycz);
+            bean.setCyzd(cyzd);
+            List<Shangjiyishichafanglu> sjyscflBean = sjyscflService.getSJYSCFLBean(id);
+            bean.setShangjiyishichafangluList(sjyscflBean);
         }
         BufferedWriter bufferedWriter = null;
 //        File file = new File("/data/1/CDSS/3院骨科漏诊数据.txt");
-        File file = new File("C:/嘉和美康文档/3院测试数据/3院骨科漏诊数据.txt");
+        File file = new File("C:/嘉和美康文档/3院测试数据/2018_12_20_3院骨科数据.txt");
         if (!file.exists()) {
             try {
                 file.createNewFile();
@@ -92,16 +242,27 @@ public class DataController extends BaseController {
 
         try {
             bufferedWriter = new BufferedWriter(new FileWriter(file));
-            for (Misdiagnosis mz : saveData) {
-
-                bufferedWriter.write(mz.getId() + "," + mz.getPatient_id() + "," + mz.getVisit_id()
-                        + mz.getDept_discharge_from_name() + ","
-                        + mz.getDistrict_discharge_from_name() + ","
-                        + mz.getHisDiseaseList() + ","
-                        + mz.getNowDiseaseList() + ","
-                        + mz.getSrc()
-                );
-
+            StringBuilder sb = null;
+            for (Rule mz : gukeDataByCondition) {
+                sb = new StringBuilder();
+                sb.append(mz.getId())
+                        .append(sympol)
+                        .append(mz.getPatient_id())
+                        .append(sympol)
+                        .append(mz.getVisit_id())
+                        .append(sympol)
+                        .append(mz.getBinganshouye().getAdmission_time())
+                        .append(sympol)
+                        .append(mz.getBinganshouye().getDischarge_time())
+                        .append(sympol)
+                        .append(mz.getBinganshouye().getPat_visit_dept_admission_to_name())
+                        .append(sympol)
+                        .append(mz.getBinganshouye().getPat_visit_dept_admission_to_code())
+                        .append(sympol)
+                        .append(mz.getBinganshouye().getPat_visit_dept_request_doctor_name())
+                        .append(sympol)
+                        .append(JSONObject.toJSONString(mz.getShangjiyishichafangluList()));
+                bufferedWriter.write(sb.toString());
                 bufferedWriter.newLine();
             }
         } catch (IOException e) {
@@ -259,15 +420,15 @@ public class DataController extends BaseController {
             row1.createCell(6).setCellValue(bean.getCyzd());
             rowNum++;
         }
-//        try {
-//            FileOutputStream fos = new FileOutputStream("/data/1/CDSS/" + fileName);
-////            FileOutputStream fos = new FileOutputStream("C:/嘉和美康文档/3院测试数据/"+fileName);
-//            workbook.write(fos);
-//            System.out.println("写入成功");
-//            fos.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            FileOutputStream fos = new FileOutputStream("/data/1/CDSS/" + fileName);
+//            FileOutputStream fos = new FileOutputStream("C:/嘉和美康文档/3院测试数据/"+fileName);
+            workbook.write(fos);
+            System.out.println("写入成功");
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         biaozhuService.method2(resultList);
         wirte(response, "写入成功");
 

@@ -137,7 +137,7 @@ public class BiaozhuService {
             stringList.add(key + "/" + currect + "/" + error + "/" + all + "/" + avg);
         }
         Collections.sort(stringList);
-
+        System.out.println("统计结束，总共"+stringList.size());
         Write2File.w2fileList(stringList, "/data/1/CDSS/avg.txt" );
 //        Write2File.w2fileList(stringList, "C:/嘉和美康文档/3院测试数据/avg.txt" );
         System.out.println("平均数写入完啦===========");
