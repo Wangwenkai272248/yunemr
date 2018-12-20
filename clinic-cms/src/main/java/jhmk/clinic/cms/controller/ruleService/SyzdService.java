@@ -87,8 +87,6 @@ public class SyzdService {
      * @return
      */
     public String getRycz(String id) {
-        List<String> list = new ArrayList<>();
-
         List<Document> countPatientId = Arrays.asList(
                 new Document("$unwind", "$shouyezhenduan"),
                 new Document("$match", new Document("_id", id)),
@@ -114,6 +112,22 @@ public class SyzdService {
                 new Document("$match", new Document("patient_id", pid)),
                 new Document("$match", new Document("visit_id", vid)),
                 new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "入院初诊")),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
+        );
+        AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+        String diagnosis_name = "";
+        for (Document document : binli) {
+            Document binglizhenduan = (Document) document.get("shouyezhenduan");
+            diagnosis_name = binglizhenduan.getString("diagnosis_name");
+        }
+        return diagnosis_name;
+    }
+    public String getCyzd(String id) {
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$shouyezhenduan"),
+                new Document("$match", new Document("_id", id)),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "出院诊断")),
                 new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
                 new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
         );

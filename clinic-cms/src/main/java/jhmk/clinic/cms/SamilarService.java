@@ -2,8 +2,6 @@ package jhmk.clinic.cms;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import jhmk.clinic.cms.entity.JsonRootBean;
-import jhmk.clinic.cms.entity.ResultService;
 import jhmk.clinic.core.config.CdssConstans;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -79,28 +77,38 @@ public class SamilarService {
      * @param name
      * @return
      */
+//    public boolean isFatherAndSon(String name1, String name2) {
+//        String params1 = getParam(name1);
+//        String param2 = getParam(name2);
+//        Object parse1 = JSONObject.parse(params1);
+//        Object parse2 = JSONObject.parse(param2);
+//        try {
+//
+//            String sames1 = restTemplate.postForObject(CdssConstans.QUERY, parse1, String.class);
+//            String sames2 = restTemplate.postForObject(CdssConstans.QUERY, parse2, String.class);
+//            final JsonRootBean ryczNameBean1 = JSONObject.parseObject(sames1, JsonRootBean.class);
+//            final JsonRootBean ryczNameBean2 = JSONObject.parseObject(sames2, JsonRootBean.class);
+//            final String grandFa1 = ResultService.getGrandFa(ryczNameBean1.getResult());
+//            final String grandFa2 = ResultService.getGrandFa(ryczNameBean2.getResult());
+//            if (grandFa1.equals(grandFa2)) {
+//
+//                return true;
+//            } else {
+//                return false;
+//            }
+//        } catch (Exception e) {
+//        }
+//
+//        return false;
+//    }
     public boolean isFatherAndSon(String name1, String name2) {
-        String params1 = getParam(name1);
-        String param2 = getParam(name2);
-        Object parse1 = JSONObject.parse(params1);
-        Object parse2 = JSONObject.parse(param2);
-        try {
-
-            String sames1 = restTemplate.postForObject(CdssConstans.QUERY, parse1, String.class);
-            String sames2 = restTemplate.postForObject(CdssConstans.QUERY, parse2, String.class);
-            final JsonRootBean ryczNameBean1 = JSONObject.parseObject(sames1, JsonRootBean.class);
-            final JsonRootBean ryczNameBean2 = JSONObject.parseObject(sames2, JsonRootBean.class);
-            final String grandFa1 = ResultService.getGrandFa(ryczNameBean1.getResult());
-            final String grandFa2 = ResultService.getGrandFa(ryczNameBean2.getResult());
-            if (grandFa1.equals(grandFa2)) {
-
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception e) {
+        if (name1.contains(name2) || name2.contains(name1)) {
+            return true;
         }
-
+        List<String> parentList = getParentList(name1);
+        if (parentList.contains(name2)){
+            return true;
+        }
         return false;
     }
 
@@ -158,20 +166,22 @@ public class SamilarService {
 //     * @return
 //     */
 //
-//    public List<String> getParentList(String name) {
-//        List<String> list = new ArrayList<>();
-//        Object params = getParams(name);
-//        String sames = restTemplate.postForObject(CdssConstans.getParentList, params, String.class);
-//        if (sames != null && !symbol.equals(sames.trim())) {
-//            JSONArray objects = JSONArray.parseArray(sames);
-//            Iterator<Object> iterator = objects.iterator();
-//            while (iterator.hasNext()) {
-//                Object next = iterator.next();
-//                list.add(next.toString());
-//            }
-//        }
-//        return list;
-//    }
+    public List<String> getParentList(String name) {
+        List<String> list = new ArrayList<>();
+        Object params = getParams(name);
+        String sames = restTemplate.postForObject(CdssConstans.getParentList, params, String.class);
+        if (sames != null && !symbol.equals(sames.trim())) {
+            JSONArray objects = JSONArray.parseArray(sames);
+            Iterator<Object> iterator = objects.iterator();
+            while (iterator.hasNext()) {
+                Object next = iterator.next();
+                list.add(next.toString());
+            }
+        }
+        return list;
+    }
+
+
     private Object getParams(String name) {
         Map<String, String> param = new HashMap<>();
         param.put("diseaseName", name);

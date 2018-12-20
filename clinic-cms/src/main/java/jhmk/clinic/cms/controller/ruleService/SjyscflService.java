@@ -90,13 +90,10 @@ public class SjyscflService {
 
         );
         AggregateIterable<Document> output = shangjiyishichafanglu.aggregate(countPatientId2);
-
-        Shangjiyishichafanglu bean = null;
-
         for (Document document : output) {
 
             ArrayList<Document> shangjiyishichafangluDocList = (ArrayList<Document>) document.get("shangjiyishichafanglu");
-            if (Objects.isNull(shangjiyishichafangluDocList)){
+            if (Objects.isNull(shangjiyishichafangluDocList)) {
                 continue;
             }
             for (Document shangjiyishichafangluDoc : shangjiyishichafangluDocList) {
@@ -104,25 +101,18 @@ public class SjyscflService {
                 //既往史
                 Document treatment_plan = (Document) shangjiyishichafangluDoc.get("treatment_plan");
                 if (Objects.nonNull(treatment_plan)) {
-                    bean=new Shangjiyishichafanglu();
-
-//                    if (!"是".equals(clear_diagnose)) {
-//                        continue;
-//                    }
                     String clear_diagnose_name = treatment_plan.getString("clear_diagnose_name");
                     String last_modify_date_time = shangjiyishichafangluDoc.getString("last_modify_date_time");
-                    if (StringUtils.isNotBlank(clear_diagnose_name) && StringUtils.isNotBlank(last_modify_date_time)) {
-                        bean = new Shangjiyishichafanglu();
-                        String clear_diagnose = treatment_plan.getString("clear_diagnose");
-                        String src = treatment_plan.getString("src");
-                        bean.setZjsrc(src);
-                        String disease_name = treatment_plan.getString("disease_name");
-                        bean.setJbmc(disease_name);
-                        bean.setClear_diagnose(clear_diagnose);
-                        bean.setLast_modify_date_time(last_modify_date_time);
-                        bean.setClear_diagnose_name(clear_diagnose_name);
-                        list.add(bean);
-                    }
+                    Shangjiyishichafanglu bean = new Shangjiyishichafanglu();
+                    String clear_diagnose = treatment_plan.getString("clear_diagnose");
+                    String src = treatment_plan.getString("src");
+                    bean.setZjsrc(src);
+                    String disease_name = treatment_plan.getString("disease_name");
+                    bean.setJbmc(disease_name);
+                    bean.setClear_diagnose(clear_diagnose);
+                    bean.setLast_modify_date_time(last_modify_date_time);
+                    bean.setClear_diagnose_name(clear_diagnose_name);
+                    list.add(bean);
                 }
             }
         }
@@ -311,5 +301,45 @@ public class SjyscflService {
         });
         return list;
     }
+
+    /**
+     * 获取上级医师查房录确诊时间
+     *
+     * @param shangjiyishichafangluList
+     * @return
+     */
+    public String getSjqzDate(List<Shangjiyishichafanglu> shangjiyishichafangluList, String illName) {
+        for (Shangjiyishichafanglu shangjiyishichafanglu : shangjiyishichafangluList) {
+            String clear_diagnose_name = shangjiyishichafanglu.getClear_diagnose_name();
+            String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
+            if (StringUtils.isNotBlank(clear_diagnose_name)) {
+                String[] split = clear_diagnose_name.split(" ");
+                for (String s : split) {
+                    boolean isFas1 = samilarService.isFatherAndSon(s, illName);
+                    if (isFas1) {
+                        return last_modify_date_time;
+                    }
+
+                }
+            }
+        }
+
+        return null;
+    }
+//    public String getSjqzDate(List<Shangjiyishichafanglu> shangjiyishichafangluList, String illName) {
+//        for (Shangjiyishichafanglu shangjiyishichafanglu : shangjiyishichafangluList) {
+//            String clear_diagnose_name = shangjiyishichafanglu.getClear_diagnose_name();
+//            String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
+//            String[] split = clear_diagnose_name.split(" ");
+//            for (String s : split) {
+//                boolean isFas1 = samilarService.isFatherAndSon(s, illName);
+//                if (isFas1) {
+//                    return last_modify_date_time;
+//                }
+//
+//            }
+//        }
+//        return null;
+//    }
 
 }
