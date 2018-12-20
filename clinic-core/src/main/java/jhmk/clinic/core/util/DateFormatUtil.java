@@ -514,8 +514,10 @@ public class DateFormatUtil {
 //        Date yearLast = getYearLast(2018);
 
 
-        Date date = parseDate("2017-11-11 11:11:11", DateFormatUtil.DATETIME_PATTERN_SS);
+        Date date = parseDate("2017-10-11 11:11:11", DateFormatUtil.DATETIME_PATTERN_SS);
         Date date1 = parseDateBySdf("2017-11-11 11:11:11", DateFormatUtil.DATETIME_PATTERN_SS);
+        int l = dateDiff1(date, date1);
+        System.out.println(l);
 
     }
 

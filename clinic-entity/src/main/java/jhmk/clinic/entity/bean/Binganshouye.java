@@ -26,6 +26,8 @@ public class Binganshouye implements Serializable{
     private String pat_visit_dept_admission_to_code;
     private String pat_visit_dept_discharge_from_name;//出院科室
     private String pat_visit_dept_discharge_from_code;
+    private String pat_visit_dept_request_doctor_name;//医生姓名
+    private String pat_visit_dept_request_doctor_id;//医生id
 
     public String getId() {
         return id;
@@ -153,6 +155,22 @@ public class Binganshouye implements Serializable{
 
     public void setPat_visit_dept_discharge_from_code(String pat_visit_dept_discharge_from_code) {
         this.pat_visit_dept_discharge_from_code = pat_visit_dept_discharge_from_code;
+    }
+
+    public String getPat_visit_dept_request_doctor_name() {
+        return pat_visit_dept_request_doctor_name;
+    }
+
+    public void setPat_visit_dept_request_doctor_name(String pat_visit_dept_request_doctor_name) {
+        this.pat_visit_dept_request_doctor_name = pat_visit_dept_request_doctor_name;
+    }
+
+    public String getPat_visit_dept_request_doctor_id() {
+        return pat_visit_dept_request_doctor_id;
+    }
+
+    public void setPat_visit_dept_request_doctor_id(String pat_visit_dept_request_doctor_id) {
+        this.pat_visit_dept_request_doctor_id = pat_visit_dept_request_doctor_id;
     }
 
     @Override
