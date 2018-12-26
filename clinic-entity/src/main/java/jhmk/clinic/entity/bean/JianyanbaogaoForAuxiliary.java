@@ -15,6 +15,7 @@ public class JianyanbaogaoForAuxiliary implements Serializable{
     private String name;//检验细项名称
     private String lab_qual_result;//定性结果
     private String lab_result;//检验定量结果值
+    private String lab_result_value;//检验定量结果值
     private String unit;//检验定量结果单位
     private String result_status_code;//检验定量结果变化 正常：N    偏高：H   偏低：L
     private String reference_range; //参考区间
@@ -74,5 +75,13 @@ public class JianyanbaogaoForAuxiliary implements Serializable{
 
     public void setReport_no(String report_no) {
         this.report_no = report_no;
+    }
+
+    public String getLab_result_value() {
+        return lab_result_value;
+    }
+
+    public void setLab_result_value(final String lab_result_value) {
+        this.lab_result_value = lab_result_value;
     }
 }
