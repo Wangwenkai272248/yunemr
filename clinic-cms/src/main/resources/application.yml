@@ -1,10 +1,11 @@
 server:
   port: 7088
+  context-path: /test
 spring:
   datasource:
 #    url: jdbc:mysql://localhost:3306/yunemr?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&useSSL=false
-#    url: jdbc:mysql://192.168.8.22:3306/yunemr?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&useSSL=false
-    url: jdbc:mysql://192.168.132.4:3306/jhmk_waring?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&useSSL=false
+    url: jdbc:mysql://192.168.8.22:3306/yunemr?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&useSSL=false
+#    url: jdbc:mysql://192.168.132.4:3306/jhmk_waring?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&useSSL=false
     username: root
     password: 123456
 #    password: root
@@ -12,4 +13,5 @@ spring:
     show-sql: true
     generate-ddl: true
     database: mysql
+
 

@@ -44,7 +44,7 @@ import java.util.*;
  */
 //获取测试数据相关
 @Controller
-@RequestMapping("/test/data")
+@RequestMapping("/data")
 public class DataController extends BaseController {
     Logger logger = LoggerFactory.getLogger(DataController.class);
 

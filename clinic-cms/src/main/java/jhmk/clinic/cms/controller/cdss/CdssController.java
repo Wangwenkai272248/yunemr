@@ -46,7 +46,7 @@ import static jhmk.clinic.cms.service.InitService.*;
 
 
 @Controller
-@RequestMapping("/test/cdss")
+@RequestMapping("/cdss")
 public class CdssController extends BaseController {
     Logger logger = LoggerFactory.getLogger(CdssController.class);
 
