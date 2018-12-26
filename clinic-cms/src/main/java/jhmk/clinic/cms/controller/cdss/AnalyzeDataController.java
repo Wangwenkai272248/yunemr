@@ -34,7 +34,7 @@ import java.util.Map;
  * @author ziyu.zhou
  * @date 2018/10/23 16:31
  */
-@RequestMapping("/test/analyze")
+@RequestMapping("/analyze")
 public class AnalyzeDataController extends BaseController {
     Logger logger = LoggerFactory.getLogger(CdssController.class);
 

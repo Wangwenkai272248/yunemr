@@ -23,7 +23,7 @@ import java.util.*;
  */
 
 @Controller
-@RequestMapping("test/jhauthRemind")
+@RequestMapping("/jhauthRemind")
 public class JhauthRemindController extends BaseController {
     @Autowired
     JhauthRemindRepService jhauthRemindRepService;

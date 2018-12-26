@@ -37,7 +37,7 @@ import java.util.*;
  * 病历质控
  */
 @Controller
-@RequestMapping("/test/blzk")
+@RequestMapping("/blzk")
 public class BlzkController extends BaseController {
     Logger logger = LoggerFactory.getLogger(CdssController.class);
 

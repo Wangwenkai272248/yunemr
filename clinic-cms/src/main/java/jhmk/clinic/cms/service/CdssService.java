@@ -7,11 +7,11 @@ import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import jhmk.clinic.cms.SamilarService;
-import jhmk.clinic.cms.controller.ruleService.*;
+import jhmk.clinic.cms.controller.ruleService.BasyService;
+import jhmk.clinic.cms.controller.ruleService.SjyscflService;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
 import jhmk.clinic.core.util.DateFormatUtil;
-import jhmk.clinic.core.util.StringUtil;
 import jhmk.clinic.entity.bean.Shangjiyishichafanglu;
 import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
@@ -1107,18 +1107,21 @@ public class CdssService {
             lable1:
             for (Shangjiyishichafanglu shangjiyishichafanglu : shangjiyishichafangluList) {
                 String clear_diagnose_name = shangjiyishichafanglu.getClear_diagnose_name();
-                String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
-                String[] split = clear_diagnose_name.split(" ");
-                for (String s : split) {
-                    if (s.contains(chuyuanzhenduan) || chuyuanzhenduan.contains(s)) {
-                        bean.setSjyscfTime(last_modify_date_time);
-                        bean.setSjyscfName(clear_diagnose_name);
-                        bean.setFlag(true);
-                        resultList.add(bean);
-                        flag = true;
-                        break lable1;
-                    }
+                if (StringUtils.isNotBlank(clear_diagnose_name)) {
 
+                    String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
+                    String[] split = clear_diagnose_name.split(" ");
+                    for (String s : split) {
+                        if (s.contains(chuyuanzhenduan) || chuyuanzhenduan.contains(s)) {
+                            bean.setSjyscfTime(last_modify_date_time);
+                            bean.setSjyscfName(clear_diagnose_name);
+                            bean.setFlag(true);
+                            resultList.add(bean);
+                            flag = true;
+                            break lable1;
+                        }
+
+                    }
                 }
 
             }
@@ -1168,21 +1171,25 @@ public class CdssService {
             lable1:
             for (Shangjiyishichafanglu shangjiyishichafanglu : shangjiyishichafangluList) {
                 String clear_diagnose_name = shangjiyishichafanglu.getClear_diagnose_name();
-                String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
-                String[] split = clear_diagnose_name.split(" ");
-                for (String s : split) {
-                    if (s.contains(chuyuanzhenduan) || chuyuanzhenduan.contains(s)) {
-                        bean.setSjyscfTime(last_modify_date_time);
-                        bean.setSjyscfName(clear_diagnose_name);
-                        bean.setFlag(true);
-                        resultList.add(bean);
-                        flag = true;
-                        break lable1;
+                if (StringUtils.isNotBlank(clear_diagnose_name)) {
+
+                    String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
+                    String[] split = clear_diagnose_name.split(" ");
+                    for (String s : split) {
+                        if (s.contains(chuyuanzhenduan) || chuyuanzhenduan.contains(s)) {
+                            bean.setSjyscfTime(last_modify_date_time);
+                            bean.setSjyscfName(clear_diagnose_name);
+                            bean.setFlag(true);
+                            resultList.add(bean);
+                            flag = true;
+                            break lable1;
+                        }
+
                     }
 
                 }
-
             }
+
             if (!flag) {
                 continue;
             }
@@ -1247,6 +1254,9 @@ public class CdssService {
      * @return
      */
     public Map<Integer, Integer> analyzeData2CountAndAvgDay(List<CdssDiffBean> list) {
+        if (list.size() == 0) {
+            return null;
+        }
         Map<Integer, Integer> staMap = new HashMap<>();
         int l = 0;
         for (CdssDiffBean cdssDiffBean : list) {

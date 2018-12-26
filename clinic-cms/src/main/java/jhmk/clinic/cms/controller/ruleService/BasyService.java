@@ -99,7 +99,7 @@ public class BasyService {
             binganshouyeBean.setAdmission_time(patVisit.getString("admission_time"));
             binganshouyeBean.setDischarge_time(patVisit.getString("discharge_time"));
             //住院天数
-            int i = DateFormatUtil.dateDiff1(DateFormatUtil.parseDateBySdf(discharge_time,DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(admission_time,DateFormatUtil.DATETIME_PATTERN_SS));
+            int i = DateFormatUtil.dateDiff1(DateFormatUtil.parseDateBySdf(discharge_time, DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(admission_time, DateFormatUtil.DATETIME_PATTERN_SS));
             misdiagnosis.setHospitalDay(i);
             misdiagnosis.setBinganshouye(binganshouyeBean);
             ruleList.add(misdiagnosis);
@@ -261,8 +261,7 @@ public class BasyService {
         return null;
     }
 
-    public Binganshouye getBeanById(String id) {
-        List<Misdiagnosis> misdiagnosisList = new LinkedList<>();
+    public Binganshouye getBinganshouyeById(String id) {
         List<Document> countPatientId = Arrays.asList(
                 new Document("$match", new Document("_id", id)),
                 new Document("$project", new Document("patient_id", 1).append("_id", 1).append("visit_id", 1).append("binganshouye", 1))
@@ -270,8 +269,8 @@ public class BasyService {
 //                new Document("$limit", 10000)
         );
         AggregateIterable<Document> output = binganshouye.aggregate(countPatientId);
+        Binganshouye misdiagnosis = new Binganshouye();
         for (Document document : output) {
-            Binganshouye misdiagnosis = new Binganshouye();
             if (document == null) {
                 continue;
             }
@@ -287,10 +286,17 @@ public class BasyService {
             misdiagnosis.setDischarge_time(discharge_time);
             String district_discharge_from_name = patVisit.getString("district_discharge_from_name");
             misdiagnosis.setPat_visit_dept_discharge_from_name(district_discharge_from_name);
-            String district_admission_to_name = patVisit.getString("district_admission_to_name");
-            misdiagnosis.setPat_visit_dept_admission_to_name(district_admission_to_name);
+            String district_discharge_from_code = patVisit.getString("district_discharge_from_code");
+            misdiagnosis.setPat_visit_dept_discharge_from_code(district_discharge_from_code);
+
+
+
             String dept_admission_to_name = patVisit.getString("dept_admission_to_name");
             misdiagnosis.setDept_admission_to_name(dept_admission_to_name);
+            String dept_admission_to_code = patVisit.getString("dept_admission_to_code");
+            misdiagnosis.setPat_visit_dept_admission_to_code(dept_admission_to_code);
+            String attending_doctor_name = patVisit.getString("attending_doctor_name");//主治医师
+            misdiagnosis.setPat_visit_dept_request_doctor_name(attending_doctor_name);
             return misdiagnosis;
         }
         return null;
