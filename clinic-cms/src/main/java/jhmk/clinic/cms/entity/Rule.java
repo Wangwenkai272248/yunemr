@@ -5,10 +5,7 @@ import jhmk.clinic.core.util.MapUtil;
 import jhmk.clinic.entity.bean.*;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author ziyu.zhou
@@ -34,12 +31,12 @@ public class Rule implements Serializable {
     private String cyzd;
     //入院主诊断与出院主诊断是否相同，相同为1，不相同为0
     private int reqc;
-//    确诊项目与出院诊断是否一致
+    //    确诊项目与出院诊断是否一致
     private int qzeqc;
-//    模型的推荐结果，按推荐次序排列
-    private String  modelList;
+    //    模型的推荐结果，按推荐次序排列
+    private String modelList;
     //模型命中出院诊断的序号
-    private int  numRate;
+    private int numRate;
     private int hospitalDay;//住院时长天
     private int qzDay;//确诊时长
     private Binganshouye binganshouye;
@@ -303,11 +300,17 @@ public class Rule implements Serializable {
 
 
         if (jo.containsKey("ruyuanjilu")) {
-            Map<String, String> map = (Map<String, String>) jo.get("ruyuanjilu");
-            map.put("patient_id", jo.getString("patient_id"));
-            map.put("visit_id", jo.getString("visit_id"));
-            Ruyuanjilu ruyuanjilu = MapUtil.map2Bean(map, Ruyuanjilu.class);
-            o.setRuyuanjilu(ruyuanjilu);
+            try {
+                Map<String, String> map = (Map<String, String>) jo.get("ruyuanjilu");
+                map.put("patient_id", jo.getString("patient_id"));
+                map.put("visit_id", jo.getString("visit_id"));
+                Ruyuanjilu ruyuanjilu = MapUtil.map2Bean(map, Ruyuanjilu.class);
+                o.setRuyuanjilu(ruyuanjilu);
+            } catch (Exception e) {
+                o.setRuyuanjilu(null);
+
+            }
+
         }
         if (jo.containsKey("binglizhenduan")) {
             List<Binglizhenduan> beanList = new ArrayList<>();
