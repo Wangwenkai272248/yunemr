@@ -85,7 +85,7 @@ public class BasyService {
             }
             misdiagnosis.setPatient_id(document.getString("patient_id"));
             misdiagnosis.setVisit_id(document.getString("visit_id"));
-            misdiagnosis.setId(document.getString("_id"));
+            misdiagnosis.setId(document.getString("_id").replaceAll("BJDXDSYY","BYSY"));
             Document binganshouye = (Document) document.get("binganshouye");
             Document patVisit = (Document) binganshouye.get("pat_visit");
             Binganshouye binganshouyeBean = new Binganshouye();
