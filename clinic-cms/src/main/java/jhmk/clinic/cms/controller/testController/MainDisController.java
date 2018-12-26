@@ -17,7 +17,7 @@ import java.util.*;
  * @date 2018/9/11 15:07
  */
 @Controller
-@RequestMapping("/test/dis")
+@RequestMapping("/dis")
 public class MainDisController {
     @Autowired
     BasyService basyService;
