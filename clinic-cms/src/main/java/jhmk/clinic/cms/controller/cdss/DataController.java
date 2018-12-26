@@ -97,8 +97,9 @@ public class DataController extends BaseController {
             Object o = JSONObject.toJSON(param);
             String s = null;
             try {
-                s = restTemplate.postForObject("http://localhost:8115/bzgj/collectionType/findById", o, String.class);
-//                s = restTemplate.postForObject("http://192.168.132.7:8115/bzgj/collectionType/findById", o, String.class);
+//                s = restTemplate.postForObject("http://localhost:8115/bzgj/collectionType/findById", o, String.class);
+                s = restTemplate.postForObject("http://192.168.132.7:8115/bzgj/collectionType/findById", o, String.class);
+                logger.info(">>>>>>>>>>>>>>>"+s);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -113,17 +114,20 @@ public class DataController extends BaseController {
                         bean.setModelList(模型结果);
                     } else {
                         bean.setNumRate(-1);
-                        bean.setModelList(null);
+                        bean.setModelList("空");
                     }
                 }
+            }else {
+                bean.setNumRate(-1);
+                bean.setModelList("空");
             }
         }
 
 
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("sheet1");
-        String fileName = "C:/嘉和美康文档/3院测试数据/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xls";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
-//        String fileName = "/data/1/CDSS/data/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xlsx";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
+//        String fileName = "C:/嘉和美康文档/3院测试数据/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xls";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
+        String fileName = "/data/1/CDSS/data/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xlsx";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
         int rowNum = 1;
         String[] headers = {"ID", "PID", "VID", "科室名", "科室编码", "管床医师姓名", "入院时间", "出院时间", "出院主诊断", "入院主诊断", "上级医师查房", "入院诊断与出院诊断符合标识", "确诊时长(天)", "确诊项目与出院诊断是否一致", "推荐的列表", "辅助诊断命中的序列数"}; //headers表示excel表中第一行的表头
         XSSFRow row = sheet.createRow(0);
