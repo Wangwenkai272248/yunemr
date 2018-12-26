@@ -1,0 +1,14 @@
+#可配置文件
+
+#本地
+#cdssurl: http://192.168.8.20:8011
+#earlywarnurl: http://192.168.8.20:8111
+#pageurl: http://192.168.8.20:8112
+#testurl: http://192.168.8.20:7088
+
+#三院
+cdssurl: http://192.168.132.7:8010
+earlywarnurl: http://192.168.132.7:8111
+pageurl:  http://192.168.132.7:8112
+testurl:  http://192.168.132.7:7088
+
