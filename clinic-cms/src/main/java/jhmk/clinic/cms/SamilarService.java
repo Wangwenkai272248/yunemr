@@ -3,6 +3,7 @@ package jhmk.clinic.cms;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import jhmk.clinic.core.config.CdssConstans;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -74,7 +75,7 @@ public class SamilarService {
     /**
      * 判断是都是同类别病
      *
-     * @param name
+     * @param
      * @return
      */
 //    public boolean isFatherAndSon(String name1, String name2) {
@@ -102,11 +103,14 @@ public class SamilarService {
 //        return false;
 //    }
     public boolean isFatherAndSon(String name1, String name2) {
+        if (StringUtils.isEmpty(name1) || StringUtils.isEmpty(name2)) {
+            return false;
+        }
         if (name1.contains(name2) || name2.contains(name1)) {
             return true;
         }
         List<String> parentList = getParentList(name1);
-        if (parentList.contains(name2)){
+        if (parentList.contains(name2)) {
             return true;
         }
         return false;
@@ -170,9 +174,11 @@ public class SamilarService {
         List<String> list = new ArrayList<>();
         Object params = getParams(name);
         String sames = restTemplate.postForObject(CdssConstans.getParentList, params, String.class);
-        if (sames != null && !symbol.equals(sames.trim())) {
-            JSONArray objects = JSONArray.parseArray(sames);
-            Iterator<Object> iterator = objects.iterator();
+        JSONObject object = JSONObject.parseObject(sames);
+
+        if ("200".equals(object.getString("code"))) {
+            JSONArray result = object.getJSONArray("result");
+            Iterator<Object> iterator = result.iterator();
             while (iterator.hasNext()) {
                 Object next = iterator.next();
                 list.add(next.toString());
@@ -180,6 +186,36 @@ public class SamilarService {
         }
         return list;
     }
+    public List<String> getDiseaseChildrenList(String name) {
+        List<String> list = new ArrayList<>();
+        Object params = getParams(name);
+        String sames = restTemplate.postForObject(CdssConstans.getDiseaseChildrenList, params, String.class);
+        JSONObject object = JSONObject.parseObject(sames);
+
+        if ("200".equals(object.getString("code"))) {
+            JSONArray result = object.getJSONArray("result");
+            Iterator<Object> iterator = result.iterator();
+            while (iterator.hasNext()) {
+                Object next = iterator.next();
+                list.add(next.toString());
+            }
+        }
+        return list;
+    }
+//    public List<String> getDiseaseChildrenList(String name) {
+//        List<String> list = new ArrayList<>();
+//        Object params = getParams(name);
+//        String sames = restTemplate.postForObject(CdssConstans.getDiseaseChildrenList, params, String.class);
+//        if (sames != null && !symbol.equals(sames.trim())) {
+//            JSONArray objects = JSONArray.parseArray(sames);
+//            Iterator<Object> iterator = objects.iterator();
+//            while (iterator.hasNext()) {
+//                Object next = iterator.next();
+//                list.add(next.toString());
+//            }
+//        }
+//        return list;
+//    }
 
 
     private Object getParams(String name) {
