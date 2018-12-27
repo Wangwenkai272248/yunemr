@@ -311,6 +311,7 @@ public class SjyscflService {
     public String getSjqzDate(List<Shangjiyishichafanglu> shangjiyishichafangluList, String illName) {
         for (Shangjiyishichafanglu shangjiyishichafanglu : shangjiyishichafangluList) {
             String clear_diagnose_name = shangjiyishichafanglu.getClear_diagnose_name();
+            String jbmc = shangjiyishichafanglu.getJbmc();
             String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
             if (StringUtils.isNotBlank(clear_diagnose_name)) {
                 String[] split = clear_diagnose_name.split(" ");
@@ -321,6 +322,12 @@ public class SjyscflService {
                     }
 
                 }
+            }else if(StringUtils.isNotBlank(jbmc)){
+                boolean isFas1 = samilarService.isFatherAndSon(jbmc, illName);
+                if (isFas1) {
+                    return last_modify_date_time;
+                }
+
             }
         }
 
