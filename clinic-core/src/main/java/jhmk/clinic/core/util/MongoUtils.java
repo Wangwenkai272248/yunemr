@@ -22,7 +22,10 @@ import java.util.Map;
 /**
  * MONGODB数据操作工具类
  */
+//@Component
 public class MongoUtils {
+
+
     private static final Map<String, String> BasicDBObject = null;
     private static MongoClient mongoClient;
     private static final Logger logger = LoggerFactory.getLogger(MongoUtils.class);
@@ -43,8 +46,10 @@ public class MongoUtils {
                 //数据库连接实例
 
                 List<ServerAddress> serverAddressList = new ArrayList<>();
-                ServerAddress address = new ServerAddress(CdssConstans.HOST, CdssConstans.PORT);
-//				ServerAddress address = new ServerAddress("172.16.19.212",20000);
+                String host1 = CdssConstans.HOST;
+                String host = String.valueOf(PropertiesConfigUtil.getProperty("mongo.host"));
+                Integer port = Integer.valueOf(PropertiesConfigUtil.getProperty("mongo.port").toString());
+                ServerAddress address = new ServerAddress(host, port);
                 serverAddressList.add(address);
                 mongoClient = new MongoClient(address, myOptions);
             } catch (Exception e) {
@@ -145,7 +150,7 @@ public class MongoUtils {
 
     public static int getCount(String collName) {
         try {
-            MongoCollection<Document> collection = mongoClient.getDatabase(CdssConstans.DATASOURCE).getCollection(collName);
+            MongoCollection<Document> collection = mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).getCollection(collName);
             int count = (int) collection.count();
             return count;
         } catch (Exception e) {
@@ -325,7 +330,7 @@ public class MongoUtils {
     public static JSONObject findJsonResultByKey(String collName, String key, String value, String field) {
         long start = System.currentTimeMillis();
         long end = System.currentTimeMillis();
-        MongoCollection<Document> coll = mongoClient.getDatabase(CdssConstans.DATASOURCE).getCollection(collName);
+        MongoCollection<Document> coll = mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).getCollection(collName);
         JSONObject result = new JSONObject();
         Document include = new Document();
         include.append(field, 1);
@@ -347,7 +352,7 @@ public class MongoUtils {
     public static JSONArray findJsonResultByKey(String collName, String key, String value) {
         long start = System.currentTimeMillis();
         long end = System.currentTimeMillis();
-        MongoCollection<Document> coll = mongoClient.getDatabase(CdssConstans.DATASOURCE).getCollection(collName);
+        MongoCollection<Document> coll = mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).getCollection(collName);
         JSONArray result = new JSONArray();
         try {
             MongoCursor<Document> resultCursor = coll.find(new Document(key, value)).iterator();
@@ -367,7 +372,7 @@ public class MongoUtils {
     public static JSONObject findJsonResultByID(String collName, String _id, String field) {
         JSONObject result = new JSONObject();
         long start = System.currentTimeMillis();
-        MongoCollection<Document> coll = mongoClient.getDatabase(CdssConstans.DATASOURCE).getCollection(collName);
+        MongoCollection<Document> coll = mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).getCollection(collName);
         Document include = new Document();
         include.append(field, 1);
         try {
@@ -386,7 +391,7 @@ public class MongoUtils {
 
     public static void findJsonResultByID2(String collName, String _id, String field) {
         long start = System.currentTimeMillis();
-        MongoCollection<Document> coll = mongoClient.getDatabase(CdssConstans.DATASOURCE).getCollection(collName);
+        MongoCollection<Document> coll = mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).getCollection(collName);
         Document include = new Document();
         include.append(field, 1);
         try {
@@ -411,7 +416,7 @@ public class MongoUtils {
     public static JSONObject queryJsonResultByID(String collName, String _id, String field) {
         long start = System.currentTimeMillis();
         long end = System.currentTimeMillis();
-        MongoCollection<Document> coll = mongoClient.getDatabase(CdssConstans.DATASOURCE).getCollection(collName);
+        MongoCollection<Document> coll = mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).getCollection(collName);
         Document include = new Document();
         include.append(field, 1);
         try {
@@ -436,7 +441,7 @@ public class MongoUtils {
     public static JSONObject getAllID(String collName, int size, String file) {
         long start = System.currentTimeMillis();
         long end = System.currentTimeMillis();
-        MongoCollection<Document> coll = mongoClient.getDatabase(CdssConstans.DATASOURCE).getCollection(collName);
+        MongoCollection<Document> coll = mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).getCollection(collName);
         JSONObject result = null;
         Document include = new Document();
         include.append("", 1);
@@ -497,7 +502,7 @@ public class MongoUtils {
             if (colls.containsKey(collName)) {
                 coll = colls.get(collName);
             } else {
-                coll = mongoClient.getDatabase(CdssConstans.DATASOURCE).getCollection(collName);
+                coll = mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).getCollection(collName);
                 colls.put(collName, coll);
             }
             Document myDoc = coll.find(new Document("_id", _id)).first();
@@ -513,7 +518,7 @@ public class MongoUtils {
     public static JSONObject findJsonResult(String collName, String _id) {
         long start = System.currentTimeMillis();
         long end = System.currentTimeMillis();
-        MongoCollection<Document> coll = mongoClient.getDatabase(CdssConstans.DATASOURCE).getCollection(collName);
+        MongoCollection<Document> coll = mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).getCollection(collName);
         JSONObject result = null;
         try {
             Document myDoc = coll.find(new Document("_id", _id)).first();
@@ -549,7 +554,7 @@ public class MongoUtils {
     }
 
     public static JSONObject findJsonResult(String collName, Map<String, String> map, String field) {
-        MongoCollection<Document> coll = mongoClient.getDatabase(CdssConstans.DATASOURCE).getCollection(collName);
+        MongoCollection<Document> coll = mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).getCollection(collName);
         JSONObject result = null;
         BasicDBObject query = new BasicDBObject(map);
         Document include = new Document();
@@ -569,7 +574,7 @@ public class MongoUtils {
     }
 
     public static JSONObject findJsonResultByid(String collName, String _id, String field) {
-        MongoCollection<Document> coll = mongoClient.getDatabase(CdssConstans.DATASOURCE).getCollection(collName);
+        MongoCollection<Document> coll = mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).getCollection(collName);
         JSONObject result = null;
         BasicDBObject query = new BasicDBObject("_id", _id);
         Document include = new Document();
@@ -715,10 +720,10 @@ public class MongoUtils {
     }
 
     public static boolean save(String collName, JSONObject doc) {
-        if (!MongoUtils.getAllCollections(CdssConstans.DATASOURCE).contains(collName)) {
-            mongoClient.getDatabase(CdssConstans.DATASOURCE).createCollection(collName);
+        if (!MongoUtils.getAllCollections(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).contains(collName)) {
+            mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).createCollection(collName);
         }
-        MongoCollection<Document> coll = mongoClient.getDatabase(CdssConstans.DATASOURCE).getCollection(collName);
+        MongoCollection<Document> coll = mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).getCollection(collName);
         boolean falg = false;
         try {
             Document d = new Document();
@@ -735,10 +740,10 @@ public class MongoUtils {
     }
 
     public static boolean saveJson(String collName, JSONObject doc) {
-        if (!MongoUtils.getAllCollections(CdssConstans.DATASOURCE).contains(collName)) {
-            mongoClient.getDatabase(CdssConstans.DATASOURCE).createCollection(collName);
+        if (!MongoUtils.getAllCollections(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).contains(collName)) {
+            mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).createCollection(collName);
         }
-        MongoCollection<Document> coll = mongoClient.getDatabase(CdssConstans.DATASOURCE).getCollection(collName);
+        MongoCollection<Document> coll = mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).getCollection(collName);
         boolean falg = false;
         Document d = new Document();
         try {
@@ -757,10 +762,10 @@ public class MongoUtils {
     }
 
     public static boolean saveJsonArray(String collName, JSONObject doc, String arrayKey) {
-        if (!MongoUtils.getAllCollections(CdssConstans.DATASOURCE).contains(collName)) {
-            mongoClient.getDatabase(CdssConstans.DATASOURCE).createCollection(collName);
+        if (!MongoUtils.getAllCollections(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).contains(collName)) {
+            mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).createCollection(collName);
         }
-        MongoCollection<Document> coll = mongoClient.getDatabase(CdssConstans.DATASOURCE).getCollection(collName);
+        MongoCollection<Document> coll = mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).getCollection(collName);
         boolean falg = false;
         Document d = new Document();
         try {
@@ -788,10 +793,11 @@ public class MongoUtils {
     }
 
     public static boolean saveJsonArrayList(String collName, JSONObject doc, String arrayKey) {
-        if (!MongoUtils.getAllCollections(CdssConstans.DATASOURCE).contains(collName)) {
-            mongoClient.getDatabase(CdssConstans.DATASOURCE).createCollection(collName);
+        if (!MongoUtils.getAllCollections(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).contains(collName)) {
+            mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).createCollection(collName);
+
         }
-        MongoCollection<Document> coll = mongoClient.getDatabase(CdssConstans.DATASOURCE).getCollection(collName);
+        MongoCollection<Document> coll = mongoClient.getDatabase(PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString()).getCollection(collName);
         boolean falg = false;
         Document d = new Document();
         try {
