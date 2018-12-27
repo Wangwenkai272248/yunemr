@@ -571,7 +571,7 @@ public class CdssController extends BaseController {
                         }
                         Object parse = JSONObject.parse(string);
                         try {
-                            s = restTemplate.postForObject(CdssConstans.URL, parse, String.class);
+                            s = restTemplate.postForObject(CdssConstans.earlywarnRuleMtch, parse, String.class);
                             logger.info("匹配规则返回信息为{}", s);
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
@@ -615,7 +615,7 @@ public class CdssController extends BaseController {
             }
             Object parse = JSONObject.parse(string);
             try {
-                String s = restTemplate.postForObject(CdssConstans.URL, parse, String.class);
+                String s = restTemplate.postForObject(CdssConstans.earlywarnRuleMtch, parse, String.class);
                 logger.info("匹配规则返回信息为{}", s);
             } catch (Exception e) {
                 System.out.println(e.getMessage());

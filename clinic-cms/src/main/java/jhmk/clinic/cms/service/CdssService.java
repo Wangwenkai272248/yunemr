@@ -981,6 +981,7 @@ public class CdssService {
                         String temId = keyname.replaceAll("#2#", "");
                         String admissionTime = basyService.getAdmissionTime(temId);
                         String dischargeTime = basyService.getDischargeTime(temId);
+                        String inpNo = basyService.getInpNo(temId);
                         String string = next.getString(keyname);
                         JSONArray array = JSONArray.parseArray(string);
                         CdssDiffBean cdssDiffBean = getCdssDiffBean(array);
@@ -990,6 +991,7 @@ public class CdssService {
                         }
                         cdssDiffBean.setShangjiyishichafangluList(sjyscflBean);
                         cdssDiffBean.setId(keyname);
+                        cdssDiffBean.setInp_no(inpNo);
                         cdssDiffBean.setAdmission_time(admissionTime);
                         cdssDiffBean.setDischarge_time(dischargeTime);
                         resultList.add(cdssDiffBean);
