@@ -35,6 +35,7 @@ public class Rule implements Serializable {
     private int qzeqc;
     //    模型的推荐结果，按推荐次序排列
     private String modelList;
+    private List<Shouyeshoushu> shouyeshoushu;
     //模型命中出院诊断的序号
     private int numRate;
     private int hospitalDay;//住院时长天
@@ -385,6 +386,14 @@ public class Rule implements Serializable {
                 ", dept_admission_to_code=" + binganshouye.getPat_visit_dept_admission_to_code() +
                 ", shangjiyishichafangluList=" + JSONObject.toJSONString(shangjiyishichafangluList) +
                 '}';
+    }
+
+    public void setShouyeshoushu(List<Shouyeshoushu> shouyeshoushu) {
+        this.shouyeshoushu = shouyeshoushu;
+    }
+
+    public List<Shouyeshoushu> getShouyeshoushu() {
+        return shouyeshoushu;
     }
 }
 

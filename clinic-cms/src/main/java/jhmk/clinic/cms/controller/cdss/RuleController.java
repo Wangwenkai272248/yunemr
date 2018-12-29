@@ -1,17 +1,12 @@
 package jhmk.clinic.cms.controller.cdss;
 
 import com.alibaba.fastjson.JSONObject;
-import jhmk.clinic.cms.controller.ruleService.BasyService;
-import jhmk.clinic.cms.controller.ruleService.JybgService;
-import jhmk.clinic.cms.controller.ruleService.SyzdService;
-import jhmk.clinic.cms.controller.ruleService.YizhuService;
+import jhmk.clinic.cms.controller.ruleService.*;
 import jhmk.clinic.cms.entity.Rule;
 import jhmk.clinic.cms.service.CdssService;
 import jhmk.clinic.core.base.BaseController;
-import jhmk.clinic.entity.bean.Binganshouye;
-import jhmk.clinic.entity.bean.Jianyanbaogao;
-import jhmk.clinic.entity.bean.Shouyezhenduan;
-import jhmk.clinic.entity.bean.Yizhu;
+import jhmk.clinic.core.config.CdssConstans;
+import jhmk.clinic.entity.bean.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +39,8 @@ public class RuleController extends BaseController {
     BasyService basyService;
     @Autowired
     YizhuService yizhuService;
+    @Autowired
+    SyshService syshService;
     @Autowired
     SyzdService syzdService;
 
@@ -116,10 +113,48 @@ public class RuleController extends BaseController {
         String rycz = syzdService.getRycz(id);//入院初诊
         rule.setRycz(rycz);
         rule.setCyzd(mainDisease);
+        List<Shouyeshoushu> shouyeshoushu = syshService.getShouyeshoushu(id);
+        rule.setShouyeshoushu(shouyeshoushu);
         Object o = JSONObject.toJSON(rule);
         logger.info("返回的结果数据为：{}",JSONObject.toJSONString(o));
 
         wirte(response, o);
     }
+    /**
+     * 使用历史数据获取新版治疗方案
+     *
+     * @param response
+     */
+    @RequestMapping("/runZlfaByRule")
+    public void runZlfaByRule(HttpServletResponse response, @RequestBody(required = false) String map) {
+        List<Rule> gukeDataByCondition = basyService.getGukeDataByCondition(JSONObject.parseObject(map));
+        logger.info("数量为：====》》》》{}", gukeDataByCondition.size());
+        for (Rule bean : gukeDataByCondition) {
+            String id = bean.getId();
+            String rycz = cdssService.getRycz(id);
+            String cyzd = syzdService.getCyzd(id);
 
+            //入等于出
+            if (StringUtils.isNotBlank(rycz) && rycz.equals(cyzd)) {
+                bean.setRycz(rycz);
+                bean.setCyzd(cyzd);
+            } else {
+                continue;
+            }
+            List<Yizhu> yizhus = yizhuService.selYizhu(id);
+            bean.setYizhu(yizhus);
+            List<Shouyeshoushu> shouyeshoushu = syshService.getShouyeshoushu(id);
+            bean.setShouyeshoushu(shouyeshoushu);
+            Object o = JSONObject.toJSON(bean);
+            String s = null;
+            try {
+                s = restTemplate.postForObject(CdssConstans.modelHead + "/bzgj/zlfaZhubiao/saveZlfazhubiaoByRule", o, String.class);
+                logger.info(">>>>>>>>>>>>>>>" + s);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            wirte(response, s);
+        }
+    }
 }

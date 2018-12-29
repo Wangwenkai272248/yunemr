@@ -991,6 +991,7 @@ public class CdssService {
                         }
                         cdssDiffBean.setShangjiyishichafangluList(sjyscflBean);
                         cdssDiffBean.setId(keyname);
+                        cdssDiffBean.setInp_no(inpNo);
                         cdssDiffBean.setAdmission_time(admissionTime);
                         cdssDiffBean.setInp_no(inpNo);
                         cdssDiffBean.setDischarge_time(dischargeTime);

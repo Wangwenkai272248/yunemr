@@ -2,10 +2,7 @@ package jhmk.clinic.cms.controller.cdss;
 
 import com.alibaba.fastjson.JSONObject;
 import jhmk.clinic.cms.SamilarService;
-import jhmk.clinic.cms.controller.ruleService.BasyService;
-import jhmk.clinic.cms.controller.ruleService.RyjuService;
-import jhmk.clinic.cms.controller.ruleService.SjyscflService;
-import jhmk.clinic.cms.controller.ruleService.SyzdService;
+import jhmk.clinic.cms.controller.ruleService.*;
 import jhmk.clinic.cms.entity.Rule;
 import jhmk.clinic.cms.service.BiaozhuService;
 import jhmk.clinic.cms.service.CdssService;
@@ -64,6 +61,8 @@ public class DataController extends BaseController {
     RestTemplate restTemplate;
     @Autowired
     CdssService cdssService;
+    @Autowired
+    RuleService ruleService;
 
     public static final String sympol = "&&";
 
@@ -611,5 +610,8 @@ public class DataController extends BaseController {
         }
 
     }
+
+
+
 
 }

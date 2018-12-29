@@ -5,6 +5,7 @@ import com.mongodb.client.MongoCollection;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.DateFormatUtil;
 import jhmk.clinic.entity.bean.Yizhu;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
@@ -44,14 +45,23 @@ public class YizhuService {
                 String order_class_convert_name = yizhuDocu.getString("order_class_convert_name");
                 //给药途径和方法/用途  如果是出院带药排除
                 String pharmacy_way_name = yizhuDocu.getString("pharmacy_way_name");
-                if (!"药品".equals(order_class_convert_name)||"出院带药".equals(pharmacy_way_name)) {
+                if (!"药品".equals(order_class_convert_name) || "出院带药".equals(pharmacy_way_name)) {
                     continue;
                 }
                 String order_item_name = yizhuDocu.getString("order_item_name");
                 yizhu.setOrder_item_name(order_item_name);
+                if (StringUtils.isEmpty(order_item_name)) {
+                    continue;
+                }
                 String order_begin_time = yizhuDocu.getString("order_begin_time");
                 yizhu.setOrder_begin_time(order_begin_time);
+                if (StringUtils.isEmpty(order_begin_time)) {
+                    continue;
+                }
                 String order_end_time = yizhuDocu.getString("order_end_time");
+                if (StringUtils.isEmpty(order_end_time)) {
+                    continue;
+                }
                 yizhu.setOrder_end_time(order_end_time);
                 String order_properties_name = yizhuDocu.getString("order_properties_name");
                 yizhu.setOrder_properties_name(order_properties_name);
@@ -80,20 +90,29 @@ public class YizhuService {
             }
 
         }
-        Collections.sort(orderList, new Comparator<Yizhu>() {
-            @Override
-            public int compare(Yizhu o1, Yizhu o2) {
-                String order_begin_time1 = o1.getOrder_begin_time();
-                String order_begin_time2 = o2.getOrder_begin_time();
-                Date date1 = DateFormatUtil.parseDateBySdf(order_begin_time1, DateFormatUtil.DATETIME_PATTERN_SS);
-                Date date2 = DateFormatUtil.parseDateBySdf(order_begin_time2, DateFormatUtil.DATETIME_PATTERN_SS);
-                if (date1.getTime() >= date2.getTime()) {
-                    return 1;
-                } else {
-                    return -1;
-                }
+        if (orderList.size() > 0) {
+            try {
+
+                Collections.sort(orderList, new Comparator<Yizhu>() {
+                    @Override
+                    public int compare(Yizhu o1, Yizhu o2) {
+                        String order_begin_time1 = o1.getOrder_begin_time();
+                        String order_begin_time2 = o2.getOrder_begin_time();
+                        Date date1 = DateFormatUtil.parseDateBySdf(order_begin_time1, DateFormatUtil.DATETIME_PATTERN_SS);
+                        Date date2 = DateFormatUtil.parseDateBySdf(order_begin_time2, DateFormatUtil.DATETIME_PATTERN_SS);
+                        if (date1.getTime() >= date2.getTime()) {
+                            return 1;
+                        } else {
+                            return -1;
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println(e.getCause());
             }
-        });
+        }
+
         return orderList;
     }
 
