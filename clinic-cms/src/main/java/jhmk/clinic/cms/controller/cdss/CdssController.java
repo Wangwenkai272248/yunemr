@@ -712,10 +712,13 @@ public class CdssController extends BaseController {
 //        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime);
         String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
         List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
+        logger.info("ES查询获取到的疾病为：{}",diffBeanList.size());
 //        List<CdssDiffBean> diffBeanList1 = cdssService.getDiffBeanList(diffBeanList);
         //获取入院等于出院数据
         List<CdssDiffBean> diffBeanList1 = cdssService.getRyeqCy(diffBeanList);
-        //根据科室
+        logger.info("入等于出过滤后到的疾病数量为：{}",diffBeanList1.size());
+
+        //根据疾病名
         if (StringUtils.isNotBlank(diseaseName)) {
             List<CdssDiffBean> resultList = new ArrayList<>();
             for (CdssDiffBean bean : diffBeanList1) {
@@ -731,6 +734,7 @@ public class CdssController extends BaseController {
 
                 }
             }
+            logger.info("总结果为：======================={}",resultList.size());
             wirte(response, resultList);
         } else {
             wirte(response, diffBeanList1);
@@ -750,9 +754,12 @@ public class CdssController extends BaseController {
         int page = jsonObject.getInteger("page") == null ? 1 : jsonObject.getInteger("page");
         int pageSize = jsonObject.getInteger("pageSize") == null ? 20 : jsonObject.getInteger("page");
         String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime, page, pageSize);
+        logger.info("ES返回数据为：{}", jsonObject);
 //        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime);
         String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
         List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
+        logger.info("总共：{}份数据", diffBeanList.size());
+
         //获取优质病例数据
         //根据科室
         if (StringUtils.isNotBlank(diseaseName)) {
@@ -968,22 +975,29 @@ public class CdssController extends BaseController {
         Map<Integer, YizhuTestBean> params = new HashMap<>();
         //病历id
         String id = jsonObject.getString("id");
-        int num = yizhuResultRepService.getMaxBid(id);
-        for (int i = 1; i <= num; i++) {
-            YizhuTestBean tempyizhuTestBean = new YizhuTestBean();
+        try {
+            int num = yizhuResultRepService.getMaxBid(id);
+            for (int i = 1; i <= num; i++) {
+                YizhuTestBean tempyizhuTestBean = new YizhuTestBean();
 
-            List<YizhuResult> resultList = yizhuResultRepService.findAllByBIdAndNum(id, i);
-            List<YizhuChange> changeList = yizhuChangeRepService.findAllByBIdAndNum(id, i);
-            List<YizhuBsjb> nsjbList = yizhuBsjbRepService.findAllByBIdAndNum(id, i);
-            tempyizhuTestBean.setBid(id);
-            tempyizhuTestBean.setNum(i);
-            tempyizhuTestBean.setChangeList(changeList);
-            tempyizhuTestBean.setResultList(resultList);
-            tempyizhuTestBean.setBsjbList(nsjbList);
-            tempyizhuTestBean.setNum(i);
-            params.put(i, tempyizhuTestBean);
+                List<YizhuResult> resultList = yizhuResultRepService.findAllByBIdAndNum(id, i);
+                List<YizhuChange> changeList = yizhuChangeRepService.findAllByBIdAndNum(id, i);
+                List<YizhuBsjb> nsjbList = yizhuBsjbRepService.findAllByBIdAndNum(id, i);
+                tempyizhuTestBean.setBid(id);
+                tempyizhuTestBean.setNum(i);
+                tempyizhuTestBean.setChangeList(changeList);
+                tempyizhuTestBean.setResultList(resultList);
+                tempyizhuTestBean.setBsjbList(nsjbList);
+                tempyizhuTestBean.setNum(i);
+                params.put(i, tempyizhuTestBean);
+            }
+            wirte(response, params);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.info(e.getMessage());
+            wirte(response,"无数据");
         }
-        wirte(response, params);
+
     }
 
     @PostMapping("/getData1019")
