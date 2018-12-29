@@ -94,6 +94,7 @@ public class RuleController extends BaseController {
 
     @PostMapping("/getDataByPIdAndVId")
     public void getDataByPIdAndVId(HttpServletResponse response, @RequestBody(required = false) String map) {
+        logger.info("获取到的初始数据为：{}",map);
         JSONObject jsonObject = JSONObject.parseObject(map);
         String pid = jsonObject.getString("pid");
         String vid = jsonObject.getString("vid");
@@ -116,6 +117,8 @@ public class RuleController extends BaseController {
         rule.setRycz(rycz);
         rule.setCyzd(mainDisease);
         Object o = JSONObject.toJSON(rule);
+        logger.info("返回的结果数据为：{}",JSONObject.toJSONString(o));
+
         wirte(response, o);
     }
 
