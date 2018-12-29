@@ -10,10 +10,7 @@ import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.HttpClient;
 import jhmk.clinic.core.util.StringUtil;
 import jhmk.clinic.core.util.ThreadUtil;
-import jhmk.clinic.entity.bean.Binganshouye;
-import jhmk.clinic.entity.bean.Chuyuanjilu;
-import jhmk.clinic.entity.bean.TreatmentPlan;
-import jhmk.clinic.entity.bean.Yizhu;
+import jhmk.clinic.entity.bean.*;
 import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import jhmk.clinic.entity.cdss.CdssRunRuleBean;
@@ -90,6 +87,8 @@ public class CdssController extends BaseController {
     @Autowired
     BiaozhuService biaozhuService;
     @Autowired
+    SyshService syshService;
+    @Autowired
     RestTemplate restTemplate;
 
 
@@ -136,6 +135,8 @@ public class CdssController extends BaseController {
             List<Map<String, String>> syzdList = cdssService.selSyzd(id);
             cdssTestBean.setShouyezhenduan(syzdList);
             List<Map<String, List<Map<String, String>>>> jianYan = cdssService.getJianYan(id);
+            List<Shouyeshoushu> shouyeshoushu = syshService.getShouyeshoushu(id);
+            cdssTestBean.setShouyeshoushu(shouyeshoushu);
 //        cdssTestBean.setJianyanbaogao(jianYan);
             Object o = JSONObject.toJSON(cdssTestBean);
             wirte(response, o);

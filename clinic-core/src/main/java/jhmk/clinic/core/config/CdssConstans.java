@@ -8,6 +8,7 @@ public class CdssConstans {
     public static final String BINGANSHOUYE = "binganshouye";
     public static final String ZHUANKEJILU = "zhuankejilu";
     public static final String BINGLIZHENDUAN = "binglizhenduan";
+    public static final String SHOUYESHOUSHU = "shouyeshoushu";
     public static final String SHOUCIBINGCHENGJILU = "shoucibingchengjilu";
     public static final String SHOUYEZHENDUAN = "shouyezhenduan";
     public static final String RUYUANJILU = "ruyuanjilu";
@@ -47,6 +48,9 @@ public class CdssConstans {
     public static final String CYDATASOURCE = PropertiesConfigUtil.getProperty("mongo.cyyydatasource").toString();
     public static final String HOST = PropertiesConfigUtil.getProperty("mongo.host").toString();
 
+
+    //model 前缀
+    public static final String modelHead = PropertiesConfigUtil.getProperty("url.model").toString();
 
     //cdss 前缀
     public static final String cdssHead = PropertiesConfigUtil.getProperty("url.cdss").toString();

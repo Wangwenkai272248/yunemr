@@ -85,7 +85,7 @@ public class BasyService {
             }
             misdiagnosis.setPatient_id(document.getString("patient_id"));
             misdiagnosis.setVisit_id(document.getString("visit_id"));
-            misdiagnosis.setId(document.getString("_id").replaceAll("BJDXDSYY","BYSY"));
+            misdiagnosis.setId(document.getString("_id"));
             Document binganshouye = (Document) document.get("binganshouye");
             Document patVisit = (Document) binganshouye.get("pat_visit");
             Binganshouye binganshouyeBean = new Binganshouye();
@@ -99,6 +99,12 @@ public class BasyService {
             binganshouyeBean.setAdmission_time(patVisit.getString("admission_time"));
             binganshouyeBean.setDischarge_time(patVisit.getString("discharge_time"));
             //住院天数
+            String dept_admission_to_name = patVisit.getString("dept_admission_to_name");
+            binganshouyeBean.setDept_admission_to_name(dept_admission_to_name);
+            String dept_admission_to_code = patVisit.getString("dept_admission_to_code");
+            binganshouyeBean.setPat_visit_dept_admission_to_code(dept_admission_to_code);
+            String attending_doctor_name = patVisit.getString("attending_doctor_name");//主治医师
+            binganshouyeBean.setPat_visit_dept_request_doctor_name(attending_doctor_name);
             int i = DateFormatUtil.dateDiff1(DateFormatUtil.parseDateBySdf(discharge_time, DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(admission_time, DateFormatUtil.DATETIME_PATTERN_SS));
             misdiagnosis.setHospitalDay(i);
             misdiagnosis.setBinganshouye(binganshouyeBean);

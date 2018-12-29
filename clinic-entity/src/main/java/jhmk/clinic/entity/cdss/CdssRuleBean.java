@@ -1,5 +1,7 @@
 package jhmk.clinic.entity.cdss;
 
+import jhmk.clinic.entity.bean.Shouyeshoushu;
+
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +33,15 @@ public class CdssRuleBean {
     private List<Map<String, String>> jianyanbaogao;
     private List<Map<String, String>> jianchabaogao;
     private List<Map<String, String>> yizhu;
+    private List<Shouyeshoushu> shouyeshoushu;
 
+    public List<Shouyeshoushu> getShouyeshoushu() {
+        return shouyeshoushu;
+    }
+
+    public void setShouyeshoushu(final List<Shouyeshoushu> shouyeshoushu) {
+        this.shouyeshoushu = shouyeshoushu;
+    }
 
 //    private List<>shouyezhenduan;
 

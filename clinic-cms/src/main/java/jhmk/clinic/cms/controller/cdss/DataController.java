@@ -2,10 +2,7 @@ package jhmk.clinic.cms.controller.cdss;
 
 import com.alibaba.fastjson.JSONObject;
 import jhmk.clinic.cms.SamilarService;
-import jhmk.clinic.cms.controller.ruleService.BasyService;
-import jhmk.clinic.cms.controller.ruleService.RyjuService;
-import jhmk.clinic.cms.controller.ruleService.SjyscflService;
-import jhmk.clinic.cms.controller.ruleService.SyzdService;
+import jhmk.clinic.cms.controller.ruleService.*;
 import jhmk.clinic.cms.entity.Rule;
 import jhmk.clinic.cms.service.BiaozhuService;
 import jhmk.clinic.cms.service.CdssService;
@@ -64,6 +61,8 @@ public class DataController extends BaseController {
     RestTemplate restTemplate;
     @Autowired
     CdssService cdssService;
+    @Autowired
+    RuleService ruleService;
 
     public static final String sympol = "&&";
 
@@ -93,13 +92,13 @@ public class DataController extends BaseController {
             }
             bean.setShangjiyishichafangluList(sjyscflBean);
             Map<String, String> param = new HashMap<>();
-            param.put("id", id);
+            param.put("id", id.replaceAll("BJDXDSYY", "BYSY"));
             Object o = JSONObject.toJSON(param);
             String s = null;
             try {
 //                s = restTemplate.postForObject("http://localhost:8115/bzgj/collectionType/findById", o, String.class);
                 s = restTemplate.postForObject("http://192.168.132.7:8115/bzgj/collectionType/findById", o, String.class);
-                logger.info(">>>>>>>>>>>>>>>"+s);
+                logger.info(">>>>>>>>>>>>>>>" + s);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -117,7 +116,7 @@ public class DataController extends BaseController {
                         bean.setModelList("空");
                     }
                 }
-            }else {
+            } else {
                 bean.setNumRate(-1);
                 bean.setModelList("空");
             }
@@ -585,5 +584,8 @@ public class DataController extends BaseController {
         }
 
     }
+
+
+
 
 }
