@@ -311,8 +311,8 @@ public class SjyscflService {
     public String getSjqzDate(List<Shangjiyishichafanglu> shangjiyishichafangluList, String illName) {
         for (Shangjiyishichafanglu shangjiyishichafanglu : shangjiyishichafangluList) {
             String clear_diagnose_name = shangjiyishichafanglu.getClear_diagnose_name();
-            String jbmc = shangjiyishichafanglu.getJbmc();
             String last_modify_date_time = shangjiyishichafanglu.getLast_modify_date_time();
+            String jbmc = shangjiyishichafanglu.getJbmc();
             if (StringUtils.isNotBlank(clear_diagnose_name)) {
                 String[] split = clear_diagnose_name.split(" ");
                 for (String s : split) {
@@ -322,15 +322,34 @@ public class SjyscflService {
                     }
 
                 }
-            }else if(StringUtils.isNotBlank(jbmc)){
-                boolean isFas1 = samilarService.isFatherAndSon(jbmc, illName);
-                if (isFas1) {
-                    return last_modify_date_time;
+            } else if (StringUtils.isNotBlank(jbmc)) {
+                String[] split = jbmc.split(" ");
+                for (String s : split) {
+                    boolean isFas1 = samilarService.isFatherAndSon(s, illName);
+                    if (isFas1) {
+                        return last_modify_date_time;
+                    }
                 }
-
             }
         }
 
+        return null;
+    }
+
+    /**
+     * 获取确诊的上级医师查房录
+     *
+     * @param shangjiyishichafangluList
+     * @param illName
+     * @return
+     */
+    public Shangjiyishichafanglu getQzShangjiyishichafanglu(List<Shangjiyishichafanglu> shangjiyishichafangluList) {
+        for (Shangjiyishichafanglu shangjiyishichafanglu : shangjiyishichafangluList) {
+            String clear_diagnose = shangjiyishichafanglu.getClear_diagnose();
+            if (StringUtils.isNotBlank(clear_diagnose) && "是".equals(clear_diagnose)) {
+                return shangjiyishichafanglu;
+            }
+        }
         return null;
     }
 //    public String getSjqzDate(List<Shangjiyishichafanglu> shangjiyishichafangluList, String illName) {

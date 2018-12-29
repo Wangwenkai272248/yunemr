@@ -85,11 +85,30 @@ public class DataController extends BaseController {
             }
             String admission_time = bean.getBinganshouye().getAdmission_time();
             List<Shangjiyishichafanglu> sjyscflBean = sjyscflService.getSJYSCFLBean(id);
-            String sjqzDate = sjyscflService.getSjqzDate(sjyscflBean, cyzd);
-            if (StringUtils.isNotBlank(sjqzDate)) {
-                int i = DateFormatUtil.dateDiff1(DateFormatUtil.parseDateBySdf(sjqzDate, DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(admission_time, DateFormatUtil.DATETIME_PATTERN_SS));
-                bean.setQzDay(i);
+
+            Shangjiyishichafanglu shangjiyishichafanglu = sjyscflService.getQzShangjiyishichafanglu(sjyscflBean);
+            if (Objects.nonNull(shangjiyishichafanglu)) {
+                String sjqzDate = shangjiyishichafanglu.getLast_modify_date_time();
+                String clearDiagnoseName = shangjiyishichafanglu.getClear_diagnose_name();
+                if (StringUtils.isNotBlank(sjqzDate)) {
+                    int i = DateFormatUtil.dateDiff1(DateFormatUtil.parseDateBySdf(sjqzDate, DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(admission_time, DateFormatUtil.DATETIME_PATTERN_SS));
+                    bean.setQzDay(i);
+                } else {
+                    bean.setQzDay(-100);
+                }
+                if (StringUtils.isNotBlank(clearDiagnoseName)) {
+                    List<String> list = Arrays.asList(clearDiagnoseName.split(" "));
+                    if (list.contains(cyzd)) {
+                        bean.setQzeqc(1);
+                    } else {
+                        bean.setQzeqc(0);
+                    }
+                }
+            }else {
+                bean.setQzDay(-100);
             }
+//            String sjqzDate = sjyscflService.getSjqzDate(sjyscflBean, cyzd);
+
             bean.setShangjiyishichafangluList(sjyscflBean);
             Map<String, String> param = new HashMap<>();
             param.put("id", id.replaceAll("BJDXDSYY", "BYSY"));
@@ -97,6 +116,7 @@ public class DataController extends BaseController {
             String s = null;
             try {
 //                s = restTemplate.postForObject("http://localhost:8115/bzgj/collectionType/findById", o, String.class);
+//                s = restTemplate.postForObject("http://192.168.8.20:8115/bzgj/collectionType/findById", o, String.class);
                 s = restTemplate.postForObject("http://192.168.132.7:8115/bzgj/collectionType/findById", o, String.class);
                 logger.info(">>>>>>>>>>>>>>>" + s);
             } catch (Exception e) {
@@ -108,11 +128,17 @@ public class DataController extends BaseController {
                     if (StringUtils.isNotBlank(object.getString("data"))) {
                         CollectionType data = object.getObject("data", CollectionType.class);
                         String 模型结果 = data.get模型结果();
-                        int hitNum = data.getHitNum();
-                        bean.setNumRate(hitNum);
-                        bean.setModelList(模型结果);
+                        if (StringUtils.isNotBlank(模型结果)) {
+                            int hitNum = data.getHitNum();
+                            bean.setNumRate(hitNum);
+                            bean.setModelList(模型结果);
+                        } else {
+                            bean.setNumRate(-100);
+                            bean.setModelList("空");
+                        }
+
                     } else {
-                        bean.setNumRate(-1);
+                        bean.setNumRate(-100);
                         bean.setModelList("空");
                     }
                 }
@@ -128,7 +154,7 @@ public class DataController extends BaseController {
 //        String fileName = "C:/嘉和美康文档/3院测试数据/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xls";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
         String fileName = "/data/1/CDSS/data/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xlsx";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
         int rowNum = 1;
-        String[] headers = {"ID", "PID", "VID", "科室名", "科室编码", "管床医师姓名", "入院时间", "出院时间", "出院主诊断", "入院主诊断", "上级医师查房", "入院诊断与出院诊断符合标识", "确诊时长(天)", "确诊项目与出院诊断是否一致", "推荐的列表", "辅助诊断命中的序列数"}; //headers表示excel表中第一行的表头
+        String[] headers = {"ID", "PID", "VID", "科室名", "科室编码", "管床医师姓名", "入院时间", "出院时间", "出院主诊断", "入院主诊断", "上级医师查房", "入院诊断与出院诊断符合标识", "确诊时长(天)", "确诊项目与出院诊断是否一致", "推荐的列表", "辅助诊断命中的序列数","住院时长"}; //headers表示excel表中第一行的表头
         XSSFRow row = sheet.createRow(0);
         //在excel表中添加表头
         for (int i = 0; i < headers.length; i++) {
