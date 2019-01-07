@@ -16,7 +16,6 @@
         <module>clinic-entity</module>
         <module>clinic-cms</module>
         <module>clinic-core</module>
-        <module>clinic-webservice</module>
     </modules>
 
 
