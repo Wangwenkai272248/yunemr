@@ -43,6 +43,7 @@ public class Rule implements Serializable {
     private Binganshouye binganshouye;
     private Ruyuanjilu ruyuanjilu;
     private List<Jianyanbaogao> jianyanbaogao;
+    private List<JianyanbaogaoNew> jianyanbaogaoNew;
     private List<Jianchabaogao> jianchabaogao;
     private List<Binglizhenduan> binglizhenduan;
     private List<Shouyezhenduan> shouyezhenduan;
@@ -264,6 +265,14 @@ public class Rule implements Serializable {
 
     public void setShoucibingchengjilu(final Shoucibingchengjilu shoucibingchengjilu) {
         this.shoucibingchengjilu = shoucibingchengjilu;
+    }
+
+    public List<JianyanbaogaoNew> getJianyanbaogaoNew() {
+        return jianyanbaogaoNew;
+    }
+
+    public void setJianyanbaogaoNew(final List<JianyanbaogaoNew> jianyanbaogaoNew) {
+        this.jianyanbaogaoNew = jianyanbaogaoNew;
     }
 
     public static Rule fill(JSONObject jo) {

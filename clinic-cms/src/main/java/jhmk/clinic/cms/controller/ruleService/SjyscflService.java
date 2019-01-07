@@ -112,6 +112,7 @@ public class SjyscflService {
                     bean.setClear_diagnose(clear_diagnose);
                     bean.setLast_modify_date_time(last_modify_date_time);
                     bean.setClear_diagnose_name(clear_diagnose_name);
+                    bean.setTreatment(treatment_plan.getString("treatment"));
                     list.add(bean);
                 }
             }
@@ -340,7 +341,6 @@ public class SjyscflService {
      * 获取确诊的上级医师查房录
      *
      * @param shangjiyishichafangluList
-     * @param illName
      * @return
      */
     public Shangjiyishichafanglu getQzShangjiyishichafanglu(List<Shangjiyishichafanglu> shangjiyishichafangluList) {

@@ -16,6 +16,7 @@ public class Ruyuanjilu implements Serializable {
     private String menstrual_and_obstetrical_histories;
     private String physical_examination;
     private String auxiliary_examination;
+    private HistoryOfPastIllness historyOfPastIllness;
 
     public String getChief_complaint() {
         return chief_complaint;
@@ -79,5 +80,13 @@ public class Ruyuanjilu implements Serializable {
 
     public void setAuxiliary_examination(String auxiliary_examination) {
         this.auxiliary_examination = auxiliary_examination;
+    }
+
+    public HistoryOfPastIllness getHistoryOfPastIllness() {
+        return historyOfPastIllness;
+    }
+
+    public void setHistoryOfPastIllness(final HistoryOfPastIllness historyOfPastIllness) {
+        this.historyOfPastIllness = historyOfPastIllness;
     }
 }

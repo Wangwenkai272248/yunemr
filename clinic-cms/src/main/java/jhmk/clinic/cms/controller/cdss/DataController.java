@@ -13,9 +13,7 @@ import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
 import jhmk.clinic.core.util.DateFormatUtil;
 import jhmk.clinic.core.util.HttpClient;
-import jhmk.clinic.entity.bean.CollectionType;
-import jhmk.clinic.entity.bean.Misdiagnosis;
-import jhmk.clinic.entity.bean.Shangjiyishichafanglu;
+import jhmk.clinic.entity.bean.*;
 import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import jhmk.clinic.entity.cdss.Date1206;
@@ -48,6 +46,8 @@ public class DataController extends BaseController {
     @Autowired
     SamilarService samilarService;
     @Autowired
+    BlzdService blzdService;
+    @Autowired
     BasyService basyService;
     @Autowired
     RyjuService ryjuService;
@@ -63,6 +63,8 @@ public class DataController extends BaseController {
     CdssService cdssService;
     @Autowired
     RuleService ruleService;
+    @Autowired
+    JybgService jybgService;
 
     public static final String sympol = "&&";
 
@@ -104,7 +106,7 @@ public class DataController extends BaseController {
                         bean.setQzeqc(0);
                     }
                 }
-            }else {
+            } else {
                 bean.setQzDay(-100);
             }
 //            String sjqzDate = sjyscflService.getSjqzDate(sjyscflBean, cyzd);
@@ -154,7 +156,7 @@ public class DataController extends BaseController {
 //        String fileName = "C:/嘉和美康文档/3院测试数据/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xls";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
         String fileName = "/data/1/CDSS/data/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xlsx";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
         int rowNum = 1;
-        String[] headers = {"ID", "PID", "VID", "科室名", "科室编码", "管床医师姓名", "入院时间", "出院时间", "出院主诊断", "入院主诊断", "上级医师查房", "入院诊断与出院诊断符合标识", "确诊时长(天)", "确诊项目与出院诊断是否一致", "推荐的列表", "辅助诊断命中的序列数","住院时长"}; //headers表示excel表中第一行的表头
+        String[] headers = {"ID", "PID", "VID", "科室名", "科室编码", "管床医师姓名", "入院时间", "出院时间", "出院主诊断", "入院主诊断", "上级医师查房", "入院诊断与出院诊断符合标识", "确诊时长(天)", "确诊项目与出院诊断是否一致", "推荐的列表", "辅助诊断命中的序列数", "住院时长"}; //headers表示excel表中第一行的表头
         XSSFRow row = sheet.createRow(0);
         //在excel表中添加表头
         for (int i = 0; i < headers.length; i++) {
@@ -519,6 +521,122 @@ public class DataController extends BaseController {
 
     }
 
+
+    /**
+     * 入选标准：
+     * 科室：呼吸科
+     * 入院诊断不包含：呼吸衰竭 ； 出院诊断不做筛选。
+     * <p>
+     * 三、考虑纳入的字段
+     * 3.1 一般资料 包括性别，年龄，心功能分级(I,II,III等)，入院时间，出院时间。入院诊断(包括主要和其他)，出院诊断(包括主要和其他)。
+     * 3.1   文书最终提交时间,明确诊断名称,治疗原则,是否明确诊断
+     * 3.3 吸烟史 糖尿病史 高血脂病史 呼吸衰竭病史
+     * 3.4 身体质量指数 BMI
+     * 3.6 血清乳酸，血清白蛋白，前白蛋白，总淋巴细胞，白细胞。血尿酸，肺功能(FEV)，
+     * 血气指标包括PaO2(氧气分压),PaCO2(二氧化碳分压),PH值，血尿素氮.C反应蛋白，
+     * 量表评分，急性生理与慢性健康(APACHE)评分指标，
+     * <p>
+     * 需要包含所有的检查时间
+     *
+     * @param response
+     */
+    @RequestMapping("/getHuxukeData")
+    public void getHuxukeData(HttpServletResponse response) {
+        List<Rule> huxikeData = basyService.getDataByDept("呼吸科");
+        List<Rule> resultList = new ArrayList<>();
+        for (Rule rule : huxikeData) {
+            String id = rule.getId();
+            List<Binglizhenduan> binglizhenduanList = blzdService.getBinglizhenduanById(id);
+            boolean isHaveName = false;
+            for (Binglizhenduan binglizhenduan : binglizhenduanList) {
+                if (binglizhenduan.getDiagnosis_name() != null && binglizhenduan.getDiagnosis_name().contains("呼吸衰竭")) {
+                    isHaveName = true;
+                    break;
+                }
+            }
+            if (isHaveName) {
+                continue;
+            }
+            rule.setBinglizhenduan(binglizhenduanList);
+            List<Shouyezhenduan> shoueyezhenduanBean = syzdService.getShoueyezhenduanBean(id);
+            rule.setShouyezhenduan(shoueyezhenduanBean);
+            List<Shangjiyishichafanglu> sjyscflBean = sjyscflService.getSJYSCFLBean(id);
+            rule.setShangjiyishichafangluList(sjyscflBean);
+            List<JianyanbaogaoNew> jianyanbaogaoList = jybgService.gtJybgnewById(id);
+            rule.setJianyanbaogaoNew(jianyanbaogaoList);
+            Ruyuanjilu ruyuanjiluById = ryjuService.getRuyuanjiluById(id);
+            rule.setRuyuanjilu(ruyuanjiluById);
+            resultList.add(rule);
+        }
+
+
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("sheet1");
+        String fileName = "C:/嘉和美康文档/3院测试数据/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "呼吸科数据.xlsx";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
+//        String fileName = "/data/1/CDSS/data/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xlsx";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
+        int rowNum = 0;
+        //在excel表中添加表头
+        for (Rule rule : resultList) {
+            XSSFRow row1 = sheet.createRow(rowNum);
+            int cellNum = 0;
+            row1.createCell(cellNum++).setCellValue(rule.getId());
+            Binganshouye binganshouye = rule.getBinganshouye();
+            row1.createCell(cellNum++).setCellValue("入院时间" + sympol + binganshouye.getAdmission_time());
+            row1.createCell(cellNum++).setCellValue("出院时间" + sympol + binganshouye.getDischarge_time());
+            row1.createCell(cellNum++).setCellValue("性别" + sympol + binganshouye.getPat_info_sex_name());
+            row1.createCell(cellNum++).setCellValue("年龄" + sympol + binganshouye.getPat_info_age_value() + binganshouye.getPat_info_age_value_unit());
+            List<Shouyezhenduan> shouyezhenduanList = rule.getShouyezhenduan();
+            for (Shouyezhenduan bean : shouyezhenduanList) {
+                row1.createCell(cellNum++).setCellValue(bean.getDiagnosis_type_name() + sympol + bean.getDiagnosis_name() + sympol + bean.getDiagnosis_time() + sympol + bean.getDiagnosis_num());
+            }
+            List<Shangjiyishichafanglu> shangjiyishichafangluList = rule.getShangjiyishichafangluList();
+            for (Shangjiyishichafanglu bean : shangjiyishichafangluList) {
+                if ("是".equals(bean.getClear_diagnose())) {
+                    row1.createCell(cellNum++).setCellValue("文书最终提交时间" + sympol + bean.getLast_modify_date_time());
+                    row1.createCell(cellNum++).setCellValue("明确诊断名称" + sympol + bean.getClear_diagnose_name());
+                    row1.createCell(cellNum++).setCellValue("治疗原则" + sympol + bean.getTreatment());
+                }
+            }
+            Ruyuanjilu ruyuanjilu = rule.getRuyuanjilu();
+            if (ruyuanjilu != null) {
+
+                HistoryOfPastIllness historyOfPastIllness = ruyuanjilu.getHistoryOfPastIllness();
+                if (historyOfPastIllness != null) {
+                    List<Disease> diseaseList = historyOfPastIllness.getDiseaseList();
+                    if (diseaseList != null && diseaseList.size() > 0) {
+                        for (Disease disease : diseaseList) {
+                            row1.createCell(cellNum++).setCellValue("既往史存在疾病：" + sympol + disease.getDisease_name() + sympol + disease.getDuration_of_illness() + disease.getDuration_of_illness_unit());
+                        }
+                    }
+                }
+            }
+            List<JianyanbaogaoNew> jianyanbaogao = rule.getJianyanbaogaoNew();
+            for (JianyanbaogaoNew bean : jianyanbaogao) {
+                String lab_item_name = bean.getLab_item_name();
+                String specimen = bean.getSpecimen();
+                String report_time = bean.getReport_time();
+                String name = bean.getLab_sub_item_name();
+                String lab_result_value = bean.getLab_result_value();
+                String lab_qual_result = bean.getLab_qual_result();
+                row1.createCell(cellNum++).setCellValue("检验单：" + lab_item_name + sympol + "检验细项名称：" + name + sympol + "检验时间："+report_time+sympol+"检验定量结果：" + lab_result_value + sympol + "检验定性结果:" + lab_qual_result);
+            }
+            rowNum++;
+
+        }
+        try {
+            FileOutputStream fos = new FileOutputStream(fileName);
+//            FileOutputStream fos = new FileOutputStream("C:/嘉和美康文档/3院测试数据/"+fileName);
+            workbook.write(fos);
+            System.out.println("写入成功");
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(resultList);
+
+    }
+
+
 //    public void method2(List<CdssRuleBean> resultList) {
 //        HSSFWorkbook workbook = new HSSFWorkbook();
 //        HSSFSheet sheet = workbook.createSheet("统计表");
@@ -610,8 +728,6 @@ public class DataController extends BaseController {
         }
 
     }
-
-
 
 
 }

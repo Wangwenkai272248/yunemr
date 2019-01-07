@@ -6,6 +6,7 @@ import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.DateFormatUtil;
 import jhmk.clinic.entity.bean.Jianyanbaogao;
 import jhmk.clinic.entity.bean.JianyanbaogaoForAuxiliary;
+import jhmk.clinic.entity.bean.JianyanbaogaoNew;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
@@ -103,6 +104,45 @@ public class JybgService {
             resultList.add(originalJianyanbaogao);
         }
         return resultList;
+    }
+
+    public List<JianyanbaogaoNew> gtJybgnewById(String id) {
+
+        List<JianyanbaogaoNew> jianyanbaogaoList = new ArrayList<>();
+        List<Document> countPatientId2 = Arrays.asList(
+                new Document("$match", new Document("_id", id))
+        );
+        AggregateIterable<Document> output = jybg.aggregate(countPatientId2);
+        for (Document document : output) {
+            Document jianyanbaogao = (Document) document.get("jianyanbaogao");
+            if (jianyanbaogao == null) {
+                continue;
+            }
+            Object lab_report = jianyanbaogao.get("lab_report");
+            if (lab_report == null) {
+                continue;
+            }
+            ArrayList<Document> labReportList = (ArrayList<Document>) lab_report;
+            for (Document doc : labReportList) {
+                JianyanbaogaoNew jianyanbaogaoTemp = new JianyanbaogaoNew();
+                String report_no = doc.getString("report_no");
+                jianyanbaogaoTemp.setReport_no(report_no);
+                jianyanbaogaoTemp.setLab_sub_item_name(doc.getString("lab_sub_item_name"));
+                jianyanbaogaoTemp.setSpecimen(doc.getString("specimen"));
+                jianyanbaogaoTemp.setReport_time(doc.getString("report_time"));
+                jianyanbaogaoTemp.setLab_item_name(doc.getString("lab_item_name"));
+//                    jianyanbaogaoForAuxiliary.setLab_result_value(doc.getString("lab_result_value"));
+                jianyanbaogaoTemp.setReference_range(doc.getString("range"));
+                jianyanbaogaoTemp.setLab_qual_result(doc.getString("lab_qual_result"));
+
+                Optional.ofNullable(doc.getString("lab_result_value_unit")).ifPresent(s -> jianyanbaogaoTemp.setLab_result_value_unit(s));
+                Optional.ofNullable(doc.getString("lab_result_value")).ifPresent(s -> jianyanbaogaoTemp.setLab_result_value(s));
+//                    jianyanbaogaoForAuxiliary.setUnit(doc.getString("lab_result_value_unit"));
+                jianyanbaogaoTemp.setResult_status_code(doc.getString("result_status_code"));
+                jianyanbaogaoList.add(jianyanbaogaoTemp);
+            }
+        }
+        return jianyanbaogaoList;
     }
 
 }

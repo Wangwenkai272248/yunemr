@@ -114,37 +114,53 @@ public class BasyService {
         return ruleList;
     }
 
-    public List<Misdiagnosis> getDataByDept(String deptName) {
-        List<Misdiagnosis> misdiagnosisList = new LinkedList<>();
+    public List<Rule> getDataByDept(String deptName) {
+        List<Rule> ruleList = new LinkedList<>();
         List<Document> countPatientId = Arrays.asList(
-                new Document("$match", new Document("binganshouye.pat_visit.dept_discharge_from_name", deptName)),
-                new Document("$project", new Document("patient_id", 1).append("_id", 1).append("visit_id", 1).append("binganshouye", 1))
-//                , new Document("$skip", 5000),
-//                new Document("$limit", 10000)
+                new Document("$match", new Document("binganshouye.pat_visit.dept_admission_to_name", deptName))        //骨科科室编码 1020500
+//                , new Document("$skip", CdssConstans.BEGINCOUNT),
+//                new Document("$limit", 10)
         );
+
         AggregateIterable<Document> output = binganshouye.aggregate(countPatientId);
         for (Document document : output) {
-            Misdiagnosis misdiagnosis = new Misdiagnosis();
+            Rule misdiagnosis = new Rule();
             if (document == null) {
                 continue;
             }
             misdiagnosis.setPatient_id(document.getString("patient_id"));
             misdiagnosis.setVisit_id(document.getString("visit_id"));
             misdiagnosis.setId(document.getString("_id"));
+            Binganshouye binganshouyeBean = new Binganshouye();
             Document binganshouye = (Document) document.get("binganshouye");
+            Document pat_info = (Document) binganshouye.get("pat_info");
+            binganshouyeBean.setPat_info_sex_name(pat_info.getString("sex_name"));
             Document patVisit = (Document) binganshouye.get("pat_visit");
-
-            misdiagnosis.setDept_discharge_from_name(patVisit.getString("dept_admission_to_name"));
-            //出院时间
+            binganshouyeBean.setPat_visit_dept_admission_to_name(patVisit.getString("dept_admission_to_name"));
+            binganshouyeBean.setPat_visit_dept_admission_to_code(patVisit.getString("dept_admission_to_code"));
+            binganshouyeBean.setPat_visit_dept_discharge_from_name(patVisit.getString("district_discharge_from_name"));
+            binganshouyeBean.setPat_visit_dept_discharge_from_code(patVisit.getString("district_discharge_from_code"));
+            binganshouyeBean.setPat_visit_dept_request_doctor_name(patVisit.getString("attending_doctor_name"));
+            String admission_time = patVisit.getString("admission_time");
             String discharge_time = patVisit.getString("discharge_time");
-            if ("2016".equals(discharge_time.substring(0, 4))) {
-                misdiagnosisList.add(misdiagnosis);
-            } else {
-                continue;
-            }
+            binganshouyeBean.setAdmission_time(patVisit.getString("admission_time"));
+            binganshouyeBean.setPat_info_age_value(patVisit.getString("age_value"));
+            binganshouyeBean.setPat_info_age_value_unit(patVisit.getString("age_value_unit"));
+            binganshouyeBean.setDischarge_time(patVisit.getString("discharge_time"));
+            //住院天数
+            String dept_admission_to_name = patVisit.getString("dept_admission_to_name");
+            binganshouyeBean.setDept_admission_to_name(dept_admission_to_name);
+            String dept_admission_to_code = patVisit.getString("dept_admission_to_code");
+            binganshouyeBean.setPat_visit_dept_admission_to_code(dept_admission_to_code);
+            String attending_doctor_name = patVisit.getString("attending_doctor_name");//主治医师
+            binganshouyeBean.setPat_visit_dept_request_doctor_name(attending_doctor_name);
+            misdiagnosis.setBinganshouye(binganshouyeBean);
+            ruleList.add(misdiagnosis);
         }
-        return misdiagnosisList;
+
+        return ruleList;
     }
+
 
     /**
      * 获取入院时间
@@ -294,7 +310,6 @@ public class BasyService {
             misdiagnosis.setPat_visit_dept_discharge_from_name(district_discharge_from_name);
             String district_discharge_from_code = patVisit.getString("district_discharge_from_code");
             misdiagnosis.setPat_visit_dept_discharge_from_code(district_discharge_from_code);
-
 
 
             String dept_admission_to_name = patVisit.getString("dept_admission_to_name");

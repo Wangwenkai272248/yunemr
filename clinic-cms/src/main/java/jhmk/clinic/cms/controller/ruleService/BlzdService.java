@@ -3,6 +3,7 @@ package jhmk.clinic.cms.controller.ruleService;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import jhmk.clinic.core.config.CdssConstans;
+import jhmk.clinic.entity.bean.Binglizhenduan;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,28 @@ public class BlzdService {
             Document binglizhenduan = (Document) document.get("binglizhenduan");
             String diagnosis_name = binglizhenduan.getString("diagnosis_name");
             list.add(diagnosis_name);
+        }
+        return list;
+    }
+
+    public List<Binglizhenduan> getBinglizhenduanById(String id) {
+        List<Binglizhenduan> list = new ArrayList<>();
+
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$binglizhenduan"),
+                new Document("$match", new Document("_id", id)),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("binglizhenduan", 1))
+        );
+        AggregateIterable<Document> binli = binglizhenduan.aggregate(countPatientId);
+        for (Document document : binli) {
+            Binglizhenduan bean=new Binglizhenduan();
+            Document binglizhenduan = (Document) document.get("binglizhenduan");
+            String diagnosis_name = binglizhenduan.getString("diagnosis_name");
+            bean.setDiagnosis_name(diagnosis_name);
+            bean.setDiagnosis_time(binglizhenduan.getString("diagnosis_time"));
+            bean.setDiagnosis_num(binglizhenduan.getString("diagnosis_num"));
+            bean.setDiagnosis_type_name(binglizhenduan.getString("diagnosis_type_name"));
+            list.add(bean);
         }
         return list;
     }

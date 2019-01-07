@@ -9,6 +9,7 @@ public class Shangjiyishichafanglu {
     private String clear_diagnose_name;//确诊名
     private String clear_diagnose;//是否确诊
     private String last_modify_date_time;//修改时间
+    private String treatment;//修改时间
     private String jbmc;//疾病名称
     private String zjsrc;//张杰src
 
@@ -50,5 +51,14 @@ public class Shangjiyishichafanglu {
 
     public void setZjsrc(String zjsrc) {
         this.zjsrc = zjsrc;
+    }
+
+
+    public String getTreatment() {
+        return treatment;
+    }
+
+    public void setTreatment(final String treatment) {
+        this.treatment = treatment;
     }
 }
