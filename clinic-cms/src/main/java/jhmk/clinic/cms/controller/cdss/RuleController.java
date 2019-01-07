@@ -43,6 +43,8 @@ public class RuleController extends BaseController {
     SyshService syshService;
     @Autowired
     SyzdService syzdService;
+    @Autowired
+    ScbcjlService scbcjlService;
 
     /**
      *
@@ -115,6 +117,8 @@ public class RuleController extends BaseController {
         rule.setCyzd(mainDisease);
         List<Shouyeshoushu> shouyeshoushu = syshService.getShouyeshoushu(id);
         rule.setShouyeshoushu(shouyeshoushu);
+        Shoucibingchengjilu shoucibingcheng = scbcjlService.getShoucibingchengById(id);
+        rule.setShoucibingchengjilu(shoucibingcheng);
         Object o = JSONObject.toJSON(rule);
         logger.info("返回的结果数据为：{}",JSONObject.toJSONString(o));
 

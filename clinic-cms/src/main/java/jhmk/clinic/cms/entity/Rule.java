@@ -48,7 +48,7 @@ public class Rule implements Serializable {
     private List<Shouyezhenduan> shouyezhenduan;
     private List<Yizhu> yizhu;
     private List<Shangjiyishichafanglu> shangjiyishichafangluList;
-
+    private Shoucibingchengjilu shoucibingchengjilu;
     public int getQzDay() {
         return qzDay;
     }
@@ -256,6 +256,14 @@ public class Rule implements Serializable {
 
     public void setCyzd(String cyzd) {
         this.cyzd = cyzd;
+    }
+
+    public Shoucibingchengjilu getShoucibingchengjilu() {
+        return shoucibingchengjilu;
+    }
+
+    public void setShoucibingchengjilu(final Shoucibingchengjilu shoucibingchengjilu) {
+        this.shoucibingchengjilu = shoucibingchengjilu;
     }
 
     public static Rule fill(JSONObject jo) {
