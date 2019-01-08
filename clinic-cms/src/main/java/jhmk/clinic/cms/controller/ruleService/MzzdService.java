@@ -4,6 +4,7 @@ import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.MongoUtils;
+import jhmk.clinic.entity.bean.Menzhenzhenduan;
 import jhmk.clinic.entity.bean.Misdiagnosis;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -16,10 +17,11 @@ import static jhmk.clinic.core.util.MongoUtils.getCollection;
 /**
  * @author ziyu.zhou
  * @date 2018/8/7 13:42
+ * 门诊诊断
  */
 
 @Service
-public class MenzhenzhenduanService {
+public class MzzdService {
     MongoCollection<Document> binganshouye = getCollection(CdssConstans.DATASOURCE, CdssConstans.BINGANSHOUYE);
     //入院记录
     static MongoCollection<Document> menzhenzhenduan = getCollection(CdssConstans.DATASOURCE, CdssConstans.MENZHENZHENDUAN);
@@ -29,9 +31,34 @@ public class MenzhenzhenduanService {
     /**
      * 根据id获取既往史
      *
-     * @param dept 获取指定科室的id集合
      * @return
      */
+    public List<Menzhenzhenduan> getMenzhenzhenduanById(String id) {
+        List<Menzhenzhenduan> list = new ArrayList<>();
+
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$menzhenzhenduan"),
+                new Document("$match", new Document("_id", id)),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("menzhenzhenduan", 1))
+        );
+        AggregateIterable<Document> binli = menzhenzhenduan.aggregate(countPatientId);
+        for (Document document : binli) {
+            Menzhenzhenduan bean = new Menzhenzhenduan();
+            Document binglizhenduan = (Document) document.get("menzhenzhenduan");
+            String diagnosis_name = binglizhenduan.getString("diagnosis_name");
+            String diagnosis_desc = binglizhenduan.getString("diagnosis_desc");
+            if (diagnosis_name != null) {
+                bean.setDiagnosis_name(diagnosis_name);
+            } else {
+                bean.setDiagnosis_name(diagnosis_desc);
+            }
+            bean.setDiagnosis_time(binglizhenduan.getString("diagnosis_time"));
+            bean.setDiagnosis_num(binglizhenduan.getString("diagnosis_num"));
+            bean.setDiagnosis_type_name(binglizhenduan.getString("diagnosis_type_name"));
+            list.add(bean);
+        }
+        return list;
+    }
 
     public List<String> get(String dept) {
         MongoCollection<Document> collection = MongoUtils.getCollection(CdssConstans.DATASOURCE, CdssConstans.mzjzjl);

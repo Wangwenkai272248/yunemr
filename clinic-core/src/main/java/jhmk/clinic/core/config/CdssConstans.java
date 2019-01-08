@@ -21,6 +21,8 @@ public class CdssConstans {
 
 
     public static final String MENZHENSHUJU = "menzhenshuju";
+    public static final String MZJCBG = "menzhenjianchabaogao";
+    public static final String MZJYBG = "menzhenjianyanbaogao";
     public static final String MENZHENZHENDUAN = "menzhenzhenduan";
     public static final String mzjzjl = "menzhenjiuzhenjilu";
     public static final String DECISION_RULE = "decision_rule";

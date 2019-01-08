@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import jhmk.clinic.cms.SamilarService;
 import jhmk.clinic.cms.controller.ruleService.*;
+import jhmk.clinic.cms.entity.MenzhenRule;
 import jhmk.clinic.cms.service.*;
 import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.config.CdssConstans;
@@ -89,6 +90,15 @@ public class CdssController extends BaseController {
     @Autowired
     SyshService syshService;
     @Autowired
+    MzjcbgService mzjcbgService;
+    @Autowired
+    MzjybgService mzjybgService;
+    @Autowired
+    MzsjService mzsjService;
+    @Autowired
+    MzzdService mzzdService;
+
+    @Autowired
     RestTemplate restTemplate;
 
 
@@ -143,6 +153,37 @@ public class CdssController extends BaseController {
         }
         //查询  ruyuanjilu 一诉五史
 
+    }
+
+
+    @PostMapping("/getMenzhenDataByPIdAndVId")
+    public void getMenzhenDataByPIdAndVId(HttpServletResponse response, @RequestBody(required = false) String map) {
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        String pid = jsonObject.getString("pid");
+        String vid = jsonObject.getString("vid");
+        String id = jsonObject.getString("id");
+//            String id = "BJCYYY#2#" + pid + "#" + vid;
+        if (StringUtils.isEmpty(id)) {
+            id = "BJDXDSYY#" + pid + "#" + vid;
+        }
+            MenzhenRule cdssTestBean = new MenzhenRule();
+        cdssTestBean.setId(id);
+        cdssTestBean.setPatient_id(pid);
+        cdssTestBean.setVisit_id(vid);
+        //病案首页
+
+        Mzbinganshouye mzbasyById = mzsjService.getMzbasyById(id);
+        cdssTestBean.setMzbinganshouye(mzbasyById);
+        //门诊诊断
+        List<Menzhenzhenduan> menzhenzhenduanById = mzzdService.getMenzhenzhenduanById(id);
+        cdssTestBean.setMenzhenzhenduanList(menzhenzhenduanById);
+        List<Menzhenjianchabaogao> mzjcbgById = mzjcbgService.getMzjcbgById(id);
+        cdssTestBean.setMenzhenjianchabaogaoList(mzjcbgById);
+        List<Menzhenjianyanbaogao> mzjybgById = mzjybgService.getMzjybgById(id);
+        cdssTestBean.setMenzhenjianyanbaogaoList(mzjybgById);
+        List<Map<String, String>> mzsjById = mzsjService.getMzsjById(id);
+        cdssTestBean.setMenzhenzhenshuju(mzsjById);
+        wirte(response, cdssTestBean);
     }
 
 
@@ -294,7 +335,7 @@ public class CdssController extends BaseController {
             logger.info("过完部门表结果数量为：{}", tem.size());
             if (StringUtils.isNotBlank(illName)) {
                 for (CdssRuleBean cdssRuleBean : tem) {
-                    if (illName.equals(cdssRuleBean.getCyzd())){
+                    if (illName.equals(cdssRuleBean.getCyzd())) {
                         resultTem.add(cdssRuleBean);
                     }
                 }
@@ -713,11 +754,11 @@ public class CdssController extends BaseController {
 //        String jsonStr = cdssService.getJsonStr(deptName, startTime, endTime);
         String s = HttpClient.doPost(CdssConstans.patients, jsonStr);
         List<CdssDiffBean> diffBeanList = cdssService.getDiffBeanList(s);
-        logger.info("ES查询获取到的疾病为：{}",diffBeanList.size());
+        logger.info("ES查询获取到的疾病为：{}", diffBeanList.size());
 //        List<CdssDiffBean> diffBeanList1 = cdssService.getDiffBeanList(diffBeanList);
         //获取入院等于出院数据
         List<CdssDiffBean> diffBeanList1 = cdssService.getRyeqCy(diffBeanList);
-        logger.info("入等于出过滤后到的疾病数量为：{}",diffBeanList1.size());
+        logger.info("入等于出过滤后到的疾病数量为：{}", diffBeanList1.size());
 
         //根据疾病名
         if (StringUtils.isNotBlank(diseaseName)) {
@@ -735,7 +776,7 @@ public class CdssController extends BaseController {
 
                 }
             }
-            logger.info("总结果为：======================={}",resultList.size());
+            logger.info("总结果为：======================={}", resultList.size());
             wirte(response, resultList);
         } else {
             wirte(response, diffBeanList1);
@@ -996,7 +1037,7 @@ public class CdssController extends BaseController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.info(e.getMessage());
-            wirte(response,"无数据");
+            wirte(response, "无数据");
         }
 
     }

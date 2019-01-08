@@ -1,5 +1,8 @@
 package jhmk.clinic.entity.cdss;
 
+import jhmk.clinic.entity.bean.Menzhenjianchabaogao;
+import jhmk.clinic.entity.bean.Menzhenjianyanbaogao;
+import jhmk.clinic.entity.bean.Menzhenzhenduan;
 import jhmk.clinic.entity.bean.Shouyeshoushu;
 
 import java.util.List;
@@ -34,7 +37,10 @@ public class CdssRuleBean {
     private List<Map<String, String>> jianchabaogao;
     private List<Map<String, String>> yizhu;
     private List<Shouyeshoushu> shouyeshoushu;
-
+    private List<Menzhenjianchabaogao>menzhenjianchabaogaoList;
+    private List<Menzhenjianyanbaogao>menzhenjianyanbaogaoList;
+    private List<Menzhenzhenduan>menzhenzhenduanList;
+    private List<Map<String,String>>menzhenzhenshuju;
     public List<Shouyeshoushu> getShouyeshoushu() {
         return shouyeshoushu;
     }
@@ -223,7 +229,40 @@ public class CdssRuleBean {
     }
 
     public void setAdmission_time(final String admission_time) {
+
         this.admission_time = admission_time;
+    }
+
+    public List<Menzhenjianchabaogao> getMenzhenjianchabaogaoList() {
+        return menzhenjianchabaogaoList;
+    }
+
+    public void setMenzhenjianchabaogaoList(final List<Menzhenjianchabaogao> menzhenjianchabaogaoList) {
+        this.menzhenjianchabaogaoList = menzhenjianchabaogaoList;
+    }
+
+    public List<Menzhenjianyanbaogao> getMenzhenjianyanbaogaoList() {
+        return menzhenjianyanbaogaoList;
+    }
+
+    public void setMenzhenjianyanbaogaoList(final List<Menzhenjianyanbaogao> menzhenjianyanbaogaoList) {
+        this.menzhenjianyanbaogaoList = menzhenjianyanbaogaoList;
+    }
+
+    public List<Menzhenzhenduan> getMenzhenzhenduanList() {
+        return menzhenzhenduanList;
+    }
+
+    public void setMenzhenzhenduanList(final List<Menzhenzhenduan> menzhenzhenduanList) {
+        this.menzhenzhenduanList = menzhenzhenduanList;
+    }
+
+    public List<Map<String, String>> getMenzhenzhenshuju() {
+        return menzhenzhenshuju;
+    }
+
+    public void setMenzhenzhenshuju(final List<Map<String, String>> menzhenzhenshuju) {
+        this.menzhenzhenshuju = menzhenzhenshuju;
     }
 }
 
