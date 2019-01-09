@@ -161,4 +161,26 @@ public class RuleController extends BaseController {
             wirte(response, s);
         }
     }
+
+    /**
+     *
+     * 获取特征因素详情
+     */
+    @RequestMapping("/getFeaturesInfo")
+    public void getFeaturesInfo(HttpServletResponse response, @RequestBody(required = false) String map) {
+        logger.info("获取到的初始数据为：{}",map);
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        String pid = jsonObject.getString("pid");
+        String vid = jsonObject.getString("vid");
+        String id = jsonObject.getString("id");
+        if (StringUtils.isEmpty(id)) {
+            id = "BJDXDSYY#" + pid + "#" + vid;
+        }
+        String shoucibingchengjiluSrc = scbcjlService.getFeaturesInfo(id);
+        Object o = JSONObject.toJSON(shoucibingchengjiluSrc);
+        logger.info("返回的结果数据为：{}",JSONObject.toJSONString(o));
+
+        wirte(response, o);
+    }
+
 }
