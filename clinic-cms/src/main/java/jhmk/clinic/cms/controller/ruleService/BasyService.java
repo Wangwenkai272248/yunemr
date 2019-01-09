@@ -118,8 +118,8 @@ public class BasyService {
         List<Rule> ruleList = new LinkedList<>();
         List<Document> countPatientId = Arrays.asList(
                 new Document("$match", new Document("binganshouye.pat_visit.dept_admission_to_name", deptName))        //骨科科室编码 1020500
-//                , new Document("$skip", CdssConstans.BEGINCOUNT),
-//                new Document("$limit", 10)
+                , new Document("$skip", CdssConstans.BEGINCOUNT),
+                new Document("$limit", 10)
         );
 
         AggregateIterable<Document> output = binganshouye.aggregate(countPatientId);
