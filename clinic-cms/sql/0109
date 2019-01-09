@@ -1,0 +1,5 @@
+
+ALTER TABLE zlfn_zhubiao add COLUMN total_costs FLOAT ;
+ALTER TABLE zlfn_zhubiao add COLUMN in_hospital_days int ;
+ALTER TABLE zlfn_zhubiao add COLUMN discharge_time VARCHAR(30) ;
+ALTER TABLE zlfn_zhubiao add COLUMN admission_time VARCHAR(30) ;

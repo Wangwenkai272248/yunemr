@@ -6,6 +6,7 @@ import jhmk.clinic.cms.entity.Rule;
 import jhmk.clinic.cms.service.CdssService;
 import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.config.CdssConstans;
+import jhmk.clinic.core.util.DateFormatUtil;
 import jhmk.clinic.entity.bean.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -18,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author ziyu.zhou
@@ -43,6 +46,8 @@ public class RuleController extends BaseController {
     SyshService syshService;
     @Autowired
     SyzdService syzdService;
+    @Autowired
+    ZhuyuanfeiyongService zhuyuanfeiyongService;
     @Autowired
     ScbcjlService scbcjlService;
 
@@ -93,7 +98,7 @@ public class RuleController extends BaseController {
 
     @PostMapping("/getDataByPIdAndVId")
     public void getDataByPIdAndVId(HttpServletResponse response, @RequestBody(required = false) String map) {
-        logger.info("获取到的初始数据为：{}",map);
+        logger.info("获取到的初始数据为：{}", map);
         JSONObject jsonObject = JSONObject.parseObject(map);
         String pid = jsonObject.getString("pid");
         String vid = jsonObject.getString("vid");
@@ -120,10 +125,11 @@ public class RuleController extends BaseController {
         Shoucibingchengjilu shoucibingcheng = scbcjlService.getShoucibingchengById(id);
         rule.setShoucibingchengjilu(shoucibingcheng);
         Object o = JSONObject.toJSON(rule);
-        logger.info("返回的结果数据为：{}",JSONObject.toJSONString(o));
+        logger.info("返回的结果数据为：{}", JSONObject.toJSONString(o));
 
         wirte(response, o);
     }
+
     /**
      * 使用历史数据获取新版治疗方案
      *
@@ -160,5 +166,29 @@ public class RuleController extends BaseController {
 
             wirte(response, s);
         }
+    }
+
+    /**
+     * 获取 住院时长和 总花费
+     *
+     * @param response
+     * @param map
+     */
+    @RequestMapping("/getTotalFeeAndHospitalDay")
+    public void getTotalFeeAndHospitalDay(HttpServletResponse response, @RequestBody(required = false) String map) {
+        JSONObject object = JSONObject.parseObject(map);
+        String patientId = object.getString("patientId");
+        String visitId = object.getString("visitId");
+        String id = "BJDXDSYY#" + patientId + "#" + visitId;
+        Float totalFeeById = zhuyuanfeiyongService.getTotalFeeById(id);
+        String admissionTime = basyService.getAdmissionTime(id);
+        String dischargeTime = basyService.getDischargeTime(id);
+        int i = DateFormatUtil.dateDiff1(DateFormatUtil.parseDateBySdf(dischargeTime, DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(admissionTime, DateFormatUtil.DATETIME_PATTERN_SS));
+        Map<String, Object> data = new HashMap<>(2);
+        data.put("admissionTime", admissionTime);
+        data.put("dischargeTime", dischargeTime);
+        data.put("total_costs", totalFeeById);
+        data.put("in_hospital_days", i);
+        wirte(response, data);
     }
 }
