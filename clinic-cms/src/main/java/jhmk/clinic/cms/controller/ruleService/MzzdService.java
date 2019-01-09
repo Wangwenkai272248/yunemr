@@ -3,7 +3,6 @@ package jhmk.clinic.cms.controller.ruleService;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import jhmk.clinic.core.config.CdssConstans;
-import jhmk.clinic.core.util.MongoUtils;
 import jhmk.clinic.entity.bean.Menzhenzhenduan;
 import jhmk.clinic.entity.bean.Misdiagnosis;
 import org.apache.commons.lang3.StringUtils;
@@ -22,12 +21,8 @@ import static jhmk.clinic.core.util.MongoUtils.getCollection;
 
 @Service
 public class MzzdService {
-    MongoCollection<Document> binganshouye = getCollection(CdssConstans.DATASOURCE, CdssConstans.BINGANSHOUYE);
     //入院记录
     static MongoCollection<Document> menzhenzhenduan = getCollection(CdssConstans.DATASOURCE, CdssConstans.MENZHENZHENDUAN);
-    static MongoCollection<Document> menzhenshuju = getCollection(CdssConstans.DATASOURCE, CdssConstans.MENZHENSHUJU);
-    static MongoCollection<Document> mzjzjl = getCollection(CdssConstans.DATASOURCE, CdssConstans.mzjzjl);
-
     /**
      * 根据id获取既往史
      *
@@ -60,38 +55,6 @@ public class MzzdService {
         return list;
     }
 
-    public List<String> get(String dept) {
-        MongoCollection<Document> collection = MongoUtils.getCollection(CdssConstans.DATASOURCE, CdssConstans.mzjzjl);
-//        Pattern pattern = Pattern.compile("^.*耳鼻.*$", Pattern.CASE_INSENSITIVE);
-        List<String> idList = new LinkedList<>();
-        List<Document> countPatientId2 = Arrays.asList(
-                //过滤数据
-                new Document("$match", new Document("menzhenjiuzhenjilu.visit_dept_name", dept))
-//                , new Document("$skip", 5000),
-//                new Document("$limit", 10000)
-
-        );
-//        BasicDBObject query = new BasicDBObject();
-//        //加入查询条件
-//        query.put("menzhenjiuzhenjilu.visit_dept_name", pattern);
-//        //按名次升序排序
-//        BasicDBObject sort = new BasicDBObject();
-//        // 1,表示正序； －1,表示倒序
-//        FindIterable<Document> iterable = collection.find(query);
-//
-//        MongoCursor<Document> iterator = iterable.iterator();
-//        while (iterator.hasNext()) {
-//            System.out.println(iterator.next());
-//        }
-        AggregateIterable<Document> output = mzjzjl.aggregate(countPatientId2);
-
-        for (Document document : output) {
-
-            String id = document.getString("_id");
-            idList.add(id);
-        }
-        return idList;
-    }
 
     /**
      * 根据id获取门诊数据

@@ -94,6 +94,8 @@ public class CdssController extends BaseController {
     @Autowired
     MzjybgService mzjybgService;
     @Autowired
+    MzjzjlService mzjzjlService;
+    @Autowired
     MzsjService mzsjService;
     @Autowired
     MzzdService mzzdService;
@@ -172,8 +174,9 @@ public class CdssController extends BaseController {
         cdssTestBean.setVisit_id(vid);
         //病案首页
 
-        Mzbinganshouye mzbasyById = mzsjService.getMzbasyById(id);
-        cdssTestBean.setMzbinganshouye(mzbasyById);
+//        Mzbinganshouye mzbasyById = mzsjService.getMzbasyById(id);
+        Mzbinganshouye mzBinganshouyeById = mzjzjlService.getMzBinganshouyeById(id);
+        cdssTestBean.setMzbinganshouye(mzBinganshouyeById);
         //门诊诊断
         List<Menzhenzhenduan> menzhenzhenduanById = mzzdService.getMenzhenzhenduanById(id);
         cdssTestBean.setMenzhenzhenduanList(menzhenzhenduanById);
