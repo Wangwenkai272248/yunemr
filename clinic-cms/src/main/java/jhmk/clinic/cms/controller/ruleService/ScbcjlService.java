@@ -155,33 +155,6 @@ public class ScbcjlService {
         return shoucibingchengjilu;
     }
 
-    /**
-     * 根据id查询首次病程记录的src
-     *
-     * @param id
-     * @return
-     */
-    public String getFeaturesInfo(String id) {
-        List<Document> countPatientId = Arrays.asList(
-                new Document("$match", new Document("_id", id)),
-                new Document("$project", new Document("patient_id", 1).append("_id", 1).append("visit_id", 1).append("shoucibingchengjilu", 1))
-        );
-        AggregateIterable<Document> output = scbcjl.aggregate(countPatientId);
-        String src = "";
-        for (Document document : output) {
-            if (document == null) {
-                continue;
-            }
-            Document shoucibingchengjiluDoc = (Document) document.get("shoucibingchengjilu");
-            //诊断与鉴别诊断
-            Object diagnosis_and_differential_diagnosis = shoucibingchengjiluDoc.get("diagnosis_and_differential_diagnosis");
-            if (Objects.nonNull(diagnosis_and_differential_diagnosis)) {
-                Document diagnosisAndDifferentialDiagnosisDoc = (Document) diagnosis_and_differential_diagnosis;
-                src = diagnosisAndDifferentialDiagnosisDoc.getString("src");
-            }
-        }
-        return src;
-    }
 //    public static void main(String[] args) {
 //        Shoucibingchengjilu shoucibingchengById = getShoucibingchengById("BJDXDSYY#000479513600#14");
 //        System.out.println(shoucibingchengById);

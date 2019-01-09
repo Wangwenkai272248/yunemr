@@ -6,6 +6,7 @@ import jhmk.clinic.cms.entity.Rule;
 import jhmk.clinic.cms.service.CdssService;
 import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.config.CdssConstans;
+import jhmk.clinic.core.util.DateFormatUtil;
 import jhmk.clinic.entity.bean.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -18,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author ziyu.zhou
@@ -43,6 +46,8 @@ public class RuleController extends BaseController {
     SyshService syshService;
     @Autowired
     SyzdService syzdService;
+    @Autowired
+    ZhuyuanfeiyongService zhuyuanfeiyongService;
     @Autowired
     ScbcjlService scbcjlService;
 
@@ -93,7 +98,7 @@ public class RuleController extends BaseController {
 
     @PostMapping("/getDataByPIdAndVId")
     public void getDataByPIdAndVId(HttpServletResponse response, @RequestBody(required = false) String map) {
-        logger.info("获取到的初始数据为：{}",map);
+        logger.info("获取到的初始数据为：{}", map);
         JSONObject jsonObject = JSONObject.parseObject(map);
         String pid = jsonObject.getString("pid");
         String vid = jsonObject.getString("vid");
@@ -120,10 +125,11 @@ public class RuleController extends BaseController {
         Shoucibingchengjilu shoucibingcheng = scbcjlService.getShoucibingchengById(id);
         rule.setShoucibingchengjilu(shoucibingcheng);
         Object o = JSONObject.toJSON(rule);
-        logger.info("返回的结果数据为：{}",JSONObject.toJSONString(o));
+        logger.info("返回的结果数据为：{}", JSONObject.toJSONString(o));
 
         wirte(response, o);
     }
+
     /**
      * 使用历史数据获取新版治疗方案
      *
@@ -185,26 +191,4 @@ public class RuleController extends BaseController {
         data.put("in_hospital_days", i);
         wirte(response, data);
     }
-
-    /**
-     *
-     * 获取特征因素详情
-     */
-    @RequestMapping("/getFeaturesInfo")
-    public void getFeaturesInfo(HttpServletResponse response, @RequestBody(required = false) String map) {
-        logger.info("获取到的初始数据为：{}",map);
-        JSONObject jsonObject = JSONObject.parseObject(map);
-        String pid = jsonObject.getString("pid");
-        String vid = jsonObject.getString("vid");
-        String id = jsonObject.getString("id");
-        if (StringUtils.isEmpty(id)) {
-            id = "BJDXDSYY#" + pid + "#" + vid;
-        }
-        String shoucibingchengjiluSrc = scbcjlService.getFeaturesInfo(id);
-        Object o = JSONObject.toJSON(shoucibingchengjiluSrc);
-        logger.info("返回的结果数据为：{}",JSONObject.toJSONString(o));
-
-        wirte(response, o);
-    }
-
 }
