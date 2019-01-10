@@ -108,6 +108,14 @@ public class RuleController extends BaseController {
         if (StringUtils.isEmpty(id)) {
             id = "BJDXDSYY#" + pid + "#" + vid;
         }
+        String[] ids = null;
+        if(id!=null && id.length()>0){
+            ids=id.split("#");
+        }
+        if(ids.length==3){
+            pid = ids[1];
+            vid = ids[2];
+        }
         Rule rule = new Rule();
         rule.setPatient_id(pid);
         rule.setVisit_id(vid);
