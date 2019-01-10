@@ -8,6 +8,8 @@ import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.DateFormatUtil;
 import jhmk.clinic.entity.bean.*;
+import jhmk.clinic.entity.model.AtResponse;
+import jhmk.clinic.entity.model.ResponseCode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,5 +192,28 @@ public class RuleController extends BaseController {
         data.put("total_costs", totalFeeById);
         data.put("in_hospital_days", i);
         wirte(response, data);
+    }
+    /**
+     *
+     * 获取特征因素详情
+     */
+    @RequestMapping("/getFeaturesInfo")
+    public void getFeaturesInfo(HttpServletResponse response, @RequestBody(required = false) String map) {
+        AtResponse resp=new AtResponse(System.currentTimeMillis());
+
+        logger.info("获取到的初始数据为：{}",map);
+        JSONObject jsonObject = JSONObject.parseObject(map);
+        String pid = jsonObject.getString("pid");
+        String vid = jsonObject.getString("vid");
+        String id = jsonObject.getString("id");
+        if (StringUtils.isEmpty(id)) {
+            id = "BJDXDSYY#" + pid + "#" + vid;
+        }
+        String shoucibingchengjiluSrc = scbcjlService.getFeaturesInfo(id);
+        Object o = JSONObject.toJSON(shoucibingchengjiluSrc);
+        logger.info("返回的结果数据为：{}",JSONObject.toJSONString(o));
+        resp.setData(shoucibingchengjiluSrc);
+        resp.setResponseCode(ResponseCode.OK);
+        wirte(response, resp);
     }
 }
