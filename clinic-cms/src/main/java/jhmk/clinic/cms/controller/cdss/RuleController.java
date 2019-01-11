@@ -1,6 +1,8 @@
 package jhmk.clinic.cms.controller.cdss;
 
 import com.alibaba.fastjson.JSONObject;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import jhmk.clinic.cms.controller.ruleService.*;
 import jhmk.clinic.cms.entity.Rule;
 import jhmk.clinic.cms.service.CdssService;
@@ -31,6 +33,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/rule")
+@Api("swaggerRuleController相关的api")
 public class RuleController extends BaseController {
     Logger logger = LoggerFactory.getLogger(RuleController.class);
     @Autowired
@@ -98,6 +101,7 @@ public class RuleController extends BaseController {
      * @param map
      */
 
+    @ApiOperation(value = "根据id查询鉴别诊断信息", notes = "优先查询mysql，没有数据再查询mongo")
     @PostMapping("/getDataByPIdAndVId")
     public void getDataByPIdAndVId(HttpServletResponse response, @RequestBody(required = false) String map) {
         logger.info("获取到的初始数据为：{}", map);
