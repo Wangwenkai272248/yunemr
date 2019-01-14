@@ -46,7 +46,7 @@ public class CdssConstans {
 
     //        数据库
     public static final String CDSSDATASOURCE = PropertiesConfigUtil.getProperty("mongo.cdssdatasource").toString();
-    public static final String DATASOURCE = PropertiesConfigUtil.getProperty("mongo.bysydatasource").toString();
+    public static final String DATASOURCE = PropertiesConfigUtil.getProperty("mongo.datasource").toString();
     public static final String CYDATASOURCE = PropertiesConfigUtil.getProperty("mongo.cyyydatasource").toString();
     public static final String HOST = PropertiesConfigUtil.getProperty("mongo.host").toString();
 

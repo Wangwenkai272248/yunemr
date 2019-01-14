@@ -157,7 +157,8 @@ public class RuleController extends BaseController {
             String id = bean.getId();
             String rycz = cdssService.getRycz(id);
             String cyzd = syzdService.getCyzd(id);
-
+            Float totalFeeById = zhuyuanfeiyongService.getTotalFeeById(id);
+            bean.setTotal_costs(totalFeeById);
             //入等于出
             if (StringUtils.isNotBlank(rycz) && rycz.equals(cyzd)) {
                 bean.setRycz(rycz);

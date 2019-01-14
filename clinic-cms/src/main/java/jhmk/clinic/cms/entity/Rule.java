@@ -29,6 +29,8 @@ public class Rule implements Serializable {
     private String rycz;
     //入院等于出院
     private String cyzd;
+    //总费用
+    private float total_costs;
     //入院主诊断与出院主诊断是否相同，相同为1，不相同为0
     private int reqc;
     //    确诊项目与出院诊断是否一致
@@ -201,6 +203,14 @@ public class Rule implements Serializable {
 
     public void setShangjiyishichafangluList(List<Shangjiyishichafanglu> shangjiyishichafangluList) {
         this.shangjiyishichafangluList = shangjiyishichafangluList;
+    }
+
+    public float getTotal_costs() {
+        return total_costs;
+    }
+
+    public void setTotal_costs(final float total_costs) {
+        this.total_costs = total_costs;
     }
 
     public int getReqc() {
