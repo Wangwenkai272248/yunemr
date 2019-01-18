@@ -152,6 +152,8 @@ public class CdssService {
             if (StringUtils.isEmpty(patVisit.getString("dept_admission_to_code"))) {
                 return null;
             }
+            map.put("patient_id", document.getString("patient_id"));
+            map.put("visit_id", document.getString("visit_id"));
             map.put("pat_visit_dept_admission_to_code", patVisit.getString("dept_admission_to_code"));
             map.put("pat_info_sex_name", (String) patInfo.get("sex_name"));
             map.put("pat_info_age_value", (String) patVisit.get("age_value"));

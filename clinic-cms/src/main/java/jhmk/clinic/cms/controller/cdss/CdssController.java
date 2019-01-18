@@ -168,7 +168,7 @@ public class CdssController extends BaseController {
         if (StringUtils.isEmpty(id)) {
             id = "BJDXDSYY#" + pid + "#" + vid;
         }
-            MenzhenRule cdssTestBean = new MenzhenRule();
+        MenzhenRule cdssTestBean = new MenzhenRule();
         cdssTestBean.setId(id);
         cdssTestBean.setPatient_id(pid);
         cdssTestBean.setVisit_id(vid);
@@ -298,6 +298,26 @@ public class CdssController extends BaseController {
             Object o = JSONObject.toJSON(cdssTestBean);
             wirte(response, o);
         }
+    }
+
+    @PostMapping("/getDeptData")
+    @ResponseBody
+    public void getDeptData(HttpServletResponse response) {
+        Map<String, List<Map<String, String>>> resultMap = new HashMap<>();
+        for (CdssRuleBean bean : caseList) {
+            Map<String, String> binganshouye = bean.getBinganshouye();
+            String pat_visit_dept_admission_to_name = binganshouye.get("pat_visit_dept_admission_to_name");
+            if (resultMap.containsKey(pat_visit_dept_admission_to_name)) {
+                List<Map<String, String>> mapList = resultMap.get(pat_visit_dept_admission_to_name);
+                mapList.add(binganshouye);
+                resultMap.put(pat_visit_dept_admission_to_name, mapList);
+            } else {
+                List<Map<String, String>> mapList = new ArrayList<>();
+                mapList.add(binganshouye);
+                resultMap.put(pat_visit_dept_admission_to_name, mapList);
+            }
+        }
+        wirte(response, resultMap);
     }
 
     /**
