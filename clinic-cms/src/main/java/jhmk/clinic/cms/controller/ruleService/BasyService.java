@@ -114,6 +114,53 @@ public class BasyService {
         return ruleList;
     }
 
+    public List<Rule> getDataByCondition(JSONObject object) {
+        List<Rule> ruleList = new LinkedList<>();
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$project", new Document("patient_id", 1).append("_id", 1).append("visit_id", 1).append("binganshouye", 1))
+                , new Document("$match", new Document("binganshouye.pat_visit.dept_admission_to_code", object.getString("dept_code")))        //骨科科室编码 1020500
+                , new Document("$match", new Document("binganshouye.pat_visit.admission_time", new Document(object.getString("sympol"), object.getString("admission_time"))))
+                , new Document("$skip", object.getInteger("skip"))
+                , new Document("$limit", object.getInteger("limit"))
+        );
+
+        AggregateIterable<Document> output = binganshouye.aggregate(countPatientId);
+        for (Document document : output) {
+            Rule misdiagnosis = new Rule();
+            if (document == null) {
+                continue;
+            }
+            misdiagnosis.setPatient_id(document.getString("patient_id"));
+            misdiagnosis.setVisit_id(document.getString("visit_id"));
+            misdiagnosis.setId(document.getString("_id"));
+            Document binganshouye = (Document) document.get("binganshouye");
+            Document patVisit = (Document) binganshouye.get("pat_visit");
+            Binganshouye binganshouyeBean = new Binganshouye();
+            binganshouyeBean.setPat_visit_dept_admission_to_name(patVisit.getString("dept_admission_to_name"));
+            binganshouyeBean.setPat_visit_dept_admission_to_code(patVisit.getString("dept_admission_to_code"));
+            binganshouyeBean.setPat_visit_dept_discharge_from_name(patVisit.getString("district_discharge_from_name"));
+            binganshouyeBean.setPat_visit_dept_discharge_from_code(patVisit.getString("district_discharge_from_code"));
+            binganshouyeBean.setPat_visit_dept_request_doctor_name(patVisit.getString("attending_doctor_name"));
+            String admission_time = patVisit.getString("admission_time");
+            String discharge_time = patVisit.getString("discharge_time");
+            binganshouyeBean.setAdmission_time(patVisit.getString("admission_time"));
+            binganshouyeBean.setDischarge_time(patVisit.getString("discharge_time"));
+            //住院天数
+            String dept_admission_to_name = patVisit.getString("dept_admission_to_name");
+            binganshouyeBean.setDept_admission_to_name(dept_admission_to_name);
+            String dept_admission_to_code = patVisit.getString("dept_admission_to_code");
+            binganshouyeBean.setPat_visit_dept_admission_to_code(dept_admission_to_code);
+            String attending_doctor_name = patVisit.getString("attending_doctor_name");//主治医师
+            binganshouyeBean.setPat_visit_dept_request_doctor_name(attending_doctor_name);
+            int i = DateFormatUtil.dateDiff1(DateFormatUtil.parseDateBySdf(discharge_time, DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(admission_time, DateFormatUtil.DATETIME_PATTERN_SS));
+            misdiagnosis.setHospitalDay(i);
+            misdiagnosis.setBinganshouye(binganshouyeBean);
+            ruleList.add(misdiagnosis);
+        }
+
+        return ruleList;
+    }
+
     public List<Rule> getDataByDept(String deptName) {
         List<Rule> ruleList = new LinkedList<>();
         List<Document> countPatientId = Arrays.asList(
