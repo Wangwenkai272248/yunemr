@@ -33,4 +33,10 @@ public class HttpHeadersUtils {
         headers.setContentType(type);
         return headers;
     }
+
+    public static HttpHeaders getHeader(MediaType type) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(type);
+        return httpHeaders;
+    }
 }
