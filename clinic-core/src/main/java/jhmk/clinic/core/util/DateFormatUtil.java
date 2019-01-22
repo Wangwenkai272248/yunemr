@@ -89,7 +89,13 @@ public class DateFormatUtil {
      * @return
      */
     public static long dateDiff(Date d1, Date d2) {
-        long l = (d1.getTime() - d2.getTime()) / (60 * 60 * 1000 * 24)+1;
+        long l = (d1.getTime() - d2.getTime()) / (60 * 60 * 1000 * 24) + 1;
+        return l;
+    }
+
+    public static long dateDiff(String d1, String d2) {
+        int l = (int) DateFormatUtil.dateDiff(DateFormatUtil.parseDateBySdf(d1, DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(d2, DateFormatUtil.DATETIME_PATTERN_SS));
+
         return l;
     }
 
@@ -156,7 +162,7 @@ public class DateFormatUtil {
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         Date parse = null;
         try {
-            if(dateStr==null){
+            if (dateStr == null) {
             }
             parse = sdf.parse(dateStr);
 
