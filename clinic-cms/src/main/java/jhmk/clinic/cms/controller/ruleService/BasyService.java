@@ -120,6 +120,7 @@ public class BasyService {
                 new Document("$project", new Document("patient_id", 1).append("_id", 1).append("visit_id", 1).append("binganshouye", 1))
                 , new Document("$match", new Document("binganshouye.pat_visit.dept_admission_to_code", object.getString("dept_code")))        //骨科科室编码 1020500
                 , new Document("$match", new Document("binganshouye.pat_visit.admission_time", new Document(object.getString("sympol"), object.getString("admission_time"))))
+                , new Document("$match", new Document("binganshouye.pat_visit.admission_time", new Document(object.getString("secondsympol"), object.getString("discharge_time"))))
                 , new Document("$skip", object.getInteger("skip"))
                 , new Document("$limit", object.getInteger("limit"))
         );

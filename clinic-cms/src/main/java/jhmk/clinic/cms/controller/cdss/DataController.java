@@ -12,6 +12,7 @@ import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
 import jhmk.clinic.core.util.DateFormatUtil;
+import jhmk.clinic.core.util.DocumentUtil;
 import jhmk.clinic.core.util.HttpClient;
 import jhmk.clinic.entity.bean.*;
 import jhmk.clinic.entity.cdss.CdssDiffBean;
@@ -63,6 +64,8 @@ public class DataController extends BaseController {
     CdssService cdssService;
     @Autowired
     RuleService ruleService;
+    @Autowired
+    DocumentUtil documentUtil;
     @Autowired
     JybgService jybgService;
 
@@ -248,13 +251,13 @@ public class DataController extends BaseController {
     }
 
     /**
-     * 普外科 ：1020100
      * 骨科 ：1020500
      * 普外科 ：1020100
      * 耳鼻喉科 ：1200000
      * 血液病科 ：1010400
      * 呼吸科 ：1010300
      * 心血管科 ：1010100
+     *
      * @param response
      * @param map
      */
@@ -262,6 +265,7 @@ public class DataController extends BaseController {
     @ResponseBody
     public void getDataByCondition(HttpServletResponse response, @RequestBody(required = false) String map) {
         List<Rule> dataByCondition = basyService.getDataByCondition(JSONObject.parseObject(map));
+        String dept_admission_to_name = dataByCondition.get(0).getBinganshouye().getDept_admission_to_name();
         logger.info("数量为：====》》》》{}", dataByCondition.size());
         for (Rule bean : dataByCondition) {
             String id = bean.getId();
@@ -269,12 +273,20 @@ public class DataController extends BaseController {
             String cyzd = syzdService.getCyzd(id);
             bean.setRycz(rycz);
             bean.setCyzd(cyzd);
-            //入等于出
-            if (StringUtils.isNotBlank(rycz) && rycz.equals(cyzd)) {
+
+            if (isParentOrChildByEs(rycz, cyzd)) {
                 bean.setReqc(1);
             } else {
                 bean.setReqc(0);
+
             }
+
+//            //入等于出
+//            if (StringUtils.isNotBlank(rycz) && rycz.equals(cyzd)) {
+//                bean.setReqc(1);
+//            } else {
+//                bean.setReqc(0);
+//            }
             String admission_time = bean.getBinganshouye().getAdmission_time();
             List<Shangjiyishichafanglu> sjyscflBean = sjyscflService.getSJYSCFLBean(id);
 
@@ -342,7 +354,7 @@ public class DataController extends BaseController {
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("sheet1");
 //        String fileName = "C:/嘉和美康文档/3院测试数据/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xls";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
-        String fileName = "/data/1/CDSS/data/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATETIME_PATTERN_S) + "骨科数据.xlsx";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
+        String fileName = "/data/1/CDSS/data/" + DateFormatUtil.format(new Date(), DateFormatUtil.DATE_PATTERN) + "_" + dept_admission_to_name + dataByCondition.size() + "条数据.xlsx";//设置要导出的文件的名字 //新增数据行，并且设置单元格数据
         int rowNum = 1;
         String[] headers = {"ID", "PID", "VID", "科室名", "科室编码", "管床医师姓名", "入院时间", "出院时间", "出院主诊断", "入院主诊断", "上级医师查房", "入院诊断与出院诊断符合标识", "确诊时长(天)", "确诊项目与出院诊断是否一致", "推荐的列表", "辅助诊断命中的序列数", "住院时长"}; //headers表示excel表中第一行的表头
         XSSFRow row = sheet.createRow(0);
@@ -371,7 +383,8 @@ public class DataController extends BaseController {
             row1.createCell(13).setCellValue(bean.getQzeqc());
             row1.createCell(14).setCellValue(bean.getModelList());
             row1.createCell(15).setCellValue(bean.getNumRate());
-
+            long l = DateFormatUtil.dateDiff(DateFormatUtil.parseDateBySdf(bean.getBinganshouye().getDischarge_time(), DateFormatUtil.DATETIME_PATTERN_SS), DateFormatUtil.parseDateBySdf(bean.getBinganshouye().getAdmission_time(), DateFormatUtil.DATETIME_PATTERN_SS));
+            row1.createCell(16).setCellValue(l);
             rowNum++;
         }
         try {
@@ -434,6 +447,22 @@ public class DataController extends BaseController {
 //        }
         wirte(response, "导入文件成功");
     }
+
+    public boolean isParentOrChildByEs(String name1, String name2) {
+        if (StringUtils.isEmpty(name1)||StringUtils.isEmpty(name2)){
+            return false;
+        }
+        if (name2.equals(name1)) {
+            return true;
+        }
+        List<String> allChildDisease = documentUtil.getAllChildDisease(name2);
+        if (allChildDisease != null && allChildDisease.contains(name1)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     public void getGukedata(HttpServletResponse response, @RequestBody(required = false) String map) {
         List<Rule> gukeDataByCondition = basyService.getGukeDataByCondition(JSONObject.parseObject(map));
@@ -806,7 +835,7 @@ public class DataController extends BaseController {
                 String name = bean.getLab_sub_item_name();
                 String lab_result_value = bean.getLab_result_value();
                 String lab_qual_result = bean.getLab_qual_result();
-                row1.createCell(cellNum++).setCellValue("检验单：" + lab_item_name + sympol + "检验细项名称：" + name + sympol + "检验时间："+report_time+sympol+"检验定量结果：" + lab_result_value + sympol + "检验定性结果:" + lab_qual_result);
+                row1.createCell(cellNum++).setCellValue("检验单：" + lab_item_name + sympol + "检验细项名称：" + name + sympol + "检验时间：" + report_time + sympol + "检验定量结果：" + lab_result_value + sympol + "检验定性结果:" + lab_qual_result);
             }
             rowNum++;
 
