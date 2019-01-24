@@ -3,11 +3,14 @@ package jhmk.clinic.cms.controller.cdss;
 import com.alibaba.fastjson.JSONObject;
 import jhmk.clinic.cms.SamilarService;
 import jhmk.clinic.cms.controller.ruleService.*;
+import jhmk.clinic.cms.entity.Disease_attribution;
 import jhmk.clinic.cms.entity.Rule;
+import jhmk.clinic.cms.exception.MyException;
 import jhmk.clinic.cms.service.BiaozhuService;
 import jhmk.clinic.cms.service.CdssService;
 import jhmk.clinic.cms.service.ReadFileService;
 import jhmk.clinic.cms.service.Write2File;
+import jhmk.clinic.cms.util.ExportExcelUtil;
 import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
@@ -18,8 +21,13 @@ import jhmk.clinic.entity.bean.*;
 import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import jhmk.clinic.entity.cdss.Date1206;
+import jhmk.clinic.entity.model.ResponseCode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +37,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -70,6 +81,8 @@ public class DataController extends BaseController {
     JybgService jybgService;
 
     public static final String sympol = "&&";
+    private static final String SUFFIX_2003 = ".xls";
+    private static final String SUFFIX_2007 = ".xlsx";
 
     @RequestMapping("/getGukedata")
     @ResponseBody
@@ -947,4 +960,78 @@ public class DataController extends BaseController {
     }
 
 
+    /**
+     *根据罕见病，获取患者的信息
+     */
+    @RequestMapping("/getDiseaseInfo")
+    public void getDiseaseInfo(MultipartFile file, HttpServletRequest req, HttpServletResponse response) throws MyException {
+        /*Map<String,Integer> map = new HashMap();
+        if (file == null) {
+            throw new MyException("对象不能为空");
+        }
+        String originalFilename = file.getOriginalFilename();
+        Workbook workbook = null;
+        try {
+            if (originalFilename.endsWith(SUFFIX_2003)) {
+                workbook = new HSSFWorkbook(file.getInputStream());
+            } else if (originalFilename.endsWith(SUFFIX_2007)) {
+                workbook = new XSSFWorkbook(file.getInputStream());
+            }
+        } catch (IOException e) {
+            logger.info(originalFilename);
+            e.printStackTrace();
+            throw new MyException("文件格式不对");
+        }
+
+        List<String> diseaseCodeList = new ArrayList();
+        List<String> diseaseNameList = new ArrayList();
+        if (workbook == null) {
+            logger.info(originalFilename);
+            throw new MyException("内容为空");
+        } else {
+            //获取所有的工作表的的数量
+//            int numOfSheet = workbook.getNumberOfSheets();
+            //获取第二个sheet页的内容
+            Sheet sheet = workbook.getSheetAt(1);
+            int lastRowNum = sheet.getLastRowNum();
+            for (int j = 1; j <= lastRowNum; j++) {
+                Row row = sheet.getRow(j);
+                if (row.getCell(1) != null) {
+                    row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);
+                    String diseaseName = row.getCell(1).getStringCellValue();
+                    diseaseNameList.add(diseaseName);
+                }
+                if (row.getCell(2) != null) {
+                    row.getCell(2).setCellType(Cell.CELL_TYPE_STRING);
+                    String diseaseCode = row.getCell(2).getStringCellValue();
+                    diseaseCodeList.add(diseaseCode);
+                    map.put(diseaseCode,0);
+                }
+            }
+        }
+        //根据出院主诊断，查询对应的入院记录
+        Map<String,Integer> maps = syzdService.getListByDiseaseName(diseaseCodeList,diseaseNameList,map);
+        System.out.println(maps);*/
+    }
+
+
+    /**
+     * 根据出院主诊断，统计病例
+     */
+    @RequestMapping("/getTotalNum")
+    public void getTotalNum(HttpServletResponse response) throws Exception {
+        //查询数据
+        List<List<Object>>  listObject = syzdService.getTotalNum();
+        //设置表头
+        String[] headers = {"疾病名称","病例数量"};
+        //插入表头信息
+        ExportExcelUtil.createTitle(headers);
+        //插入excel数据
+        ExportExcelUtil.writeRowsToExcel(listObject,1);
+        //设置excel宽度自适应
+        ExportExcelUtil.autoSizeColumns(headers.length);
+        String fileName = "疾病名称";
+        //导出excel
+        ExportExcelUtil.exportExcel(fileName,response);
+    }
 }
