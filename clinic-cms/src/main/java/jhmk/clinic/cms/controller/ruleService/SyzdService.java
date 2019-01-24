@@ -267,4 +267,76 @@ public class SyzdService {
     public void main() {
         getSyzdByDiseaseName("肺炎");
     }
+
+    /**
+     * 根据出院主诊断查询病例个数
+     */
+    /*public Map<String,Integer> getListByDiseaseName(List<String> diseaseCodeList,List<String> diseaseNameList,Map<String,Integer> disseaseMap) {
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$shouyezhenduan"),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "出院诊断")),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
+//                new Document("$match", new Document("shouyezhenduan.diagnosis_name", diseaseName)),
+//                new Document("$match", new Document("shouyezhenduan.diagnosis_code", diseaseCode)),
+                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
+        );
+        AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+
+        for (Document document : binli) {
+            String id = document.getString("_id");
+            Document binglizhenduan = (Document) document.get("shouyezhenduan");
+            if (Objects.nonNull(binglizhenduan)) {
+                String diagnosis_code = binglizhenduan.getString("diagnosis_code");
+                String diagnosis_name = binglizhenduan.getString("diagnosis_name");
+                for(int m=0;m<diseaseCodeList.size();m++){
+                    if(!org.springframework.util.StringUtils.isEmpty(diagnosis_code)){
+                        if(diagnosis_code.equals(diseaseCodeList.get(m))){
+                            for(Map.Entry map : disseaseMap.entrySet()){
+                                String code = (String) map.getKey();
+                                if(diseaseCodeList.get(m).equals(code)){
+                                    map.setValue((int)map.getValue()+1);
+                                }
+                            }
+                        }
+                    }else if(!org.springframework.util.StringUtils.isEmpty(diagnosis_name)){
+                        if(diagnosis_name.equals(diseaseNameList.get(m))) {
+                            for (Map.Entry map : disseaseMap.entrySet()) {
+                                String code = (String) map.getKey();
+                                if (diseaseCodeList.get(m).equals(code)) {
+                                    map.setValue((int) map.getValue() + 1);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+         }
+        return disseaseMap;
+    }*/
+    /**
+     * 根据出院主诊断统计次数
+     */
+    public List<List<Object>> getTotalNum(){
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$shouyezhenduan"),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_type_name", "出院诊断")),
+                new Document("$match", new Document("shouyezhenduan.diagnosis_num", "1")),
+                new Document("$group", new Document("_id", "$shouyezhenduan.diagnosis_name").append("total",new Document("$sum",1)))
+
+//                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
+        );
+        AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+//        Map<String,Object> map = new HashMap();
+        List<List<Object>> listObject = new ArrayList<>();
+        for (Document document : binli) {
+            List<Object> list = new ArrayList<>();
+            String id = document.getString("_id");
+            Integer total = document.getInteger("total");
+            list.add(id);
+            list.add(total);
+            listObject.add(list);
+        }
+        return listObject;
+    }
+
 }
