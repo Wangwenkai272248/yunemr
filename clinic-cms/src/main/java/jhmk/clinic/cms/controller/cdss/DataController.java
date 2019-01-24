@@ -1,6 +1,7 @@
 package jhmk.clinic.cms.controller.cdss;
 
 import com.alibaba.fastjson.JSONObject;
+import io.swagger.annotations.*;
 import jhmk.clinic.cms.SamilarService;
 import jhmk.clinic.cms.controller.ruleService.*;
 import jhmk.clinic.cms.entity.Disease_attribution;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -1019,6 +1021,9 @@ public class DataController extends BaseController {
      * 根据出院主诊断，统计病例
      */
     @RequestMapping("/getTotalNum")
+
+    @ApiOperation(value = "根据出院主诊断查询病历个数", notes = "无参请求",
+            httpMethod = "get/post", responseContainer = "excel")
     public void getTotalNum(HttpServletResponse response) throws Exception {
         //查询数据
         List<List<Object>>  listObject = syzdService.getTotalNum();
