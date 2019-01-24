@@ -11,6 +11,18 @@ import java.util.List;
 /**
  * excel导出工具类
  * @author swq
+ * desc:   如何使用：
+ *          //设置表头
+ *         String[] headers = {"疾病名称","病例数量"};
+ *         //插入表头信息
+ *         ExportExcelUtil.createTitle(headers);
+ *         //插入excel数据
+ *         ExportExcelUtil.writeRowsToExcel(listObject,1);
+ *         //设置excel宽度自适应
+ *         ExportExcelUtil.autoSizeColumns(headers.length);
+ *         String fileName = "疾病名称";
+ *         //导出excel
+ *         ExportExcelUtil.exportExcel(fileName,response);
  */
 public class ExportExcelUtil {
 
