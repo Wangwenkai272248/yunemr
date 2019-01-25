@@ -12,6 +12,7 @@ import jhmk.clinic.cms.service.CdssService;
 import jhmk.clinic.cms.service.ReadFileService;
 import jhmk.clinic.cms.service.Write2File;
 import jhmk.clinic.cms.util.ExportExcelUtil;
+import jhmk.clinic.cms.util.ImportExcelUtil;
 import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
@@ -22,6 +23,7 @@ import jhmk.clinic.entity.bean.*;
 import jhmk.clinic.entity.cdss.CdssDiffBean;
 import jhmk.clinic.entity.cdss.CdssRuleBean;
 import jhmk.clinic.entity.cdss.Date1206;
+import jhmk.clinic.entity.model.AtResponse;
 import jhmk.clinic.entity.model.ResponseCode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.*;
@@ -1038,5 +1040,63 @@ public class DataController extends BaseController {
         String fileName = "疾病名称";
         //导出excel
         ExportExcelUtil.exportExcel(fileName,response);
+    }
+
+    /**
+     *功能描述
+     *@author swq
+     *@date 2019-1-24  17:43
+     *@param: null
+     *@return
+     *@desc 根据病历ID查询测试库是否包含该病历
+     */
+    @RequestMapping("/isExistInLib")
+    @ApiOperation(value = "根据病历ID查询测试库是否包含该病历", notes = "file:**.excel",
+            responseContainer = "excel")
+    @ApiResponses({@ApiResponse(code = 200, message = "成功")})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "file", value = "请求参数", required = true, paramType = "MultipartFile")
+    })
+    public AtResponse isExistInLib(MultipartFile file,HttpServletResponse response) throws Exception {
+        AtResponse atResponse = new AtResponse();
+        //文件非空判断
+        if (file==null) {
+            atResponse.setResponseCode(ResponseCode.COMERROR);
+            atResponse.setData("文件不能为空");
+            return atResponse;
+        }
+        //文件格式判断
+        String originalFileName = file.getOriginalFilename();
+        if(!(originalFileName.endsWith(".xls") || originalFileName.endsWith(".xlsx"))){
+            atResponse.setResponseCode(ResponseCode.COMERROR);
+            atResponse.setData("文件格式不对");
+            return atResponse;
+        }
+        //解析excel数据
+        Map<String,Object> mapObject = ImportExcelUtil.parseExcelData(file);
+        List headersList = new ArrayList();
+        List<List<Object>> listObject = new ArrayList<>();
+        for(Map.Entry<String,Object> map : mapObject.entrySet()){
+            if("headers".equals(map.getKey())){
+                headersList = (List) map.getValue();
+            }
+            if("data".endsWith("data")){
+                listObject= (List<List<Object>>) map.getValue();
+            }
+        }
+        //查询数据库
+        List<List<Object>> existInLib = syzdService.isExistInLib(listObject);
+        //设置表头
+        String[] headers = (String[]) headersList.toArray(new String[headersList.size()]);
+        //插入表头信息
+        ExportExcelUtil.createTitle(headers);
+        //插入excel数据
+        ExportExcelUtil.writeRowsToExcel(existInLib,1);
+        //设置excel宽度自适应
+        ExportExcelUtil.autoSizeColumns(headers.length);
+        String fileName = "D:/是否存在.xlsx";
+        //导出excel
+        ExportExcelUtil.exportExcelToDisk(fileName);
+        return atResponse;
     }
 }

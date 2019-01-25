@@ -326,7 +326,19 @@ public class SyzdService {
 //                new Document("$project", new Document("_id", 1).append("patient_id", 1).append("visit_id", 1).append("shouyezhenduan", 1))
         );
         AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
-//        Map<String,Object> map = new HashMap();
+        List<List<Object>> listObject = getLists(binli);
+        return listObject;
+    }
+
+    /**
+     *功能描述
+     *@author swq
+     *@date 2019-1-24  18:59
+     *@param: binli
+     *@return  java.util.List<java.util.List<java.lang.Object>>
+     *@desc  遍历从mongo中获取的数据，转为List<List<Object>>格式
+     */
+    private List<List<Object>> getLists(AggregateIterable<Document> binli) {
         List<List<Object>> listObject = new ArrayList<>();
         for (Document document : binli) {
             List<Object> list = new ArrayList<>();
@@ -339,4 +351,62 @@ public class SyzdService {
         return listObject;
     }
 
+    /**
+     *功能描述
+     *@author swq
+     *@date 2019-1-24  17:43
+     *@param: null
+     *@return
+     *@desc 根据病历ID查询测试库是否包含该病历
+     * @param listObject
+     */
+    public List<List<Object>> isExistInLib(List<List<Object>> listObject){
+        /*List<Document> countPatientId = Arrays.asList(
+                new Document("$unwind", "$shouyezhenduan"),
+                new Document("$project", new Document("_id", 1))
+        );
+        AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+        //格式化查询结果
+        List<List<Object>> listArray = new ArrayList<>();
+        for(List<Object> str : listObject){
+            String ele = (String) str.get(0);
+            List<Object> list = new ArrayList<>();
+            boolean flag = false;
+            for (Document document : binli) {
+                String id = document.getString("_id");
+                if (id.equals(ele)) {
+                    flag = true;
+                    list.add(id);
+                    list.add(1);
+                }
+            }
+            if(!flag){
+                list.add(ele);
+                list.add(0);
+            }
+            listArray.add(list);
+        }
+        return listArray;
+    }*/
+        List<List<Object>> listArray = new ArrayList<>();
+        for(List<Object> str : listObject){
+            String ele = (String) str.get(0);
+            List<Document> countPatientId = Arrays.asList(
+                    new Document("$unwind", "$shouyezhenduan"),
+                    new Document("$match", new Document("_id", ele)),
+                    new Document("$project", new Document("_id", 1))
+            );
+            AggregateIterable<Document> binli = shouyezhenduan.aggregate(countPatientId);
+            List<Object> list = new ArrayList<>();
+            if(binli.iterator().hasNext()){
+                list.add(ele);
+                list.add(1);
+            }else{
+                list.add(ele);
+                list.add(0);
+            }
+            listArray.add(list);
+        }
+        return listArray;
+    }
 }

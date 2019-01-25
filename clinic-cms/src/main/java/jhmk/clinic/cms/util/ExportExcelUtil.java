@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.List;
@@ -126,5 +127,19 @@ public class ExportExcelUtil {
         workbook.write(outputStream);
         outputStream.flush();
         outputStream.close();
+    }
+
+    /**
+     *功能描述
+     *@author swq
+     *@date 2019-1-25  11:31
+     *@param: fileName
+     *@return void
+     *@desc 导入到本地磁盘
+     */
+    public static void exportExcelToDisk(String fileName) throws Exception{
+        FileOutputStream fos = new FileOutputStream(fileName);
+        workbook.write(fos);
+        fos.close();
     }
 }
