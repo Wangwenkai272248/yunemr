@@ -1032,14 +1032,7 @@ public class DataController extends BaseController {
         //设置表头
         String[] headers = {"疾病名称","病例数量"};
         //插入表头信息
-        ExportExcelUtil.createTitle(headers);
-        //插入excel数据
-        ExportExcelUtil.writeRowsToExcel(listObject,1);
-        //设置excel宽度自适应
-        ExportExcelUtil.autoSizeColumns(headers.length);
-        String fileName = "疾病名称";
-        //导出excel
-        ExportExcelUtil.exportExcel(fileName,response);
+        exportExcel(response, listObject, headers,"病历导出");
     }
 
     /**
@@ -1107,16 +1100,19 @@ public class DataController extends BaseController {
         List<List<Object>>  list = syzdService.exportLog();
         //设置表头
         String[] headers = {"ID","科室","病历主诊断","下诊断时间","医生编号","医生名称","入库时间","页面来源","PID","VID","是否有返回值","疾病名称和概率"};
+        exportExcel(response, list, headers,"日志导出");
+
+        return atResponse;
+    }
+
+    private void exportExcel(HttpServletResponse response, List<List<Object>> list, String[] headers,String fileName) throws Exception {
         //插入表头信息
         ExportExcelUtil.createTitle(headers);
         //插入excel数据
-        ExportExcelUtil.writeRowsToExcel(list,1);
+        ExportExcelUtil.writeRowsToExcel(list, 1);
         //设置excel宽度自适应
         ExportExcelUtil.autoSizeColumns(headers.length);
-        String fileName = "疾病名称";
         //导出excel
-        ExportExcelUtil.exportExcel(fileName,response);
-
-        return atResponse;
+        ExportExcelUtil.exportExcel(fileName, response);
     }
 }
