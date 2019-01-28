@@ -1099,4 +1099,24 @@ public class DataController extends BaseController {
         ExportExcelUtil.exportExcelToDisk(fileName);
         return atResponse;
     }
+
+    @RequestMapping("/exportLog")
+    public AtResponse exportLog(HttpServletResponse response) throws Exception {
+        AtResponse atResponse = new AtResponse();
+        //查询数据
+        List<List<Object>>  list = syzdService.exportLog();
+        //设置表头
+        String[] headers = {"ID","科室","病历主诊断","下诊断时间","医生编号","医生名称","入库时间","页面来源","PID","VID","是否有返回值","疾病名称和概率"};
+        //插入表头信息
+        ExportExcelUtil.createTitle(headers);
+        //插入excel数据
+        ExportExcelUtil.writeRowsToExcel(list,1);
+        //设置excel宽度自适应
+        ExportExcelUtil.autoSizeColumns(headers.length);
+        String fileName = "疾病名称";
+        //导出excel
+        ExportExcelUtil.exportExcel(fileName,response);
+
+        return atResponse;
+    }
 }

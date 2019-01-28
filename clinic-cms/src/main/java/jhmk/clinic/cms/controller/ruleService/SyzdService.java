@@ -9,6 +9,10 @@ import jhmk.clinic.cms.entity.ResultService;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
 import jhmk.clinic.entity.bean.Shouyezhenduan;
+import jhmk.clinic.entity.pojo.DiagnosisReqLog;
+import jhmk.clinic.entity.pojo.DiagnosisRespLog;
+import jhmk.clinic.entity.pojo.repository.service.DiagnosisReqLogService;
+import jhmk.clinic.entity.pojo.repository.service.DiagnosisRespLogService;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.junit.Test;
@@ -31,6 +35,10 @@ public class SyzdService {
     MongoCollection<Document> shouyezhenduan = getCollection(CdssConstans.DATASOURCE, CdssConstans.SHOUYEZHENDUAN);
     @Autowired
     SamilarService samilarService;
+    @Autowired
+    DiagnosisReqLogService diagnosisReqLogService;
+    @Autowired
+    DiagnosisRespLogService diagnosisRespLogService;
 
     /**
      * 获取首页诊断疾病集合
@@ -408,5 +416,51 @@ public class SyzdService {
             listArray.add(list);
         }
         return listArray;
+    }
+
+    public List<List<Object>> exportLog(){
+        List<List<Object>> listObject = new ArrayList<>();
+        List<DiagnosisReqLog> reqList = (List<DiagnosisReqLog>) diagnosisReqLogService.findAll();
+        List<DiagnosisRespLog> respList = (List<DiagnosisRespLog>) diagnosisRespLogService.findAll();
+        for(DiagnosisReqLog reqLog : reqList ){
+            List<Object> listArray = new ArrayList<>();
+            int id = reqLog.getId();
+            String deptCode = reqLog.getDeptCode();
+            String diagnosisName = reqLog.getDiagnosisName();
+            String diagnosisTime = reqLog.getDiagnosisTime();
+            String doctorId = reqLog.getDoctorId();
+            String doctorName = reqLog.getDoctorName();
+            String inTime = reqLog.getInTime();
+            String pageSource = reqLog.getPageSource();
+            String pid = reqLog.getPid();
+            String vid = reqLog.getVid();
+            listArray.add(id);
+            listArray.add(deptCode);
+            listArray.add(diagnosisName);
+            listArray.add(diagnosisTime);
+            listArray.add(doctorId);
+            listArray.add(doctorName);
+            listArray.add(inTime);
+            listArray.add(pageSource);
+            listArray.add(pid);
+            listArray.add(vid);
+            boolean flag = false;
+            String diseaseInfo = "";
+            for(DiagnosisRespLog respLog : respList ){
+                if(id == respLog.getReqId()){
+                    flag = true;
+                    diseaseInfo = diseaseInfo+respLog.getDiseaseName()+" : "+respLog.getScore();
+                }
+            }
+            if(flag){
+                listArray.add(1);
+                listArray.add(diseaseInfo);
+            }else{
+                listArray.add(0);
+                listArray.add("");
+            }
+            listObject.add(listArray);
+        }
+        return listObject;
     }
 }
