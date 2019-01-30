@@ -6,8 +6,7 @@ import jhmk.clinic.core.config.CdssConstans;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static jhmk.clinic.core.util.MongoUtils.getCollection;
 
@@ -37,6 +36,32 @@ public class ZhuyuanfeiyongService {
         return total_fee;
     }
 
+    /**
+     *功能描述
+     *@author swq
+     *@date 2019-1-30  17:40
+     *@param: idList
+     *@return java.util.List<java.util.Map < java.lang.String , java.lang.Object>>
+     *@desc 获取mongo中ZHUYUANFEIYONG罕见病相关信息
+     */
+    public List<Map<String,Object>> zhuyuanfeiyongService(List<Object> idList){
+        List<Map<String,Object>> listMap = new ArrayList<>();
+        //处理首页诊断
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$match", new Document("_id", new Document("$in",idList)))
+        );
+        AggregateIterable<Document> zhuyuanfeiyong = ZHUYUANFEIYONG.aggregate(countPatientId);
+        for (Document document : zhuyuanfeiyong) {
+            Map<String,Object> returnMap = new HashMap<>();
+            Document zyfy = (Document) document.get("zhuyuanfeiyong");
+            String id = document.getString("_id");
+            String totalFee = zyfy.getString("total_fee");
+            returnMap.put("id",id);
+            returnMap.put("totalFee",totalFee);
+            listMap.add(returnMap);
+        }
+        return listMap;
+    }
 
 
 }

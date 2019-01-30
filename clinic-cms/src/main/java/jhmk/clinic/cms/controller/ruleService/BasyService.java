@@ -601,4 +601,52 @@ public class BasyService {
         return resultList;
     }
 
+    /**
+     *功能描述
+     *@author swq
+     *@date 2019-1-30  17:39
+     *@param: idList
+     *@return java.util.List<java.util.Map < java.lang.String , java.lang.Object>>
+     *@desc 获取mongo中binganshouye罕见病相关信息
+     */
+    public List<Map<String,Object>> getRareDiseaseInfo(List<Object> idList){
+        List<Map<String,Object>> listMap = new ArrayList<>();
+        //处理首页诊断
+        List<Document> countPatientId = Arrays.asList(
+                new Document("$match", new Document("_id", new Document("$in",idList)))
+        );
+        AggregateIterable<Document> binan = binganshouye.aggregate(countPatientId);
+        for (Document document : binan) {
+            Map<String,Object> returnMap = new HashMap<>();
+            String id = document.getString("_id");
+            returnMap.put("id",id);
+            Document binganshouye = (Document) document.get("binganshouye");
+            returnMap = parseBingAnShouYeData(binganshouye,returnMap);
+            listMap.add(returnMap);
+        }
+        return listMap;
+    }
+
+    /**
+     *功能描述
+     *@author swq
+     *@date 2019-1-30  17:39
+     *@param: binganshouye
+     *@param: map
+     *@return java.util.Map<java.lang.String , java.lang.Object>
+     *@desc 将根据binganshouye分组查询后的数据放入map,因为没个id中的binganshouye只有一个，所以放入map中不用在处理将相同id的map数据合并
+     */
+    private Map<String,Object> parseBingAnShouYeData(Document binganshouye,Map<String,Object> map) {
+        Document patInfo = (Document) binganshouye.get("pat_info");
+        Document patVisit = (Document) binganshouye.get("pat_visit");
+        String sexName = patInfo==null?"":patInfo.getString("sex_name");
+        String ageValue = patVisit==null?"":patVisit.getString("age_value");
+        String deptDischargeFromName = patVisit==null?"":patVisit.getString("dept_discharge_from_name");
+        String inHospitalDays = patVisit==null?"":patVisit.getString("in_hospital_days");
+        map.put("sexName",sexName);
+        map.put("ageValue",ageValue);
+        map.put("deptDischargeFromName",deptDischargeFromName);
+        map.put("inHospitalDays",inHospitalDays);
+        return map;
+    }
 }

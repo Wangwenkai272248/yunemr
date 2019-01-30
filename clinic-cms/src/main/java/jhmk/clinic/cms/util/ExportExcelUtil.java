@@ -119,7 +119,8 @@ public class ExportExcelUtil {
     /**
      * 下载excel
      */
-    public static void exportExcel(String filename, HttpServletResponse response) throws Exception{
+    public static void exportExcelByBrowers(String filename, HttpServletResponse response,List headersList,List<List<Object>> listArray) throws Exception{
+        utilMethod(headersList, listArray);
         // 告诉浏览器用什么软件可以打开此文件
         response.setContentType("application/vnd.ms-excel");
         response.setHeader("Content-Disposition", "attachment;filename="+ URLEncoder.encode(filename+".xlsx", "utf-8"));
@@ -132,12 +133,33 @@ public class ExportExcelUtil {
     /**
      *功能描述
      *@author swq
+     *@date 2019-1-30  17:54
+     *@param: headersList
+     *@param: listArray
+     *@return void
+     *@desc 公共设置
+     */
+    private static void utilMethod(List headersList, List<List<Object>> listArray) {
+        //设置表头
+        String[] headers = (String[]) headersList.toArray(new String[headersList.size()]);
+        //插入表头信息
+        ExportExcelUtil.createTitle(headers);
+        //插入excel数据
+        ExportExcelUtil.writeRowsToExcel(listArray, 1);
+        //设置excel宽度自适应
+        ExportExcelUtil.autoSizeColumns(headers.length);
+    }
+
+    /**
+     *功能描述
+     *@author swq
      *@date 2019-1-25  11:31
      *@param: fileName
      *@return void
      *@desc 导入到本地磁盘
      */
-    public static void exportExcelToDisk(String fileName) throws Exception{
+    public static void exportExcelToDisk(String fileName,List headersList,List<List<Object>> listArray) throws Exception{
+        utilMethod(headersList, listArray);
         FileOutputStream fos = new FileOutputStream(fileName);
         workbook.write(fos);
         fos.close();

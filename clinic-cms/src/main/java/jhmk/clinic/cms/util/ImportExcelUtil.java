@@ -53,10 +53,13 @@ public class ImportExcelUtil {
                 if(i==0){
                     headers.add(row.getCell(j).getStringCellValue());
                 }else{
+                    String name = "";
                     //先设置单个cell的类型，否则遇到数字类型，getStringCellValue会报异常
-                    row.getCell(j).setCellType(Cell.CELL_TYPE_STRING);
-                    //获取第i行的索引为j的单元格数据
-                    String name= row.getCell(j).getStringCellValue();
+                    if(row !=null && row.getCell(j)!=null){
+                        row.getCell(j).setCellType(Cell.CELL_TYPE_STRING);
+                        //获取第i行的索引为j的单元格数据
+                        name= row.getCell(j).getStringCellValue();
+                    }
                     list.add(name);
                 }
             }

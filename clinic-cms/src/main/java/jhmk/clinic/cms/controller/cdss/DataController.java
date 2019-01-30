@@ -83,6 +83,8 @@ public class DataController extends BaseController {
     DocumentUtil documentUtil;
     @Autowired
     JybgService jybgService;
+    @Autowired
+    ZhuyuanfeiyongService zhuyuanfeiyongService;
 
     public static final String sympol = "&&";
     private static final String SUFFIX_2003 = ".xls";
@@ -1032,7 +1034,7 @@ public class DataController extends BaseController {
         //设置表头
         String[] headers = {"疾病名称","病例数量"};
         //插入表头信息
-        exportExcel(response, listObject, headers,"病历导出");
+        ExportExcelUtil.exportExcelByBrowers("病历导出",response, Arrays.asList(headers),listObject);
     }
 
     /**
@@ -1081,15 +1083,8 @@ public class DataController extends BaseController {
         List<List<Object>> existInLib = syzdService.isExistInLib(listObject);
         //设置表头
         String[] headers = (String[]) headersList.toArray(new String[headersList.size()]);
-        //插入表头信息
-        ExportExcelUtil.createTitle(headers);
-        //插入excel数据
-        ExportExcelUtil.writeRowsToExcel(existInLib,1);
-        //设置excel宽度自适应
-        ExportExcelUtil.autoSizeColumns(headers.length);
-        String fileName = "D:/是否存在.xlsx";
-        //导出excel
-        ExportExcelUtil.exportExcelToDisk(fileName);
+
+        ExportExcelUtil.exportExcelToDisk("D:/是否存在.xlsx", Arrays.asList(headers),existInLib);
         return atResponse;
     }
 
@@ -1100,19 +1095,116 @@ public class DataController extends BaseController {
         List<List<Object>>  list = syzdService.exportLog();
         //设置表头
         String[] headers = {"ID","科室","病历主诊断","下诊断时间","医生编号","医生名称","入库时间","页面来源","PID","VID","是否有返回值","疾病名称和概率"};
-        exportExcel(response, list, headers,"日志导出");
+        ExportExcelUtil.exportExcelByBrowers("日志导出",response, Arrays.asList(headers),list);
 
         return atResponse;
     }
 
-    private void exportExcel(HttpServletResponse response, List<List<Object>> list, String[] headers,String fileName) throws Exception {
-        //插入表头信息
-        ExportExcelUtil.createTitle(headers);
-        //插入excel数据
-        ExportExcelUtil.writeRowsToExcel(list, 1);
-        //设置excel宽度自适应
-        ExportExcelUtil.autoSizeColumns(headers.length);
+
+
+
+    @RequestMapping("updateName")
+    public AtResponse updateName(MultipartFile file) throws Exception {
+        AtResponse atResponse = new AtResponse();
+        //解析excel数据
+        Map<String,Object> mapObject = ImportExcelUtil.parseExcelData(file);
+        List headersList = new ArrayList();
+        List<List<Object>> listObject = new ArrayList<>();
+        for(Map.Entry<String,Object> map : mapObject.entrySet()){
+            if("headers".equals(map.getKey())){
+                headersList = (List) map.getValue();
+            }else if("data".equals(map.getKey())){
+                listObject= (List<List<Object>>) map.getValue();
+            }
+        }
+        //查询数据库
+        List<List<Object>> data = syzdService.updateName(listObject);
+        String fileName = "D:/修改药名.xlsx";
         //导出excel
-        ExportExcelUtil.exportExcel(fileName, response);
+        ExportExcelUtil.exportExcelToDisk(fileName,headersList,data);
+        return atResponse;
     }
+
+    @RequestMapping("getRareDiseaseInfo")
+    public AtResponse get(MultipartFile file) throws Exception {
+        AtResponse atResponse = new AtResponse(System.currentTimeMillis());
+        //解析excel数据
+        Map<String,Object> mapObject = ImportExcelUtil.parseExcelData(file);
+        List headersList = new ArrayList();
+        List idList = new ArrayList();
+        List<List<Object>> listObject = new ArrayList<>();
+        for(Map.Entry<String,Object> map : mapObject.entrySet()){
+            if("headers".equals(map.getKey())){
+                headersList = (List) map.getValue();
+            }else if("data".equals(map.getKey())){
+                listObject= (List<List<Object>>) map.getValue();
+                for(List<Object> objectList : listObject){
+                    if(null!=objectList.get(0)){
+                        idList.add(objectList.get(0));
+                    }
+                }
+            }
+        }
+        //查询数据库(首页诊断)
+        List<Map<String,Object>> syzdData = syzdService.getRareDiseaseInfo(idList);
+        //查询数据库(病案首页)
+        List<Map<String,Object>> basyData = basyService.getRareDiseaseInfo(idList);
+        //查询数据库（住院费用）
+        List<Map<String,Object>> zyfyData = zhuyuanfeiyongService.zhuyuanfeiyongService(idList);
+
+        List<List<Object>> listArray = new ArrayList<>();
+        for(Map<String,Object> syzdMap : syzdData){
+            String syzdId = (String) syzdMap.get("id");
+            List<Object> list = new ArrayList<>();
+            for(Map<String,Object> basyMap : basyData){
+                String basyId = (String) basyMap.get("id");
+                for(Map<String,Object> zyfyMap : zyfyData){
+                    String zyfyId = (String) zyfyMap.get("id");
+                    if(syzdId.equals(basyId) && syzdId.equals(zyfyId)){
+                        list.add(syzdMap.get("id"));
+                        list.add(syzdMap.get("patientId"));
+                        list.add(syzdMap.get("inDiagnosisName1"));
+                        list.add(syzdMap.get("inDiagnosisName2"));
+                        list.add(syzdMap.get("inDiagnosisName3"));
+                        list.add(syzdMap.get("inDiagnosisName4"));
+                        list.add(syzdMap.get("inDiagnosisName5"));
+                        list.add(syzdMap.get("outDiagnosisName1"));
+                        list.add(syzdMap.get("outDiagnosisName2"));
+                        list.add(syzdMap.get("outDiagnosisName3"));
+                        list.add(syzdMap.get("outDiagnosisName4"));
+                        list.add(syzdMap.get("outDiagnosisName5"));
+                        list.add(syzdMap.get("outDiagnosisName6"));
+                        list.add(syzdMap.get("outDiagnosisName7"));
+                        list.add(syzdMap.get("outDiagnosisName8"));
+                        list.add(syzdMap.get("outDiagnosisName9"));
+                        list.add(syzdMap.get("outDiagnosisName10"));
+                        list.add(syzdMap.get("outDiagnosisCode1"));
+                        list.add(syzdMap.get("outDiagnosisCode2"));
+                        list.add(syzdMap.get("outDiagnosisCode3"));
+                        list.add(syzdMap.get("outDiagnosisCode4"));
+                        list.add(syzdMap.get("outDiagnosisCode5"));
+                        list.add(syzdMap.get("outDiagnosisCode6"));
+                        list.add(syzdMap.get("outDiagnosisCode7"));
+                        list.add(syzdMap.get("outDiagnosisCode8"));
+                        list.add(syzdMap.get("outDiagnosisCode9"));
+                        list.add(syzdMap.get("outDiagnosisCode10"));
+                        list.add(syzdMap.get("inDiagnosisTime"));
+                        list.add(syzdMap.get("outDiagnosisTime"));
+                        list.add(basyMap.get("sexName"));
+                        list.add(basyMap.get("ageValue"));
+                        list.add(basyMap.get("deptDischargeFromName"));
+                        list.add(basyMap.get("inHospitalDays"));
+                        list.add(zyfyMap.get("totalFee"));
+                    }
+                }
+            }
+            listArray.add(list);
+        }
+
+        String fileName = "C:\\Users\\songw\\Desktop\\嘉和美康工作\\20190130\\北医三院罕见病.xlsx";
+        //导出excel
+        ExportExcelUtil.exportExcelToDisk(fileName,headersList,listArray);
+        return atResponse;
+    }
+
 }
