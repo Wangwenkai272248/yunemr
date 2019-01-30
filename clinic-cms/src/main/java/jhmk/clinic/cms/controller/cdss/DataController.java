@@ -1125,6 +1125,12 @@ public class DataController extends BaseController {
         return atResponse;
     }
 
+    @ApiOperation(value = "导出罕见病相关信息", notes = "导出北医三院罕见病相关信息",
+             responseContainer = "Map")
+    @ApiResponses({@ApiResponse(code = 200, message = "成功")})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "file", value = "请求参数", required = true, paramType = "body")
+    })
     @RequestMapping("getRareDiseaseInfo")
     public AtResponse get(MultipartFile file) throws Exception {
         AtResponse atResponse = new AtResponse(System.currentTimeMillis());
@@ -1204,6 +1210,7 @@ public class DataController extends BaseController {
         String fileName = "C:\\Users\\songw\\Desktop\\嘉和美康工作\\20190130\\北医三院罕见病.xlsx";
         //导出excel
         ExportExcelUtil.exportExcelToDisk(fileName,headersList,listArray);
+        atResponse.setResponseCode(ResponseCode.OK);
         return atResponse;
     }
 
