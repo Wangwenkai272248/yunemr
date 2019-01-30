@@ -699,10 +699,7 @@ public class SyzdService {
                 Map<String,Object> map2 = lists.get(j);
                 if (map1.get("id").equals(map2.get("id"))){
                     for (Map.Entry entry : map2.entrySet()) {
-                        if (entry.getKey().equals("id")){
-                            //不保存ID
-                            continue;
-                        }
+                        //即使map2中有map1中相同的key，他们的value也一样，直接替换
                         map1.put(entry.getKey(),entry.getValue());
                     }
                     //删除已合并的map避免重复比较
