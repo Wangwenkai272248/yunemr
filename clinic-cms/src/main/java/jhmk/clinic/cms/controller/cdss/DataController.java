@@ -1119,7 +1119,7 @@ public class DataController extends BaseController {
         }
         //查询数据库
         List<List<Object>> data = syzdService.updateName(listObject);
-        String fileName = "D:/修改药名.xlsx";
+        String fileName = "D:/修改药名"+System.currentTimeMillis()+".xlsx";
         //导出excel
         ExportExcelUtil.exportExcelToDisk(fileName,headersList,data);
         return atResponse;
