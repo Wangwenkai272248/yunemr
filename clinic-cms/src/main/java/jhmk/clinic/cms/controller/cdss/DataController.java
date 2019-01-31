@@ -1068,7 +1068,8 @@ public class DataController extends BaseController {
             return atResponse;
         }
         //解析excel数据
-        Map<String,Object> mapObject = ImportExcelUtil.parseExcelData(file);
+        List<Map<String,Object>> listMapObject = ImportExcelUtil.parseExcelData(file);
+        Map<String,Object> mapObject = listMapObject.get(0);
         List headersList = new ArrayList();
         List<List<Object>> listObject = new ArrayList<>();
         for(Map.Entry<String,Object> map : mapObject.entrySet()){
@@ -1107,7 +1108,8 @@ public class DataController extends BaseController {
     public AtResponse updateName(MultipartFile file) throws Exception {
         AtResponse atResponse = new AtResponse();
         //解析excel数据
-        Map<String,Object> mapObject = ImportExcelUtil.parseExcelData(file);
+        List<Map<String,Object>> listMapObject = ImportExcelUtil.parseExcelData(file);
+        Map<String,Object> mapObject = listMapObject.get(0);
         List headersList = new ArrayList();
         List<List<Object>> listObject = new ArrayList<>();
         for(Map.Entry<String,Object> map : mapObject.entrySet()){
@@ -1135,10 +1137,11 @@ public class DataController extends BaseController {
     public AtResponse get(MultipartFile file) throws Exception {
         AtResponse atResponse = new AtResponse(System.currentTimeMillis());
         //解析excel数据
-        Map<String,Object> mapObject = ImportExcelUtil.parseExcelData(file);
+        List<Map<String,Object>> listMapObject = ImportExcelUtil.parseExcelData(file);
+        Map<String,Object> mapObject = listMapObject.get(0);
         List headersList = new ArrayList();
         List idList = new ArrayList();
-        List<List<Object>> listObject = new ArrayList<>();
+        List<List<Object>> listObject;
         for(Map.Entry<String,Object> map : mapObject.entrySet()){
             if("headers".equals(map.getKey())){
                 headersList = (List) map.getValue();
