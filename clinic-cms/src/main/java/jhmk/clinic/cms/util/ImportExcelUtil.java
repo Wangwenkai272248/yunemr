@@ -24,6 +24,14 @@ public class ImportExcelUtil {
     private static Workbook wb = null;
     private static Sheet sheet = null;
 
+    /**
+     *功能描述
+     *@author swq
+     *@date 2019-1-31  10:53
+     *@param: file
+     *@return java.util.List<java.util.Map < java.lang.String , java.lang.Object>>
+     *@desc 默认excel都包含表头，入excel没有表头，请将第一行设置为空行
+     */
     public static List<Map<String,Object>> parseExcelData(MultipartFile file){
         String originalFileName = file.getOriginalFilename();
         try{
