@@ -1172,6 +1172,10 @@ public class DataController extends BaseController {
                     if(syzdId.equals(basyId) && syzdId.equals(zyfyId)){
                         list.add(syzdMap.get("id"));
                         list.add(syzdMap.get("patientId"));
+                        list.add(basyMap.get("sexName"));
+                        list.add(basyMap.get("ageValue"));
+                        list.add(basyMap.get("deptDischargeFromName"));
+                        list.add(basyMap.get("inHospitalDays"));
                         list.add(syzdMap.get("inDiagnosisName1"));
                         list.add(syzdMap.get("inDiagnosisName2"));
                         list.add(syzdMap.get("inDiagnosisName3"));
@@ -1199,10 +1203,6 @@ public class DataController extends BaseController {
                         list.add(syzdMap.get("outDiagnosisCode10"));
                         list.add(syzdMap.get("inDiagnosisTime"));
                         list.add(syzdMap.get("outDiagnosisTime"));
-                        list.add(basyMap.get("sexName"));
-                        list.add(basyMap.get("ageValue"));
-                        list.add(basyMap.get("deptDischargeFromName"));
-                        list.add(basyMap.get("inHospitalDays"));
                         list.add(zyfyMap.get("totalFee"));
                     }
                 }
@@ -1210,7 +1210,7 @@ public class DataController extends BaseController {
             listArray.add(list);
         }
 
-        String fileName = "C:\\Users\\songw\\Desktop\\嘉和美康工作\\20190130\\北医三院罕见病.xlsx";
+        String fileName = "C:\\Users\\songw\\Desktop\\嘉和美康工作\\201901\\20190130\\北医三院罕见病.xlsx";
         //导出excel
         ExportExcelUtil.exportExcelToDisk(fileName,headersList,listArray);
         atResponse.setResponseCode(ResponseCode.OK);
