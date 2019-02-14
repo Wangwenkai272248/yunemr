@@ -1210,7 +1210,8 @@ public class DataController extends BaseController {
             listArray.add(list);
         }
 
-        String fileName = "C:\\Users\\songw\\Desktop\\嘉和美康工作\\201901\\20190130\\北医三院罕见病.xlsx";
+//        String fileName = "C:\\Users\\songw\\Desktop\\嘉和美康工作\\201901\\20190130\\北医三院罕见病.xlsx";
+        String fileName = "北医三院罕见病.xlsx";
         //导出excel
         ExportExcelUtil.exportExcelToDisk(fileName,headersList,listArray);
         atResponse.setResponseCode(ResponseCode.OK);
