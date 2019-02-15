@@ -1,5 +1,6 @@
 package jhmk.clinic.cms.controller.cdss;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.*;
 import jhmk.clinic.cms.SamilarService;
@@ -13,6 +14,7 @@ import jhmk.clinic.cms.service.ReadFileService;
 import jhmk.clinic.cms.service.Write2File;
 import jhmk.clinic.cms.util.ExportExcelUtil;
 import jhmk.clinic.cms.util.ImportExcelUtil;
+import jhmk.clinic.cms.util.JsonFile2MapUtil;
 import jhmk.clinic.core.base.BaseController;
 import jhmk.clinic.core.config.CdssConstans;
 import jhmk.clinic.core.util.CompareUtil;
@@ -1219,4 +1221,110 @@ public class DataController extends BaseController {
         return atResponse;
     }
 
+    /**
+     *功能描述
+     *@author swq
+     *@date 2019-2-14  16:50
+     *@param: file
+     *@return jhmk.clinic.entity.model.AtResponse
+     *@desc 导出疾病的推荐检测和推荐检查
+     */
+    @RequestMapping(value="parseDisease")
+    public AtResponse parseDisease() throws Exception {
+        AtResponse atResponse = new AtResponse();
+        //解析文件数据
+        Map childMap = JsonFile2MapUtil.readJsonData("child_first_diseaseRelationship.txt");
+        List childList = JsonFile2MapUtil.getMapValues(childMap);
+        Map quankeMap = JsonFile2MapUtil.readJsonData("quanke_first_diseaseRelationship.txt");
+        List quankeList = JsonFile2MapUtil.getMapValues(quankeMap);
+        Map womenMap = JsonFile2MapUtil.readJsonData("women_first_diseaseRelationship.txt");
+        List womenList =  JsonFile2MapUtil.getMapValues(womenMap);
+
+        List finalList = new ArrayList(childList.size()+quankeList.size()+womenList.size());
+        finalList.addAll(childList);
+        finalList.addAll(quankeList);
+        finalList.addAll(womenList);
+
+        //去重
+        HashSet h = new HashSet(finalList);
+        finalList.clear();
+        finalList.addAll(h);
+
+        List<String> diseaseNameList = new ArrayList<>();
+        List<List<String>> inspectionListStr = new ArrayList<>();
+        List<List<String>> checkListStr = new ArrayList<>();
+        for(int num= 0;num<finalList.size();num++){
+            logger.info("当前行数----------------》"+num);
+            Object o = finalList.get(num);
+            //推荐检查
+            String recommendCheck = null;
+            //推荐检验
+            String recommendInspection= null;
+            JSONObject inspectionObject = new JSONObject();
+            inspectionObject.put("mainDiseaseName",o);
+
+            JSONObject checkObject = new JSONObject();
+            String[] checkStrs = {(String) o};
+            checkObject.put("diseaseNames",checkStrs);
+            try {
+                recommendInspection = restTemplate.postForObject("http://192.168.8.20:8011/med/disease/labproperty.json", inspectionObject, String.class);
+                recommendCheck = restTemplate.postForObject("http://192.168.8.20:8011/med/disease/exampropertyandsign.json", checkObject, String.class);
+                logger.info("推荐检验>>>>>>>>>>>>>>>" + recommendInspection);
+                logger.info("推荐检查>>>>>>>>>>>>>>>" + recommendCheck);
+
+                //两个接口返回结果都为空，过滤掉
+                boolean inspectionFlag = StringUtils.isNotBlank(recommendInspection) && !"[]".equals(recommendInspection);
+                boolean checkFlag = StringUtils.isNotBlank(recommendCheck) && !"[]".equals(recommendCheck);
+                if (inspectionFlag||checkFlag) {
+//                    List inspectionList = parseJson(recommendInspection,"lab_name");
+                    List inspectionList = new ArrayList();
+                    if (StringUtils.isNotBlank(recommendInspection)) {
+                        JSONObject obj = JSONObject.parseObject(recommendInspection);
+                        JSONArray labs = (JSONArray) obj.get("labproperty");
+                        inspectionList = Arrays.asList(labs);
+                    }
+                    List checkList = parseJson(recommendCheck,"exam_name");
+
+                    diseaseNameList.add((String) finalList.get(num));
+                    inspectionListStr.add(inspectionList);
+                    checkListStr.add(checkList);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        List<List<Object>> rows = new ArrayList();
+        for(int i = 0;i<diseaseNameList.size();i++){
+            List<Object> excelList = new ArrayList();
+            excelList.add(diseaseNameList.get(i));
+            excelList.add(inspectionListStr.get(i));
+            excelList.add(checkListStr.get(i));
+            rows.add(excelList);
+        }
+
+
+        List headersList = new ArrayList();
+        headersList.add("疾病名称");
+        headersList.add("推荐检验");
+        headersList.add("推荐检查");
+        ExportExcelUtil.exportExcelToDisk("疾病的推荐信息.xlsx",headersList,rows);
+
+        atResponse.setResponseCode(ResponseCode.OK);
+        atResponse.setData("导出成功");
+        return atResponse;
+    }
+
+    private List parseJson(String recommend,String name) {
+        List arrayList = new ArrayList();
+        if (StringUtils.isNotBlank(recommend)) {
+            JSONArray array = JSONArray.parseArray(recommend);
+            for(int i=0;i<array.size();i++){
+                JSONObject obj = array.getJSONObject(i);
+                String str = (String) obj.get(name);
+                arrayList.add(str);
+            }
+        }
+        return  arrayList;
+    }
 }
