@@ -33,10 +33,14 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -1136,10 +1140,15 @@ public class DataController extends BaseController {
             @ApiImplicitParam(name = "file", value = "请求参数", required = true, paramType = "body")
     })
     @RequestMapping("getRareDiseaseInfo")
-    public AtResponse get(MultipartFile file) throws Exception {
+    public AtResponse get() throws Exception {
         AtResponse atResponse = new AtResponse(System.currentTimeMillis());
+        Resource resource = new ClassPathResource("北医三院-提取-0130.xlsx");
+        File file = resource.getFile();
+        FileInputStream input = new FileInputStream(file);
+        MultipartFile multipartFile = new MockMultipartFile("file",
+                file.getName(), "text/plain", IOUtils.toByteArray(input));
         //解析excel数据
-        List<Map<String,Object>> listMapObject = ImportExcelUtil.parseExcelData(file);
+        List<Map<String,Object>> listMapObject = ImportExcelUtil.parseExcelData(multipartFile);
         Map<String,Object> mapObject = listMapObject.get(0);
         List headersList = new ArrayList();
         List idList = new ArrayList();
@@ -1268,7 +1277,7 @@ public class DataController extends BaseController {
             checkObject.put("diseaseNames",checkStrs);
             try {
                 recommendInspection = restTemplate.postForObject("http://192.168.8.20:8011/med/disease/labproperty.json", inspectionObject, String.class);
-                recommendCheck = restTemplate.postForObject("http://192.168.8.20:8011/med/disease/exampropertyandsign.json", checkObject, String.class);
+                recommendCheck = restTemplate.postForObject("http://192.168.8.20:8011/med/disease/examproperty.json", checkObject, String.class);
                 logger.info("推荐检验>>>>>>>>>>>>>>>" + recommendInspection);
                 logger.info("推荐检查>>>>>>>>>>>>>>>" + recommendCheck);
 
